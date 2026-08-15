@@ -8,15 +8,24 @@
   <meta name="viewport"
         content="width=device-width, initial-scale=1.0">
 
-  <title>CET 34 - Asistencia QR</title>
+  <title>CET 34 - Control de Asistencia</title>
 
-  <!-- Librería lectora de códigos QR -->
-  <script src="https://unpkg.com/html5-qrcode"
-          type="text/javascript">
+
+  <!-- =========================================
+       LIBRERÍA PARA ESCANEAR CÓDIGOS QR
+       ========================================= -->
+
+  <script
+    src="https://unpkg.com/html5-qrcode"
+    type="text/javascript">
   </script>
 
 
   <style>
+
+    /* =========================================
+       CONFIGURACIÓN GENERAL
+       ========================================= */
 
     * {
       box-sizing: border-box;
@@ -39,9 +48,9 @@
     }
 
 
-    /* =========================
+    /* =========================================
        ENCABEZADO
-       ========================= */
+       ========================================= */
 
     .header {
 
@@ -76,9 +85,9 @@
     }
 
 
-    /* =========================
+    /* =========================================
        CONTENEDOR
-       ========================= */
+       ========================================= */
 
     .container {
 
@@ -92,6 +101,10 @@
 
     }
 
+
+    /* =========================================
+       TARJETAS
+       ========================================= */
 
     .card {
 
@@ -109,9 +122,9 @@
     }
 
 
-    /* =========================
+    /* =========================================
        INSTRUCCIÓN
-       ========================= */
+       ========================================= */
 
     .instruction {
 
@@ -126,9 +139,9 @@
     }
 
 
-    /* =========================
+    /* =========================================
        ESCÁNER
-       ========================= */
+       ========================================= */
 
     #reader {
 
@@ -147,14 +160,16 @@
 
     #reader video {
 
+      width: 100%;
+
       border-radius: 15px;
 
     }
 
 
-    /* =========================
+    /* =========================================
        RESULTADO
-       ========================= */
+       ========================================= */
 
     #resultado {
 
@@ -182,6 +197,17 @@
     }
 
 
+    .warning {
+
+      display: block !important;
+
+      background: #fef3c7;
+
+      color: #92400e;
+
+    }
+
+
     .error {
 
       display: block !important;
@@ -193,9 +219,13 @@
     }
 
 
+    /* =========================================
+       NOMBRE DEL ESTUDIANTE
+       ========================================= */
+
     .student {
 
-      font-size: 22px;
+      font-size: 21px;
 
       font-weight: bold;
 
@@ -204,20 +234,24 @@
     }
 
 
-    .codigo {
+    /* =========================================
+       HORA
+       ========================================= */
 
-      font-size: 14px;
+    .time {
 
-      margin-top: 8px;
+      font-size: 30px;
 
-      opacity: 0.8;
+      font-weight: bold;
+
+      margin-top: 10px;
 
     }
 
 
-    /* =========================
+    /* =========================================
        ESTADÍSTICAS
-       ========================= */
+       ========================================= */
 
     .stats {
 
@@ -263,9 +297,9 @@
     }
 
 
-    /* =========================
-       PIE
-       ========================= */
+    /* =========================================
+       PIE DE PÁGINA
+       ========================================= */
 
     .footer {
 
@@ -288,9 +322,9 @@
 <body>
 
 
-  <!-- =========================
+  <!-- =========================================
        ENCABEZADO
-       ========================= -->
+       ========================================= -->
 
   <div class="header">
 
@@ -304,9 +338,9 @@
   <div class="container">
 
 
-    <!-- =========================
+    <!-- =======================================
          ESCÁNER
-         ========================= -->
+         ======================================= -->
 
     <div class="card">
 
@@ -328,13 +362,16 @@
     </div>
 
 
-    <!-- =========================
+    <!-- =======================================
          ESTADÍSTICAS
-         ========================= -->
+         ======================================= -->
 
     <div class="card">
 
       <div class="stats">
+
+
+        <!-- PRESENTES -->
 
         <div class="stat">
 
@@ -348,31 +385,33 @@
 
           <div class="label">
 
-            🟢 Escaneados
+            🟢 Presentes
 
           </div>
 
         </div>
 
 
+        <!-- TARDANZAS -->
+
         <div class="stat">
 
           <div
-            id="ultimoCodigo"
-            class="number"
-            style="font-size:18px;">
+            id="tardanzas"
+            class="number">
 
-            —
+            0
 
           </div>
 
           <div class="label">
 
-            Último código
+            🟡 Tardanzas
 
           </div>
 
         </div>
+
 
       </div>
 
@@ -389,125 +428,423 @@
   </div>
 
 
+
 <script>
 
 
-  // =====================================
-  // VARIABLES
-  // =====================================
-
-  let scanner;
-
-  let procesando = false;
-
-  let totalEscaneados = 0;
-
-
-  // =====================================
-  // CUANDO SE DETECTA UN QR
-  // =====================================
-
-function qrDetectado(codigo) {
-
-  if (procesando) {
-    return;
-  }
-
-  procesando = true;
-
-  console.log("QR detectado:", codigo);
-
-  // Detener temporalmente el escáner
-  scanner.stop()
-    .then(function() {
-
-      registrarAsistencia(codigo);
-
-    })
-    .catch(function(error) {
-
-      console.error(
-        "Error al detener el escáner:",
-        error
-      );
-
-      registrarAsistencia(codigo);
-
-    });
-
-}
-
-// =====================================
-  // ENLAZAR CON con Apps Script
-  // =====================================
-
-function registrarAsistencia(codigo) {
-
-  mostrarProcesando();
+  /* =========================================
+     CONFIGURACIÓN
+     ========================================= */
 
   const URL_APPS_SCRIPT =
     "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
 
-  const url =
-    URL_APPS_SCRIPT +
-    "?codigo=" +
-    encodeURIComponent(codigo);
 
-  fetch(url)
+  /* =========================================
+     VARIABLES
+     ========================================= */
 
-    .then(function(response) {
+  let scanner = null;
 
-      if (!response.ok) {
+  let procesando = false;
 
-        throw new Error(
-          "Error HTTP: " +
-          response.status
+  let totalPresentes = 0;
+
+  let totalTardanzas = 0;
+
+
+
+  /* =========================================
+     DETECTAR QR
+     ========================================= */
+
+  function qrDetectado(codigo) {
+
+
+    // Evitar lecturas múltiples
+    // mientras estamos procesando
+
+    if (procesando) {
+
+      return;
+
+    }
+
+
+    procesando = true;
+
+
+    console.log(
+      "QR detectado:",
+      codigo
+    );
+
+
+    // Detener temporalmente
+    // la cámara
+
+    scanner.stop()
+
+      .then(function() {
+
+
+        registrarAsistencia(
+          codigo
         );
+
+
+      })
+
+      .catch(function(error) {
+
+
+        console.error(
+          "Error al detener escáner:",
+          error
+        );
+
+
+        registrarAsistencia(
+          codigo
+        );
+
+      });
+
+  }
+
+
+
+  /* =========================================
+     ENVIAR ASISTENCIA A APPS SCRIPT
+     ========================================= */
+
+  function registrarAsistencia(
+    codigo
+  ) {
+
+
+    mostrarProcesando();
+
+
+    const url =
+
+      URL_APPS_SCRIPT +
+
+      "?codigo=" +
+
+      encodeURIComponent(
+        codigo
+      );
+
+
+    console.log(
+      "Enviando:",
+      url
+    );
+
+
+    fetch(url)
+
+
+      .then(function(response) {
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Error HTTP: " +
+            response.status
+          );
+
+        }
+
+
+        return response.json();
+
+      })
+
+
+      .then(function(data) {
+
+
+        console.log(
+          "Respuesta:",
+          data
+        );
+
+
+        procesarRespuesta(
+          data
+        );
+
+      })
+
+
+      .catch(function(error) {
+
+
+        console.error(
+          "Error de conexión:",
+          error
+        );
+
+
+        mostrarError(
+          "No se pudo conectar con el servidor."
+        );
+
+
+        setTimeout(
+          function() {
+
+            iniciarScanner();
+
+          },
+
+          2500
+
+        );
+
+      });
+
+  }
+
+
+
+  /* =========================================
+     PROCESAR RESPUESTA
+     ========================================= */
+
+  function procesarRespuesta(
+    data
+  ) {
+
+
+    procesando = false;
+
+
+    /* -----------------------------------------
+       ASISTENCIA REGISTRADA
+       ----------------------------------------- */
+
+    if (
+
+      data.exito === true &&
+
+      data.tipo === "registrado"
+
+    ) {
+
+
+      if (
+        data.estado === "Presente"
+      ) {
+
+        totalPresentes++;
+
+        document.getElementById(
+          "presentes"
+        ).textContent =
+          totalPresentes;
 
       }
 
-      return response.json();
 
-    })
+      if (
+        data.estado === "Tardanza"
+      ) {
 
-    .then(function(data) {
+        totalTardanzas++;
 
-      console.log(
-        "Respuesta Apps Script:",
+        document.getElementById(
+          "tardanzas"
+        ).textContent =
+          totalTardanzas;
+
+      }
+
+
+      mostrarAsistencia(
         data
       );
 
-      procesarRespuesta(data);
 
-    })
-
-    .catch(function(error) {
-
-      console.error(
-        "Error de conexión:",
-        error
-      );
-
-      mostrarError(
-        "No se pudo conectar con el servidor."
-      );
+      // Volver automáticamente
+      // al escáner
 
       setTimeout(
-        iniciarScanner,
+        function() {
+
+          iniciarScanner();
+
+        },
+
         2500
+
       );
 
-    });
 
-}
+      return;
 
-  
-  // =====================================
-  // MOSTRAR RESULTADO
-  // =====================================
+    }
 
-  function mostrarResultado(
-    codigo
+
+
+    /* -----------------------------------------
+       DUPLICADO
+       ----------------------------------------- */
+
+    if (
+
+      data.exito === false &&
+
+      data.tipo === "duplicado"
+
+    ) {
+
+
+      mostrarDuplicado(
+        data
+      );
+
+
+      setTimeout(
+        function() {
+
+          iniciarScanner();
+
+        },
+
+        2500
+
+      );
+
+
+      return;
+
+    }
+
+
+
+    /* -----------------------------------------
+       SIN HORARIO
+       ----------------------------------------- */
+
+    if (
+
+      data.estado === "Sin horario"
+
+    ) {
+
+
+      mostrarSinHorario(
+        data
+      );
+
+
+      setTimeout(
+        function() {
+
+          iniciarScanner();
+
+        },
+
+        2500
+
+      );
+
+
+      return;
+
+    }
+
+
+
+    /* -----------------------------------------
+       ERROR
+       ----------------------------------------- */
+
+    mostrarError(
+
+      data.mensaje ||
+
+      "No se pudo registrar la asistencia."
+
+    );
+
+
+    setTimeout(
+      function() {
+
+        iniciarScanner();
+
+      },
+
+      2500
+
+    );
+
+  }
+
+
+
+  /* =========================================
+     MENSAJE: PROCESANDO
+     ========================================= */
+
+  function mostrarProcesando() {
+
+
+    const resultado =
+      document.getElementById(
+        "resultado"
+      );
+
+
+    resultado.className =
+      "warning";
+
+
+    resultado.style.display =
+      "block";
+
+
+    resultado.innerHTML = `
+
+      <div style="
+        font-size:40px;
+      ">
+
+        ⏳
+
+      </div>
+
+
+      <div class="student">
+
+        REGISTRANDO...
+
+      </div>
+
+
+      <div>
+
+        Guardando asistencia
+
+      </div>
+
+    `;
+
+  }
+
+
+
+  /* =========================================
+     MENSAJE: ASISTENCIA
+     ========================================= */
+
+  function mostrarAsistencia(
+    data
   ) {
 
 
@@ -521,152 +858,217 @@ function registrarAsistencia(codigo) {
       "success";
 
 
+    resultado.style.display =
+      "block";
+
+
     resultado.innerHTML = `
 
       <div style="
-        font-size:40px;
+        font-size:45px;
       ">
 
-        ✅
+        🟢
 
       </div>
+
 
       <div class="student">
 
-        QR DETECTADO
+        ASISTENCIA REGISTRADA
 
       </div>
 
-      <div class="codigo">
 
-        Código:
+      <div style="
+        font-size:20px;
+        font-weight:bold;
+        margin-top:10px;
+      ">
 
-        <strong>
-          ${codigo}
-        </strong>
+        ${data.estudiante}
+
+      </div>
+
+
+      <div style="
+        margin-top:8px;
+      ">
+
+        ${data.grado}
+
+        ·
+
+        Sección ${data.seccion}
+
+      </div>
+
+
+      <div class="time">
+
+        ${data.hora}
+
+      </div>
+
+
+      <div style="
+        font-weight:bold;
+        margin-top:5px;
+      ">
+
+        🟢 ${data.estado}
 
       </div>
 
     `;
 
-
-    totalEscaneados++;
-
-
-    document.getElementById(
-      "presentes"
-    ).textContent =
-      totalEscaneados;
-
-
-    document.getElementById(
-      "ultimoCodigo"
-    ).textContent =
-      codigo;
-
-
   }
 
 
-  // =====================================
-  // INICIAR ESCÁNER
-  // =====================================
 
-  function iniciarScanner() {
+  /* =========================================
+     MENSAJE: DUPLICADO
+     ========================================= */
+
+  function mostrarDuplicado(
+    data
+  ) {
 
 
-    procesando = false;
-
-
-    const reader =
+    const resultado =
       document.getElementById(
-        "reader"
+        "resultado"
       );
 
 
-    // Limpiar lector anterior
-
-    reader.innerHTML = "";
-
-
-    scanner =
-      new Html5Qrcode(
-        "reader"
-      );
+    resultado.className =
+      "warning";
 
 
-    const configuracion = {
-
-      fps: 10,
-
-      qrbox: function(
-        width,
-        height
-      ) {
-
-        const size =
-          Math.min(
-            width,
-            height
-          ) * 0.70;
+    resultado.style.display =
+      "block";
 
 
-        return {
+    resultado.innerHTML = `
 
-          width: size,
+      <div style="
+        font-size:45px;
+      ">
 
-          height: size
+        ⚠️
 
-        };
-
-      }
-
-    };
+      </div>
 
 
-    // Solicitar cámara trasera
+      <div class="student">
 
-    scanner.start(
+        YA REGISTRADO
 
-      {
-        facingMode: "environment"
-      },
-
-      configuracion,
-
-      qrDetectado,
-
-      function(errorMessage) {
-
-        // Errores normales de lectura.
-        // No mostramos nada porque
-        // ocurren constantemente.
-
-      }
-
-    )
-
-    .catch(function(error) {
+      </div>
 
 
-      console.error(
-        "Error de cámara:",
-        error
-      );
+      <div style="
+        font-size:20px;
+        font-weight:bold;
+        margin-top:10px;
+      ">
+
+        ${data.estudiante}
+
+      </div>
 
 
-      mostrarError(
-        "No se pudo acceder a la cámara."
-      );
+      <div style="
+        margin-top:10px;
+      ">
 
-    });
+        La asistencia ya fue registrada.
+
+      </div>
+
+
+      <div class="time">
+
+        ${data.horaRegistro}
+
+      </div>
+
+    `;
 
   }
 
 
-  // =====================================
-  // ERROR
-  // =====================================
+
+  /* =========================================
+     MENSAJE: SIN HORARIO
+     ========================================= */
+
+  function mostrarSinHorario(
+    data
+  ) {
+
+
+    const resultado =
+      document.getElementById(
+        "resultado"
+      );
+
+
+    resultado.className =
+      "error";
+
+
+    resultado.style.display =
+      "block";
+
+
+    resultado.innerHTML = `
+
+      <div style="
+        font-size:45px;
+      ">
+
+        ⚠️
+
+      </div>
+
+
+      <div class="student">
+
+        SIN HORARIO
+
+      </div>
+
+
+      <div style="
+        font-size:20px;
+        font-weight:bold;
+        margin-top:10px;
+      ">
+
+        ${data.estudiante || ""}
+
+      </div>
+
+
+      <div style="
+        margin-top:8px;
+      ">
+
+        Este estudiante no tiene
+        horario configurado para hoy.
+
+      </div>
+
+    `;
+
+  }
+
+
+
+  /* =========================================
+     MENSAJE: ERROR
+     ========================================= */
 
   function mostrarError(
     mensaje
@@ -690,23 +1092,26 @@ function registrarAsistencia(codigo) {
     resultado.innerHTML = `
 
       <div style="
-        font-size:40px;
+        font-size:45px;
       ">
 
         ❌
 
       </div>
 
+
       <div class="student">
 
-        ${mensaje}
+        ERROR
 
       </div>
 
-      <div class="codigo">
 
-        Verifica los permisos de cámara
-        del navegador.
+      <div style="
+        margin-top:10px;
+      ">
+
+        ${mensaje}
 
       </div>
 
@@ -715,9 +1120,129 @@ function registrarAsistencia(codigo) {
   }
 
 
-  // =====================================
-  // INICIAR AL CARGAR LA PÁGINA
-  // =====================================
+
+  /* =========================================
+     INICIAR ESCÁNER
+     ========================================= */
+
+  function iniciarScanner() {
+
+
+    procesando = false;
+
+
+    const reader =
+      document.getElementById(
+        "reader"
+      );
+
+
+    // Limpiar escáner anterior
+
+    reader.innerHTML = "";
+
+
+    // Ocultar resultado
+
+    const resultado =
+      document.getElementById(
+        "resultado"
+      );
+
+
+    resultado.style.display =
+      "none";
+
+
+    // Crear nuevo escáner
+
+    scanner =
+      new Html5Qrcode(
+        "reader"
+      );
+
+
+    const configuracion = {
+
+
+      fps: 10,
+
+
+      qrbox:
+        function(
+          width,
+          height
+        ) {
+
+
+          const size =
+            Math.min(
+              width,
+              height
+            ) * 0.70;
+
+
+          return {
+
+            width: size,
+
+            height: size
+
+          };
+
+        }
+
+    };
+
+
+    // Iniciar cámara trasera
+
+    scanner.start(
+
+      {
+        facingMode:
+          "environment"
+      },
+
+
+      configuracion,
+
+
+      qrDetectado,
+
+
+      function(errorMessage) {
+
+        // Errores normales de lectura.
+        // No mostramos nada.
+
+      }
+
+    )
+
+
+    .catch(function(error) {
+
+
+      console.error(
+        "Error de cámara:",
+        error
+      );
+
+
+      mostrarError(
+        "No se pudo acceder a la cámara."
+      );
+
+    });
+
+  }
+
+
+
+  /* =========================================
+     INICIAR AL CARGAR LA PÁGINA
+     ========================================= */
 
   window.addEventListener(
     "load",
