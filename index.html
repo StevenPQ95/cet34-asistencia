@@ -1,16 +1,705 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
+
 <head>
-    <title>CET 34 - Asistencia</title>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <title>CET 34 - Asistencia QR</title>
+
+  <!-- Librería lectora de códigos QR -->
+  <script src="https://unpkg.com/html5-qrcode"
+          type="text/javascript">
+  </script>
+
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+
+      margin: 0;
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #f1f5f9;
+
+      color: #0f172a;
+
+    }
+
+
+    /* =========================
+       ENCABEZADO
+       ========================= */
+
+    .header {
+
+      background: #0f172a;
+
+      color: white;
+
+      padding: 20px;
+
+      text-align: center;
+
+    }
+
+
+    .header h1 {
+
+      margin: 0;
+
+      font-size: 26px;
+
+    }
+
+
+    .header p {
+
+      margin: 6px 0 0;
+
+      font-size: 14px;
+
+      opacity: 0.85;
+
+    }
+
+
+    /* =========================
+       CONTENEDOR
+       ========================= */
+
+    .container {
+
+      width: 100%;
+
+      max-width: 600px;
+
+      margin: auto;
+
+      padding: 15px;
+
+    }
+
+
+    .card {
+
+      background: white;
+
+      border-radius: 18px;
+
+      padding: 18px;
+
+      margin-bottom: 15px;
+
+      box-shadow:
+        0 4px 15px rgba(0,0,0,0.08);
+
+    }
+
+
+    /* =========================
+       INSTRUCCIÓN
+       ========================= */
+
+    .instruction {
+
+      text-align: center;
+
+      font-size: 15px;
+
+      color: #475569;
+
+      margin-bottom: 15px;
+
+    }
+
+
+    /* =========================
+       ESCÁNER
+       ========================= */
+
+    #reader {
+
+      width: 100%;
+
+      max-width: 500px;
+
+      margin: auto;
+
+      overflow: hidden;
+
+      border-radius: 15px;
+
+    }
+
+
+    #reader video {
+
+      border-radius: 15px;
+
+    }
+
+
+    /* =========================
+       RESULTADO
+       ========================= */
+
+    #resultado {
+
+      display: none;
+
+      text-align: center;
+
+      margin-top: 15px;
+
+      padding: 20px;
+
+      border-radius: 15px;
+
+    }
+
+
+    .success {
+
+      display: block !important;
+
+      background: #dcfce7;
+
+      color: #166534;
+
+    }
+
+
+    .error {
+
+      display: block !important;
+
+      background: #fee2e2;
+
+      color: #991b1b;
+
+    }
+
+
+    .student {
+
+      font-size: 22px;
+
+      font-weight: bold;
+
+      margin-top: 8px;
+
+    }
+
+
+    .codigo {
+
+      font-size: 14px;
+
+      margin-top: 8px;
+
+      opacity: 0.8;
+
+    }
+
+
+    /* =========================
+       ESTADÍSTICAS
+       ========================= */
+
+    .stats {
+
+      display: grid;
+
+      grid-template-columns: 1fr 1fr;
+
+      gap: 10px;
+
+    }
+
+
+    .stat {
+
+      background: #f8fafc;
+
+      border-radius: 12px;
+
+      padding: 15px;
+
+      text-align: center;
+
+    }
+
+
+    .number {
+
+      font-size: 28px;
+
+      font-weight: bold;
+
+    }
+
+
+    .label {
+
+      font-size: 13px;
+
+      color: #64748b;
+
+      margin-top: 5px;
+
+    }
+
+
+    /* =========================
+       PIE
+       ========================= */
+
+    .footer {
+
+      text-align: center;
+
+      color: #94a3b8;
+
+      font-size: 12px;
+
+      padding: 10px;
+
+    }
+
+
+  </style>
+
 </head>
+
 
 <body>
 
-    <h1>CET 34</h1>
 
-    <h2>Sistema de Asistencia QR</h2>
+  <!-- =========================
+       ENCABEZADO
+       ========================= -->
 
-    <p>Prueba de página web.</p>
+  <div class="header">
+
+    <h1>🏫 CET 34</h1>
+
+    <p>CONTROL DE ASISTENCIA QR</p>
+
+  </div>
+
+
+  <div class="container">
+
+
+    <!-- =========================
+         ESCÁNER
+         ========================= -->
+
+    <div class="card">
+
+      <div class="instruction">
+
+        📷 Coloca el código QR del estudiante
+        frente a la cámara
+
+      </div>
+
+
+      <div id="reader"></div>
+
+
+      <!-- RESULTADO -->
+
+      <div id="resultado"></div>
+
+    </div>
+
+
+    <!-- =========================
+         ESTADÍSTICAS
+         ========================= -->
+
+    <div class="card">
+
+      <div class="stats">
+
+        <div class="stat">
+
+          <div
+            id="presentes"
+            class="number">
+
+            0
+
+          </div>
+
+          <div class="label">
+
+            🟢 Escaneados
+
+          </div>
+
+        </div>
+
+
+        <div class="stat">
+
+          <div
+            id="ultimoCodigo"
+            class="number"
+            style="font-size:18px;">
+
+            —
+
+          </div>
+
+          <div class="label">
+
+            Último código
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div class="footer">
+
+      CET 34 · Sistema de Asistencia Digital
+
+    </div>
+
+
+  </div>
+
+
+<script>
+
+
+  // =====================================
+  // VARIABLES
+  // =====================================
+
+  let scanner;
+
+  let procesando = false;
+
+  let totalEscaneados = 0;
+
+
+  // =====================================
+  // CUANDO SE DETECTA UN QR
+  // =====================================
+
+  function qrDetectado(codigo) {
+
+
+    // Evitar múltiples lecturas
+    // del mismo QR simultáneamente
+
+    if (procesando) {
+
+      return;
+
+    }
+
+
+    procesando = true;
+
+
+    console.log(
+      "QR detectado:",
+      codigo
+    );
+
+
+    // Detenemos temporalmente
+    // la cámara
+
+    scanner.stop().then(function() {
+
+
+      mostrarResultado(
+        codigo
+      );
+
+
+      // Esperamos 2 segundos
+
+      setTimeout(function() {
+
+
+        // Volvemos automáticamente
+        // al escáner
+
+        iniciarScanner();
+
+
+      }, 2000);
+
+
+    }).catch(function(error) {
+
+
+      console.error(
+        "Error al detener cámara:",
+        error
+      );
+
+
+      iniciarScanner();
+
+    });
+
+  }
+
+
+  // =====================================
+  // MOSTRAR RESULTADO
+  // =====================================
+
+  function mostrarResultado(
+    codigo
+  ) {
+
+
+    const resultado =
+      document.getElementById(
+        "resultado"
+      );
+
+
+    resultado.className =
+      "success";
+
+
+    resultado.innerHTML = `
+
+      <div style="
+        font-size:40px;
+      ">
+
+        ✅
+
+      </div>
+
+      <div class="student">
+
+        QR DETECTADO
+
+      </div>
+
+      <div class="codigo">
+
+        Código:
+
+        <strong>
+          ${codigo}
+        </strong>
+
+      </div>
+
+    `;
+
+
+    totalEscaneados++;
+
+
+    document.getElementById(
+      "presentes"
+    ).textContent =
+      totalEscaneados;
+
+
+    document.getElementById(
+      "ultimoCodigo"
+    ).textContent =
+      codigo;
+
+
+  }
+
+
+  // =====================================
+  // INICIAR ESCÁNER
+  // =====================================
+
+  function iniciarScanner() {
+
+
+    procesando = false;
+
+
+    const reader =
+      document.getElementById(
+        "reader"
+      );
+
+
+    // Limpiar lector anterior
+
+    reader.innerHTML = "";
+
+
+    scanner =
+      new Html5Qrcode(
+        "reader"
+      );
+
+
+    const configuracion = {
+
+      fps: 10,
+
+      qrbox: function(
+        width,
+        height
+      ) {
+
+        const size =
+          Math.min(
+            width,
+            height
+          ) * 0.70;
+
+
+        return {
+
+          width: size,
+
+          height: size
+
+        };
+
+      }
+
+    };
+
+
+    // Solicitar cámara trasera
+
+    scanner.start(
+
+      {
+        facingMode: "environment"
+      },
+
+      configuracion,
+
+      qrDetectado,
+
+      function(errorMessage) {
+
+        // Errores normales de lectura.
+        // No mostramos nada porque
+        // ocurren constantemente.
+
+      }
+
+    )
+
+    .catch(function(error) {
+
+
+      console.error(
+        "Error de cámara:",
+        error
+      );
+
+
+      mostrarError(
+        "No se pudo acceder a la cámara."
+      );
+
+    });
+
+  }
+
+
+  // =====================================
+  // ERROR
+  // =====================================
+
+  function mostrarError(
+    mensaje
+  ) {
+
+
+    const resultado =
+      document.getElementById(
+        "resultado"
+      );
+
+
+    resultado.className =
+      "error";
+
+
+    resultado.style.display =
+      "block";
+
+
+    resultado.innerHTML = `
+
+      <div style="
+        font-size:40px;
+      ">
+
+        ❌
+
+      </div>
+
+      <div class="student">
+
+        ${mensaje}
+
+      </div>
+
+      <div class="codigo">
+
+        Verifica los permisos de cámara
+        del navegador.
+
+      </div>
+
+    `;
+
+  }
+
+
+  // =====================================
+  // INICIAR AL CARGAR LA PÁGINA
+  // =====================================
+
+  window.addEventListener(
+    "load",
+    function() {
+
+      iniciarScanner();
+
+    }
+  );
+
+
+</script>
+
 
 </body>
+
 </html>
