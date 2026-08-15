@@ -407,69 +407,101 @@
   // CUANDO SE DETECTA UN QR
   // =====================================
 
-  function qrDetectado(codigo) {
+function qrDetectado(codigo) {
 
+  if (procesando) {
+    return;
+  }
 
-    // Evitar múltiples lecturas
-    // del mismo QR simultáneamente
+  procesando = true;
 
-    if (procesando) {
+  console.log("QR detectado:", codigo);
 
-      return;
+  // Detener temporalmente el escáner
+  scanner.stop()
+    .then(function() {
 
-    }
+      registrarAsistencia(codigo);
 
-
-    procesando = true;
-
-
-    console.log(
-      "QR detectado:",
-      codigo
-    );
-
-
-    // Detenemos temporalmente
-    // la cámara
-
-    scanner.stop().then(function() {
-
-
-      mostrarResultado(
-        codigo
-      );
-
-
-      // Esperamos 2 segundos
-
-      setTimeout(function() {
-
-
-        // Volvemos automáticamente
-        // al escáner
-
-        iniciarScanner();
-
-
-      }, 2000);
-
-
-    }).catch(function(error) {
-
+    })
+    .catch(function(error) {
 
       console.error(
-        "Error al detener cámara:",
+        "Error al detener el escáner:",
         error
       );
 
-
-      iniciarScanner();
+      registrarAsistencia(codigo);
 
     });
 
-  }
+}
 
+// =====================================
+  // ENLAZAR CON con Apps Script
+  // =====================================
 
+function registrarAsistencia(codigo) {
+
+  mostrarProcesando();
+
+  const URL_APPS_SCRIPT =
+    "TU_URL_DE_APPS_SCRIPT";
+
+  const url =
+    URL_APPS_SCRIPT +
+    "?codigo=" +
+    encodeURIComponent(codigo);
+
+  fetch(url)
+
+    .then(function(response) {
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Error HTTP: " +
+          response.status
+        );
+
+      }
+
+      return response.json();
+
+    })
+
+    .then(function(data) {
+
+      console.log(
+        "Respuesta Apps Script:",
+        data
+      );
+
+      procesarRespuesta(data);
+
+    })
+
+    .catch(function(error) {
+
+      console.error(
+        "Error de conexión:",
+        error
+      );
+
+      mostrarError(
+        "No se pudo conectar con el servidor."
+      );
+
+      setTimeout(
+        iniciarScanner,
+        2500
+      );
+
+    });
+
+}
+
+  
   // =====================================
   // MOSTRAR RESULTADO
   // =====================================
