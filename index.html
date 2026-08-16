@@ -78,7 +78,9 @@ body {
 }
 
 
-/* CONTENEDOR DE INSIGNIAS */
+/* =====================================================
+   INSIGNIAS
+   ===================================================== */
 
 .header-insignia {
 
@@ -88,7 +90,8 @@ body {
 
   border-radius: 50%;
 
-  background: rgba(255,255,255,.12);
+  background:
+    rgba(255,255,255,.12);
 
   display: flex;
 
@@ -107,19 +110,6 @@ body {
 
 }
 
-
-/*
-  IMÁGENES DE EJEMPLO.
-
-  Posteriormente reemplaza:
-
-  insignia-izquierda.png
-  insignia-derecha.png
-
-  por las imágenes reales
-  de tu institución.
-*/
-
 .header-insignia img {
 
   width: 100%;
@@ -130,17 +120,11 @@ body {
 
 }
 
-
-/* IZQUIERDA */
-
 .header-insignia.izquierda {
 
   left: 18px;
 
 }
-
-
-/* DERECHA */
 
 .header-insignia.derecha {
 
@@ -149,7 +133,9 @@ body {
 }
 
 
-/* TEXTO CENTRAL */
+/* =====================================================
+   TEXTO CENTRAL
+   ===================================================== */
 
 .header-centro {
 
@@ -185,7 +171,7 @@ body {
 
 
 /* =====================================================
-   CONTENEDOR PRINCIPAL
+   CONTENEDOR
    ===================================================== */
 
 .container {
@@ -282,7 +268,7 @@ body {
 
   margin-top: 12px;
 
-  padding: 16px;
+  padding: 15px;
 
   border-radius: 16px;
 
@@ -345,13 +331,13 @@ body {
 
 .resultado-icono {
 
-  font-size: 34px;
+  font-size: 30px;
 
 }
 
 .resultado-titulo {
 
-  font-size: 18px;
+  font-size: 17px;
 
   font-weight: 800;
 
@@ -361,7 +347,7 @@ body {
 
 .resultado-estudiante {
 
-  font-size: 17px;
+  font-size: 16px;
 
   font-weight: 800;
 
@@ -381,7 +367,7 @@ body {
 
 .resultado-hora {
 
-  font-size: 25px;
+  font-size: 24px;
 
   font-weight: 800;
 
@@ -391,7 +377,7 @@ body {
 
 .resultado-estado {
 
-  font-size: 16px;
+  font-size: 15px;
 
   font-weight: 800;
 
@@ -559,7 +545,9 @@ body {
 }
 
 
-/* TOTAL */
+/* =====================================================
+   TOTAL GENERAL
+   ===================================================== */
 
 .total-general {
 
@@ -652,7 +640,8 @@ body {
 
   background: #f8fafc;
 
-  border: 1px solid #e2e8f0;
+  border:
+    1px solid #e2e8f0;
 
   border-radius: 16px;
 
@@ -750,7 +739,8 @@ body {
 
 .grupo {
 
-  border: 1px solid #dbe3ec;
+  border:
+    1px solid #dbe3ec;
 
   border-radius: 17px;
 
@@ -776,6 +766,10 @@ body {
 
   background: #ffffff;
 
+  position: relative;
+
+  padding-right: 48px;
+
 }
 
 .grupo summary::-webkit-details-marker {
@@ -785,34 +779,52 @@ body {
 }
 
 
-/* FLECHA CONTROL SECCIÓN */
+/* =====================================================
+   CHEVRON CONTROL POR SECCIÓN
+   ===================================================== */
 
-.grupo summary:after {
+.grupo summary::after {
 
-  content: "⌃";
+  content: "";
 
-  float: right;
+  position: absolute;
 
-  color: #94a3b8;
+  right: 18px;
 
-  font-size: 14px;
+  top: 50%;
 
-  margin-top: 3px;
+  width: 8px;
+
+  height: 8px;
+
+  border-right:
+    2px solid #94a3b8;
+
+  border-bottom:
+    2px solid #94a3b8;
+
+  transform:
+    translateY(-65%)
+    rotate(45deg);
 
   transition:
-    transform .2s;
+    transform .25s ease;
 
 }
 
-.grupo:not([open])
-summary:after {
+.grupo[open]
+summary::after {
 
-  content: "⌄";
+  transform:
+    translateY(-35%)
+    rotate(225deg);
 
 }
 
 
-/* CABECERA */
+/* =====================================================
+   CABECERA GRUPO
+   ===================================================== */
 
 .grupo-cabecera {
 
@@ -984,18 +996,10 @@ summary:after {
 
   overflow: hidden;
 
-  border: 1px solid #dbe3ec;
+  border:
+    1px solid #dbe3ec;
 
 }
-
-
-/*
-  AQUÍ ESTÁ CORREGIDA LA FLECHA.
-
-  Ahora cada lista tiene
-  una flecha diferente según
-  esté abierta o cerrada.
-*/
 
 .lista-panel summary {
 
@@ -1004,11 +1008,13 @@ summary:after {
   cursor: pointer;
 
   padding:
-    11px 13px;
+    11px 42px 11px 13px;
 
   font-weight: 800;
 
   font-size: 13px;
+
+  position: relative;
 
 }
 
@@ -1019,33 +1025,52 @@ summary:after {
 }
 
 
-.lista-panel summary:after {
+/* =====================================================
+   CHEVRON LISTAS
+   ===================================================== */
 
-  content: "⌄";
+.lista-panel summary::after {
 
-  float: right;
+  content: "";
 
-  color: #94a3b8;
+  position: absolute;
 
-  font-size: 15px;
+  right: 16px;
 
-  font-weight: bold;
+  top: 50%;
+
+  width: 7px;
+
+  height: 7px;
+
+  border-right:
+    2px solid #94a3b8;
+
+  border-bottom:
+    2px solid #94a3b8;
+
+  transform:
+    translateY(-65%)
+    rotate(45deg);
 
   transition:
-    transform .2s;
+    transform .25s ease;
 
 }
-
 
 .lista-panel[open]
-summary:after {
+summary::after {
 
-  content: "⌃";
+  transform:
+    translateY(-35%)
+    rotate(225deg);
 
 }
 
 
-/* COLORES */
+/* =====================================================
+   COLORES LISTAS
+   ===================================================== */
 
 .lista-panel.presente summary {
 
@@ -1188,7 +1213,7 @@ summary:after {
 
 
 /* =====================================================
-   MÓVILES PEQUEÑOS
+   MÓVILES
    ===================================================== */
 
 @media (max-width: 430px) {
@@ -1391,15 +1416,16 @@ summary:after {
     class="header-insignia izquierda">
 
     <!--
-      REEMPLAZAR POR TU INSIGNIA:
+      REEMPLAZA ESTA IMAGEN
+      POR LA INSIGNIA REAL.
 
+      Nombre:
       insignia-izquierda.png
     -->
 
     <img
       src="insignia-izquierda.png"
       alt="Insignia IE">
-
 
   </div>
 
@@ -1410,15 +1436,11 @@ summary:after {
   <div class="header-centro">
 
     <h1>
-
       🏫 CET 34
-
     </h1>
 
     <p>
-
       CONTROL DE ASISTENCIA QR
-
     </p>
 
   </div>
@@ -1431,8 +1453,10 @@ summary:after {
     class="header-insignia derecha">
 
     <!--
-      REEMPLAZAR POR TU INSIGNIA:
+      REEMPLAZA ESTA IMAGEN
+      POR LA INSIGNIA REAL.
 
+      Nombre:
       insignia-derecha.png
     -->
 
@@ -1694,13 +1718,11 @@ summary:after {
 
   <div id="grupos">
 
-
     <div class="sin-registros">
 
       Cargando grupos...
 
     </div>
-
 
   </div>
 
@@ -1847,7 +1869,8 @@ function formatearHora(hora) {
 
 
 /* =====================================================
-   MOSTRAR RESULTADO 4 SEGUNDOS
+   RESULTADO TEMPORAL
+   2.5 SEGUNDOS
    ===================================================== */
 
 function mostrarResultadoTemporal(
@@ -1883,10 +1906,6 @@ function mostrarResultadoTemporal(
     "block";
 
 
-  /*
-    4 segundos.
-  */
-
   resultadoTimer =
     setTimeout(
       function() {
@@ -1898,7 +1917,7 @@ function mostrarResultadoTemporal(
           "";
 
       },
-      4000
+      2500
     );
 
 }
@@ -2019,7 +2038,7 @@ function tono(
 
 
     ganancia.gain.exponentialRampToValueAtTime(
-      volumen || 1.5,
+      volumen || 0.8,
       inicio + 0.025
     );
 
@@ -2199,7 +2218,7 @@ function sonidoError() {
 
 
 /* =====================================================
-   ACTIVAR AUDIO AL TOCAR
+   ACTIVAR AUDIO
    ===================================================== */
 
 document.addEventListener(
@@ -2684,8 +2703,7 @@ function mostrarGrupos(
 
   grupos.forEach(
     function(
-      grupo,
-      indice
+      grupo
     ) {
 
 
@@ -2700,17 +2718,13 @@ function mostrarGrupos(
 
 
       /*
-        Primer grupo abierto.
+        IMPORTANTE:
+
+        No ponemos tarjeta.open = true.
+
+        Por lo tanto TODOS los grupos
+        empiezan cerrados.
       */
-
-      if (
-        indice === 0
-      ) {
-
-        tarjeta.open =
-          true;
-
-      }
 
 
       tarjeta.innerHTML = `
@@ -3129,7 +3143,7 @@ function registrarAsistencia(
 
         setTimeout(
           iniciarScanner,
-          4000
+          2500
         );
 
       }
@@ -3200,7 +3214,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      4000
+      2500
     );
 
 
@@ -3230,7 +3244,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      4000
+      2500
     );
 
 
@@ -3260,7 +3274,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      4000
+      2500
     );
 
 
@@ -3313,7 +3327,7 @@ function procesarRespuesta(
 
   setTimeout(
     iniciarScanner,
-    4000
+    2500
   );
 
 }
@@ -3667,6 +3681,11 @@ function iniciarScanner() {
 
 
   const configuracion = {
+
+    /*
+      10 análisis por segundo.
+      Es suficiente para QR.
+    */
 
     fps: 10,
 
