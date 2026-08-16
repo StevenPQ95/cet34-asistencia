@@ -119,7 +119,7 @@
 
 
     /* =========================================
-       TARJETAS GENERALES
+       TARJETAS
        ========================================= */
 
     .card {
@@ -186,7 +186,7 @@
 
 
     /* =========================================
-       ESTADÍSTICAS GENERALES
+       ESTADÍSTICAS
        ========================================= */
 
     .estadisticas {
@@ -290,7 +290,7 @@
 
 
     /* =========================================
-       PORCENTAJE GENERAL
+       BARRA DE ASISTENCIA
        ========================================= */
 
     .barra-contenedor {
@@ -568,7 +568,7 @@
 
 
     /* =========================================
-       RESULTADO PRESENTE
+       PRESENTE
        ========================================= */
 
     .resultado-presente {
@@ -586,7 +586,7 @@
 
 
     /* =========================================
-       RESULTADO TARDANZA
+       TARDANZA
        ========================================= */
 
     .resultado-tardanza {
@@ -658,7 +658,7 @@
 
 
     /* =========================================
-       ICONO RESULTADO
+       ICONO
        ========================================= */
 
     .resultado-icono {
@@ -673,7 +673,7 @@
 
 
     /* =========================================
-       TEXTO RESULTADO
+       TEXTOS RESULTADO
        ========================================= */
 
     .resultado-titulo {
@@ -736,6 +736,27 @@
 
       margin-top:
         5px;
+
+    }
+
+
+    /* =========================================
+       INDICADOR DE SONIDO
+       ========================================= */
+
+    .audio-indicador {
+
+      text-align:
+        center;
+
+      font-size:
+        11px;
+
+      color:
+        #94a3b8;
+
+      margin-top:
+        10px;
 
     }
 
@@ -847,8 +868,6 @@
       <div class="estadisticas">
 
 
-        <!-- PRESENTES -->
-
         <div class="estadistica">
 
           <div
@@ -868,8 +887,6 @@
         </div>
 
 
-        <!-- TARDANZAS -->
-
         <div class="estadistica">
 
           <div
@@ -888,8 +905,6 @@
 
         </div>
 
-
-        <!-- FALTANTES -->
 
         <div class="estadistica">
 
@@ -913,8 +928,6 @@
       </div>
 
 
-      <!-- TOTAL -->
-
       <div class="total-general">
 
         👥 Total de estudiantes
@@ -928,8 +941,6 @@
 
       </div>
 
-
-      <!-- BARRA -->
 
       <div class="barra-contenedor">
 
@@ -958,7 +969,7 @@
 
 
     <!-- =======================================
-         GRUPOS DEL DÍA
+         GRUPOS
          ======================================= -->
 
     <div class="card">
@@ -1012,15 +1023,24 @@
       <div id="reader"></div>
 
 
-      <!-- RESULTADO -->
+      <div
+        id="resultado">
+      </div>
 
-      <div id="resultado"></div>
+
+      <div
+        id="audioIndicador"
+        class="audio-indicador">
+
+        🔊 Audio preparado
+
+      </div>
 
     </div>
 
 
     <!-- =======================================
-         PIE
+         FOOTER
          ======================================= -->
 
     <div class="footer">
@@ -1054,6 +1074,373 @@
 
   let procesando = false;
 
+  let audioContext = null;
+
+
+
+  /* =========================================
+     ACTIVAR AUDIO
+     ========================================= */
+
+  function activarAudio() {
+
+    try {
+
+      if (!audioContext) {
+
+        const AudioContext =
+          window.AudioContext ||
+          window.webkitAudioContext;
+
+
+        if (!AudioContext) {
+
+          console.log(
+            "Web Audio API no disponible."
+          );
+
+          return;
+
+        }
+
+
+        audioContext =
+          new AudioContext();
+
+      }
+
+
+      if (
+        audioContext.state ===
+        "suspended"
+      ) {
+
+        audioContext.resume();
+
+      }
+
+
+      const indicador =
+        document.getElementById(
+          "audioIndicador"
+        );
+
+
+      if (indicador) {
+
+        indicador.textContent =
+          "🔊 Sonido activo";
+
+      }
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Error activando audio:",
+        error
+      );
+
+    }
+
+  }
+
+
+
+  /* =========================================
+     GENERAR TONO
+     ========================================= */
+
+  function tono(
+    frecuencia,
+    duracion,
+    retraso
+  ) {
+
+    try {
+
+      if (!audioContext) {
+
+        activarAudio();
+
+      }
+
+
+      if (!audioContext) {
+
+        return;
+
+      }
+
+
+      if (
+        audioContext.state ===
+        "suspended"
+      ) {
+
+        audioContext.resume();
+
+      }
+
+
+      const inicio =
+        audioContext.currentTime +
+        (retraso || 0);
+
+
+      const oscilador =
+        audioContext.createOscillator();
+
+
+      const ganancia =
+        audioContext.createGain();
+
+
+      oscilador.type =
+        "sine";
+
+
+      oscilador.frequency.setValueAtTime(
+        frecuencia,
+        inicio
+      );
+
+
+      ganancia.gain.setValueAtTime(
+        0.0001,
+        inicio
+      );
+
+
+      ganancia.gain.exponentialRampToValueAtTime(
+        0.20,
+        inicio + 0.02
+      );
+
+
+      ganancia.gain.exponentialRampToValueAtTime(
+        0.0001,
+        inicio + duracion
+      );
+
+
+      oscilador.connect(
+        ganancia
+      );
+
+
+      ganancia.connect(
+        audioContext.destination
+      );
+
+
+      oscilador.start(
+        inicio
+      );
+
+
+      oscilador.stop(
+        inicio + duracion
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Error generando sonido:",
+        error
+      );
+
+    }
+
+  }
+
+
+
+  /* =========================================
+     SONIDO + VIBRACIÓN
+     PRESENTE
+     ========================================= */
+
+  function sonidoPresente() {
+
+    activarAudio();
+
+
+    // Tonos de confirmación
+
+    tono(
+      880,
+      0.12,
+      0
+    );
+
+
+    tono(
+      1175,
+      0.15,
+      0.13
+    );
+
+
+    // Vibración
+
+    if (
+      navigator.vibrate
+    ) {
+
+      navigator.vibrate(
+        120
+      );
+
+    }
+
+  }
+
+
+
+  /* =========================================
+     SONIDO + VIBRACIÓN
+     TARDANZA
+     ========================================= */
+
+  function sonidoTardanza() {
+
+    activarAudio();
+
+
+    tono(
+      650,
+      0.16,
+      0
+    );
+
+
+    tono(
+      500,
+      0.18,
+      0.18
+    );
+
+
+    if (
+      navigator.vibrate
+    ) {
+
+      navigator.vibrate([
+        120,
+        80,
+        120
+      ]);
+
+    }
+
+  }
+
+
+
+  /* =========================================
+     SONIDO + VIBRACIÓN
+     DUPLICADO
+     ========================================= */
+
+  function sonidoDuplicado() {
+
+    activarAudio();
+
+
+    tono(
+      500,
+      0.16,
+      0
+    );
+
+
+    tono(
+      500,
+      0.16,
+      0.22
+    );
+
+
+    if (
+      navigator.vibrate
+    ) {
+
+      navigator.vibrate([
+        100,
+        70,
+        100
+      ]);
+
+    }
+
+  }
+
+
+
+  /* =========================================
+     SONIDO + VIBRACIÓN
+     ERROR
+     ========================================= */
+
+  function sonidoError() {
+
+    activarAudio();
+
+
+    tono(
+      350,
+      0.20,
+      0
+    );
+
+
+    tono(
+      220,
+      0.25,
+      0.24
+    );
+
+
+    if (
+      navigator.vibrate
+    ) {
+
+      navigator.vibrate([
+        150,
+        80,
+        150,
+        80,
+        150
+      ]);
+
+    }
+
+  }
+
+
+
+  /* =========================================
+     ACTIVAR AUDIO AL INTERACTUAR
+     ========================================= */
+
+  document.addEventListener(
+    "touchstart",
+    activarAudio,
+    {
+      passive: true
+    }
+  );
+
+
+  document.addEventListener(
+    "click",
+    activarAudio
+  );
+
 
 
   /* =========================================
@@ -1079,6 +1466,7 @@
           );
 
         }
+
 
         return response.json();
 
@@ -1149,10 +1537,6 @@
   function mostrarEstadisticas(data) {
 
 
-    // ========================================
-    // FECHA
-    // ========================================
-
     document.getElementById(
       "fecha"
     ).textContent =
@@ -1161,10 +1545,6 @@
       " · " +
       data.fecha;
 
-
-    // ========================================
-    // GENERALES
-    // ========================================
 
     document.getElementById(
       "presentesGeneral"
@@ -1211,17 +1591,14 @@
       "%";
 
 
-    // ========================================
-    // GRUPOS
-    // ========================================
-
     const contenedor =
       document.getElementById(
         "grupos"
       );
 
 
-    contenedor.innerHTML = "";
+    contenedor.innerHTML =
+      "";
 
 
     if (
@@ -1512,6 +1889,9 @@
         );
 
 
+        sonidoError();
+
+
         mostrarError(
           "No se pudo conectar con el servidor."
         );
@@ -1544,7 +1924,7 @@
 
 
     // ========================================
-    // REGISTRO EXITOSO
+    // REGISTRADO
     // ========================================
 
     if (
@@ -1554,6 +1934,29 @@
       data.tipo === "registrado"
 
     ) {
+
+
+      const estado =
+        String(
+          data.estado || ""
+        )
+          .trim()
+          .toUpperCase();
+
+
+      if (
+        estado === "TARDANZA"
+      ) {
+
+        sonidoTardanza();
+
+      }
+
+      else {
+
+        sonidoPresente();
+
+      }
 
 
       mostrarAsistencia(
@@ -1573,8 +1976,7 @@
       );
 
 
-      // Regresar automáticamente
-      // al escáner
+      // Regresar al escáner
 
       setTimeout(
         function() {
@@ -1603,6 +2005,9 @@
       data.tipo === "duplicado"
 
     ) {
+
+
+      sonidoDuplicado();
 
 
       mostrarDuplicado(
@@ -1639,6 +2044,9 @@
     ) {
 
 
+      sonidoError();
+
+
       mostrarSinHorario(
         data
       );
@@ -1663,6 +2071,9 @@
     // ========================================
     // ERROR
     // ========================================
+
+    sonidoError();
+
 
     mostrarError(
 
@@ -1754,10 +2165,6 @@
       "TARDANZA";
 
 
-    // ========================================
-    // CLASE SEGÚN ESTADO
-    // ========================================
-
     if (
       esTardanza
     ) {
@@ -1774,10 +2181,6 @@
 
     }
 
-
-    // ========================================
-    // CONTENIDO
-    // ========================================
 
     resultado.innerHTML = `
 
@@ -1820,7 +2223,11 @@
 
       <div class="resultado-estado">
 
-        ${esTardanza ? "🟡 Tardanza" : "🟢 Presente"}
+        ${
+          esTardanza
+          ? "🟡 Tardanza"
+          : "🟢 Presente"
+        }
 
       </div>
 
@@ -1873,7 +2280,12 @@
       <div class="resultado-grupo">
 
         ${data.grado || ""}
-        ${data.seccion ? "· Sección " + data.seccion : ""}
+
+        ${
+          data.seccion
+          ? "· Sección " + data.seccion
+          : ""
+        }
 
       </div>
 
@@ -1965,7 +2377,12 @@
       ">
 
         ${data.grado || ""}
-        ${data.seccion ? "· Sección " + data.seccion : ""}
+
+        ${
+          data.seccion
+          ? "· Sección " + data.seccion
+          : ""
+        }
 
       </div>
 
@@ -2110,11 +2527,8 @@
       function(errorMessage) {
 
         /*
-          Los errores de lectura normales
-          no se muestran.
-
-          El escáner simplemente continúa
-          buscando el QR.
+          Errores normales de lectura.
+          El escáner continúa funcionando.
         */
 
       }
@@ -2130,6 +2544,9 @@
       );
 
 
+      sonidoError();
+
+
       mostrarError(
         "No se pudo acceder a la cámara."
       );
@@ -2141,7 +2558,7 @@
 
 
   /* =========================================
-     INICIO DE LA PÁGINA
+     INICIO
      ========================================= */
 
   window.addEventListener(
@@ -2149,14 +2566,24 @@
     function() {
 
 
-      // Cargar estadísticas
+      // Estadísticas
 
       cargarEstadisticas();
 
 
-      // Iniciar cámara
+      // Cámara
 
       iniciarScanner();
+
+
+      /*
+        Intentamos preparar el audio.
+        El navegador puede mantenerlo
+        suspendido hasta que el usuario
+        interactúe con la página.
+      */
+
+      activarAudio();
 
     }
   );
