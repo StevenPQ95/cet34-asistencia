@@ -5,15 +5,13 @@
 
 <meta charset="UTF-8">
 
-<meta
-  name="viewport"
-  content="width=device-width, initial-scale=1.0">
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
 
 <title>CET 34 - Control de Asistencia</title>
 
-<script
-  src="https://unpkg.com/html5-qrcode"
-  type="text/javascript">
+<script src="https://unpkg.com/html5-qrcode"
+        type="text/javascript">
 </script>
 
 
@@ -44,7 +42,7 @@ body {
 
 
 /* =====================================================
-   ENCABEZADO INSTITUCIONAL
+   ENCABEZADO
    ===================================================== */
 
 .header {
@@ -134,7 +132,7 @@ body {
 
 
 /* =====================================================
-   TEXTO CENTRAL
+   TEXTO ENCABEZADO
    ===================================================== */
 
 .header-centro {
@@ -581,7 +579,7 @@ body {
 
 
 /* =====================================================
-   BARRA
+   BARRAS
    ===================================================== */
 
 .barra-contenedor {
@@ -756,9 +754,36 @@ body {
 
 }
 
+
+/* ELIMINAR COMPLETAMENTE
+   EL MARCADOR NATIVO DEL SUMMARY */
+
 .grupo summary {
 
   list-style: none;
+
+}
+
+.grupo summary::-webkit-details-marker {
+
+  display: none;
+
+}
+
+.grupo summary::marker {
+
+  display: none;
+
+  content: "";
+
+}
+
+
+/* =====================================================
+   CABECERA GRUPO
+   ===================================================== */
+
+.grupo summary {
 
   cursor: pointer;
 
@@ -776,15 +801,9 @@ body {
 
 }
 
-.grupo summary::-webkit-details-marker {
-
-  display: none;
-
-}
-
 
 /* =====================================================
-   CHEVRON CONTROL POR SECCIÓN
+   FLECHA CONTROL POR SECCIÓN
    ===================================================== */
 
 .grupo summary::after {
@@ -827,7 +846,7 @@ summary::after {
 
 
 /* =====================================================
-   CABECERA GRUPO
+   CABECERA DEL GRUPO
    ===================================================== */
 
 .grupo-cabecera {
@@ -1007,9 +1026,35 @@ summary::after {
 
 }
 
+
+/* ELIMINAR MARCADOR NATIVO */
+
 .lista-panel summary {
 
   list-style: none;
+
+}
+
+.lista-panel summary::-webkit-details-marker {
+
+  display: none;
+
+}
+
+.lista-panel summary::marker {
+
+  display: none;
+
+  content: "";
+
+}
+
+
+/* =====================================================
+   CABECERA DE LISTA
+   ===================================================== */
+
+.lista-panel summary {
 
   cursor: pointer;
 
@@ -1030,15 +1075,9 @@ summary::after {
 
 }
 
-.lista-panel summary::-webkit-details-marker {
-
-  display: none;
-
-}
-
 
 /* =====================================================
-   CHEVRON DE LAS LISTAS
+   ÚNICA FLECHA DE LAS LISTAS
    ===================================================== */
 
 .lista-chevron {
@@ -1082,7 +1121,7 @@ summary::after {
 
 
 /* =====================================================
-   COLORES LISTAS
+   COLORES DE LAS LISTAS
    ===================================================== */
 
 .lista-panel.presente summary {
@@ -1111,7 +1150,7 @@ summary::after {
 
 
 /* =====================================================
-   LISTA ESTUDIANTES
+   LISTA DE ESTUDIANTES
    ===================================================== */
 
 .lista-estudiantes {
@@ -1132,7 +1171,7 @@ summary::after {
   gap: 8px;
 
   padding:
-    8px 3px;
+    9px 3px;
 
   border-bottom:
     1px solid #edf2f7;
@@ -1149,7 +1188,7 @@ summary::after {
 
 .estudiante-numero {
 
-  min-width: 23px;
+  min-width: 27px;
 
   color: #94a3b8;
 
@@ -1161,21 +1200,14 @@ summary::after {
 
   flex: 1;
 
-  line-height: 1.25;
+  line-height: 1.3;
 
 }
 
-.estudiante-codigo {
 
-  display: block;
-
-  color: #94a3b8;
-
-  font-size: 10px;
-
-  margin-top: 2px;
-
-}
+/* =====================================================
+   LISTA VACÍA
+   ===================================================== */
 
 .lista-vacia {
 
@@ -1400,10 +1432,7 @@ summary::after {
 <div class="header">
 
 
-  <!-- INSIGNIA IZQUIERDA -->
-
-  <div
-    class="header-insignia izquierda">
+  <div class="header-insignia izquierda">
 
     <img
       src="insignia-izquierda.png"
@@ -1411,8 +1440,6 @@ summary::after {
 
   </div>
 
-
-  <!-- TEXTO CENTRAL -->
 
   <div class="header-centro">
 
@@ -1427,10 +1454,7 @@ summary::after {
   </div>
 
 
-  <!-- INSIGNIA DERECHA -->
-
-  <div
-    class="header-insignia derecha">
+  <div class="header-insignia derecha">
 
     <img
       src="insignia-derecha.png"
@@ -1520,7 +1544,7 @@ summary::after {
 
 
 <!-- =====================================================
-     RESUMEN DEL DÍA
+     RESUMEN
      ===================================================== -->
 
 <div class="card">
@@ -2048,7 +2072,7 @@ function tono(
 
 
 /* =====================================================
-   SONIDO PRESENTE
+   SONIDOS
    ===================================================== */
 
 function sonidoPresente() {
@@ -2080,10 +2104,6 @@ function sonidoPresente() {
 
 }
 
-
-/* =====================================================
-   SONIDO TARDANZA
-   ===================================================== */
 
 function sonidoTardanza() {
 
@@ -2119,10 +2139,6 @@ function sonidoTardanza() {
 }
 
 
-/* =====================================================
-   SONIDO DUPLICADO
-   ===================================================== */
-
 function sonidoDuplicado() {
 
   activarAudio();
@@ -2157,10 +2173,6 @@ function sonidoDuplicado() {
 }
 
 
-/* =====================================================
-   SONIDO ERROR
-   ===================================================== */
-
 function sonidoError() {
 
   activarAudio();
@@ -2194,10 +2206,6 @@ function sonidoError() {
 
 }
 
-
-/* =====================================================
-   ACTIVAR AUDIO AL TOCAR
-   ===================================================== */
 
 document.addEventListener(
   "touchstart",
@@ -2518,7 +2526,7 @@ function mostrarUltimoRegistro(
 
 
 /* =====================================================
-   CREAR LISTA DE ESTUDIANTES
+   CREAR LISTA
    ===================================================== */
 
 function crearLista(
@@ -2588,16 +2596,6 @@ function crearLista(
               ${escaparHTML(
                 estudiante.nombre
               )}
-
-
-              <span
-                class="estudiante-codigo">
-
-                ${escaparHTML(
-                  estudiante.codigo
-                )}
-
-              </span>
 
             </div>
 
@@ -2691,7 +2689,6 @@ function mostrarGrupos(
       grupo
     ) {
 
-
       const tarjeta =
         document.createElement(
           "details"
@@ -2702,14 +2699,8 @@ function mostrarGrupos(
         "grupo";
 
 
-      /*
-        IMPORTANTE:
-
-        No usamos tarjeta.open = true.
-
-        Por lo tanto TODOS los grupos
-        empiezan cerrados.
-      */
+      /* TODOS LOS GRUPOS
+         EMPIEZAN CERRADOS */
 
 
       tarjeta.innerHTML = `
@@ -3140,8 +3131,6 @@ function procesarRespuesta(
     false;
 
 
-  /* REGISTRADO */
-
   if (
 
     data.exito === true &&
@@ -3149,7 +3138,6 @@ function procesarRespuesta(
     data.tipo === "registrado"
 
   ) {
-
 
     const tardanza =
 
@@ -3198,8 +3186,6 @@ function procesarRespuesta(
   }
 
 
-  /* DUPLICADO */
-
   if (
 
     data.exito === false &&
@@ -3207,7 +3193,6 @@ function procesarRespuesta(
     data.tipo === "duplicado"
 
   ) {
-
 
     sonidoDuplicado();
 
@@ -3228,8 +3213,6 @@ function procesarRespuesta(
   }
 
 
-  /* SIN HORARIO */
-
   if (
 
     data.tipo === "sin_horario" ||
@@ -3237,7 +3220,6 @@ function procesarRespuesta(
     data.estado === "Sin horario"
 
   ) {
-
 
     sonidoError();
 
@@ -3257,8 +3239,6 @@ function procesarRespuesta(
 
   }
 
-
-  /* ERROR */
 
   sonidoError();
 
