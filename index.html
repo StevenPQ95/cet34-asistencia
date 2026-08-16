@@ -770,6 +770,10 @@ body {
 
   padding-right: 48px;
 
+  display: flex;
+
+  align-items: center;
+
 }
 
 .grupo summary::-webkit-details-marker {
@@ -793,9 +797,9 @@ body {
 
   top: 50%;
 
-  width: 8px;
+  width: 9px;
 
-  height: 8px;
+  height: 9px;
 
   border-right:
     2px solid #94a3b8;
@@ -835,6 +839,8 @@ summary::after {
   align-items: flex-start;
 
   gap: 8px;
+
+  width: 100%;
 
 }
 
@@ -1008,13 +1014,19 @@ summary::after {
   cursor: pointer;
 
   padding:
-    11px 42px 11px 13px;
+    11px 48px 11px 13px;
 
   font-weight: 800;
 
   font-size: 13px;
 
   position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  min-height: 44px;
 
 }
 
@@ -1026,22 +1038,20 @@ summary::after {
 
 
 /* =====================================================
-   CHEVRON LISTAS
+   CHEVRON DE LAS LISTAS
    ===================================================== */
 
-.lista-panel summary::after {
-
-  content: "";
+.lista-chevron {
 
   position: absolute;
 
-  right: 16px;
+  right: 17px;
 
   top: 50%;
 
-  width: 7px;
+  width: 9px;
 
-  height: 7px;
+  height: 9px;
 
   border-right:
     2px solid #94a3b8;
@@ -1058,8 +1068,11 @@ summary::after {
 
 }
 
+
+/* ABIERTA */
+
 .lista-panel[open]
-summary::after {
+.lista-chevron {
 
   transform:
     translateY(-35%)
@@ -1218,7 +1231,6 @@ summary::after {
 
 @media (max-width: 430px) {
 
-
   .header {
 
     min-height: 92px;
@@ -1228,7 +1240,6 @@ summary::after {
 
   }
 
-
   .header-insignia {
 
     width: 52px;
@@ -1237,20 +1248,17 @@ summary::after {
 
   }
 
-
   .header-insignia.izquierda {
 
     left: 10px;
 
   }
 
-
   .header-insignia.derecha {
 
     right: 10px;
 
   }
-
 
   .header-centro {
 
@@ -1259,13 +1267,11 @@ summary::after {
 
   }
 
-
   .header-centro h1 {
 
     font-size: 23px;
 
   }
-
 
   .header-centro p {
 
@@ -1273,13 +1279,11 @@ summary::after {
 
   }
 
-
   .container {
 
     padding: 10px;
 
   }
-
 
   .card {
 
@@ -1291,13 +1295,11 @@ summary::after {
 
   }
 
-
   .scanner-titulo {
 
     font-size: 18px;
 
   }
-
 
   .scanner-instruccion {
 
@@ -1305,20 +1307,17 @@ summary::after {
 
   }
 
-
   .resultado-estudiante {
 
     font-size: 16px;
 
   }
 
-
   .resultado-hora {
 
     font-size: 23px;
 
   }
-
 
   .fecha-jornada {
 
@@ -1330,13 +1329,11 @@ summary::after {
 
   }
 
-
   .jornada {
 
     justify-content: center;
 
   }
-
 
   .titulo {
 
@@ -1344,13 +1341,11 @@ summary::after {
 
   }
 
-
   .estadistica .numero {
 
     font-size: 24px;
 
   }
-
 
   .estadistica .etiqueta {
 
@@ -1358,13 +1353,11 @@ summary::after {
 
   }
 
-
   .grupo-titulo {
 
     font-size: 16px;
 
   }
-
 
   .grupo-hora {
 
@@ -1372,20 +1365,17 @@ summary::after {
 
   }
 
-
   .ultimo-estudiante {
 
     font-size: 16px;
 
   }
 
-
   .ultimo-hora {
 
     font-size: 20px;
 
   }
-
 
   .estudiante-item {
 
@@ -1415,20 +1405,11 @@ summary::after {
   <div
     class="header-insignia izquierda">
 
-    <!--
-      REEMPLAZA ESTA IMAGEN
-      POR LA INSIGNIA REAL.
-
-      Nombre:
-      insignia-izquierda.png
-    -->
-
     <img
       src="insignia-izquierda.png"
       alt="Insignia IE">
 
   </div>
-
 
 
   <!-- TEXTO CENTRAL -->
@@ -1446,19 +1427,10 @@ summary::after {
   </div>
 
 
-
   <!-- INSIGNIA DERECHA -->
 
   <div
     class="header-insignia derecha">
-
-    <!--
-      REEMPLAZA ESTA IMAGEN
-      POR LA INSIGNIA REAL.
-
-      Nombre:
-      insignia-derecha.png
-    -->
 
     <img
       src="insignia-derecha.png"
@@ -1517,13 +1489,12 @@ summary::after {
 
 
 <!-- =====================================================
-     FECHA + JORNADA
+     FECHA / JORNADA
      ===================================================== -->
 
 <div class="card">
 
   <div class="fecha-jornada">
-
 
     <div
       id="fecha"
@@ -1541,7 +1512,6 @@ summary::after {
       🟢 Cargando jornada...
 
     </div>
-
 
   </div>
 
@@ -1687,13 +1657,11 @@ summary::after {
     id="ultimoRegistro"
     class="ultimo-registro">
 
-
     <div class="sin-registros">
 
       Todavía no hay registros de hoy.
 
     </div>
-
 
   </div>
 
@@ -1870,14 +1838,12 @@ function formatearHora(hora) {
 
 /* =====================================================
    RESULTADO TEMPORAL
-   2.5 SEGUNDOS
    ===================================================== */
 
 function mostrarResultadoTemporal(
   clase,
   contenido
 ) {
-
 
   const resultado =
     document.getElementById(
@@ -2082,7 +2048,7 @@ function tono(
 
 
 /* =====================================================
-   SONIDOS
+   SONIDO PRESENTE
    ===================================================== */
 
 function sonidoPresente() {
@@ -2114,6 +2080,10 @@ function sonidoPresente() {
 
 }
 
+
+/* =====================================================
+   SONIDO TARDANZA
+   ===================================================== */
 
 function sonidoTardanza() {
 
@@ -2149,6 +2119,10 @@ function sonidoTardanza() {
 }
 
 
+/* =====================================================
+   SONIDO DUPLICADO
+   ===================================================== */
+
 function sonidoDuplicado() {
 
   activarAudio();
@@ -2182,6 +2156,10 @@ function sonidoDuplicado() {
 
 }
 
+
+/* =====================================================
+   SONIDO ERROR
+   ===================================================== */
 
 function sonidoError() {
 
@@ -2218,7 +2196,7 @@ function sonidoError() {
 
 
 /* =====================================================
-   ACTIVAR AUDIO
+   ACTIVAR AUDIO AL TOCAR
    ===================================================== */
 
 document.addEventListener(
@@ -2295,6 +2273,7 @@ function cargarEstadisticas() {
           error
         );
 
+
         document.getElementById(
           "grupos"
         ).innerHTML = `
@@ -2321,7 +2300,6 @@ function cargarEstadisticas() {
 function mostrarEstadisticas(
   data
 ) {
-
 
   document.getElementById(
     "fecha"
@@ -2436,7 +2414,6 @@ function mostrarUltimoRegistro(
   registro
 ) {
 
-
   const contenedor =
     document.getElementById(
       "ultimoRegistro"
@@ -2517,7 +2494,8 @@ function mostrarUltimoRegistro(
       </div>
 
 
-      <div class="ultimo-estado
+      <div
+        class="ultimo-estado
         ${
           esTardanza
             ? "tardanza"
@@ -2540,7 +2518,7 @@ function mostrarUltimoRegistro(
 
 
 /* =====================================================
-   CREAR LISTA
+   CREAR LISTA DE ESTUDIANTES
    ===================================================== */
 
 function crearLista(
@@ -2549,7 +2527,6 @@ function crearLista(
   titulo,
   emoji
 ) {
-
 
   const lista =
     estudiantes || [];
@@ -2645,12 +2622,21 @@ function crearLista(
 
       <summary>
 
-        ${emoji}
-        ${titulo}
+        <span>
 
-        · ${lista.length}
+          ${emoji}
+          ${titulo}
+          · ${lista.length}
+
+        </span>
+
+
+        <span
+          class="lista-chevron">
+        </span>
 
       </summary>
+
 
       ${contenido}
 
@@ -2668,7 +2654,6 @@ function crearLista(
 function mostrarGrupos(
   grupos
 ) {
-
 
   const contenedor =
     document.getElementById(
@@ -2720,7 +2705,7 @@ function mostrarGrupos(
       /*
         IMPORTANTE:
 
-        No ponemos tarjeta.open = true.
+        No usamos tarjeta.open = true.
 
         Por lo tanto TODOS los grupos
         empiezan cerrados.
@@ -2784,8 +2769,6 @@ function mostrarGrupos(
         <div
           class="grupo-contenido">
 
-
-          <!-- ESTADÍSTICAS -->
 
           <div
             class="grupo-estadisticas">
@@ -2854,7 +2837,6 @@ function mostrarGrupos(
           </div>
 
 
-          <!-- INFORMACIÓN -->
 
           <div
             class="grupo-info">
@@ -2890,7 +2872,6 @@ function mostrarGrupos(
           </div>
 
 
-          <!-- PORCENTAJE -->
 
           <div
             class="barra-contenedor">
@@ -2920,7 +2901,6 @@ function mostrarGrupos(
           </div>
 
 
-          <!-- PRESENTES -->
 
           ${crearLista(
 
@@ -2935,7 +2915,6 @@ function mostrarGrupos(
           )}
 
 
-          <!-- TARDANZAS -->
 
           ${crearLista(
 
@@ -2950,7 +2929,6 @@ function mostrarGrupos(
           )}
 
 
-          <!-- FALTANTES -->
 
           ${crearLista(
 
@@ -2987,7 +2965,6 @@ function mostrarGrupos(
 function qrDetectado(
   codigo
 ) {
-
 
   if (
     procesando
@@ -3048,7 +3025,6 @@ function qrDetectado(
 function registrarAsistencia(
   codigo
 ) {
-
 
   mostrarProcesando();
 
@@ -3159,7 +3135,6 @@ function registrarAsistencia(
 function procesarRespuesta(
   data
 ) {
-
 
   procesando =
     false;
@@ -3339,7 +3314,6 @@ function procesarRespuesta(
 
 function mostrarProcesando() {
 
-
   mostrarResultadoTemporal(
 
     "resultado-procesando",
@@ -3369,13 +3343,12 @@ function mostrarProcesando() {
 
 
 /* =====================================================
-   ASISTENCIA
+   MOSTRAR ASISTENCIA
    ===================================================== */
 
 function mostrarAsistencia(
   data
 ) {
-
 
   const tardanza =
 
@@ -3478,7 +3451,6 @@ function mostrarDuplicado(
   data
 ) {
 
-
   mostrarResultadoTemporal(
 
     "resultado-duplicado",
@@ -3559,7 +3531,6 @@ function mostrarSinHorario(
   data
 ) {
 
-
   mostrarResultadoTemporal(
 
     "resultado-error",
@@ -3636,7 +3607,6 @@ function mostrarSinHorario(
 
 function iniciarScanner() {
 
-
   procesando =
     false;
 
@@ -3681,11 +3651,6 @@ function iniciarScanner() {
 
 
   const configuracion = {
-
-    /*
-      10 análisis por segundo.
-      Es suficiente para QR.
-    */
 
     fps: 10,
 
@@ -3733,8 +3698,8 @@ function iniciarScanner() {
     function() {
 
       /*
-        Errores normales
-        de lectura QR.
+        Error normal mientras
+        busca códigos QR.
       */
 
     }
