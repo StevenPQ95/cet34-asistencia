@@ -609,7 +609,8 @@ body {
 
   border-radius: 20px;
 
-  transition: width .5s ease;
+  transition:
+    width .5s ease;
 
 }
 
@@ -731,7 +732,7 @@ body {
 
 
 /* =====================================================
-   DETAILS GENERALES
+   DETAILS
    ===================================================== */
 
 .grupo,
@@ -769,101 +770,90 @@ body {
 
 
 /* =====================================================
-   NUEVO CHEVRON PROFESIONAL
+   FLECHA PROFESIONAL SVG
 
-   ES UN ELEMENTO REAL, NO UN CARÁCTER.
+   IMPORTANTE:
+   NO se utiliza ::before ni ::after.
+   NO se utilizan caracteres ▲ ▼ ^ v.
 
-   CERRADO:
-        \ /
-         V
-
-   ABIERTO:
-         ^
-        / \
+   Cada flecha es un SVG independiente.
    ===================================================== */
 
 .chevron {
 
-  width: 13px;
+  width: 24px;
 
-  height: 13px;
+  height: 24px;
 
-  flex: 0 0 13px;
+  min-width: 24px;
 
-  position: relative;
+  display: flex;
 
-  display: inline-block;
+  align-items: center;
 
-  transform: rotate(45deg);
+  justify-content: center;
+
+  margin-left: 8px;
+
+}
+
+
+.chevron svg {
+
+  width: 19px;
+
+  height: 19px;
+
+  display: block;
+
+  fill: none;
+
+  stroke: #94a3b8;
+
+  stroke-width: 2.5;
+
+  stroke-linecap: round;
+
+  stroke-linejoin: round;
 
   transition:
-    transform .28s cubic-bezier(.4,0,.2,1);
-
-}
-
-
-/* Dos líneas que forman el chevron */
-
-.chevron::before {
-
-  content: "";
-
-  position: absolute;
-
-  width: 8px;
-
-  height: 2px;
-
-  background: #94a3b8;
-
-  border-radius: 4px;
-
-  top: 6px;
-
-  left: 0;
-
-  transform:
-    rotate(0deg);
-
-}
-
-
-.chevron::after {
-
-  content: "";
-
-  position: absolute;
-
-  width: 8px;
-
-  height: 2px;
-
-  background: #94a3b8;
-
-  border-radius: 4px;
-
-  top: 0;
-
-  right: 0;
-
-  transform:
-    rotate(90deg);
+    transform .25s ease,
+    stroke .25s ease;
 
 }
 
 
 /*
-   ESTADO ABIERTO
+   GRUPO ABIERTO
 
-   Rotamos el elemento completo
-   para que la flecha cambie
-   suavemente de dirección.
+   IMPORTANTE:
+   > significa que solo afecta
+   al summary DIRECTO del grupo.
 */
 
-details[open] .chevron {
+details.grupo[open] > summary .chevron svg {
 
   transform:
-    rotate(225deg);
+    rotate(180deg);
+
+  stroke: #64748b;
+
+}
+
+
+/*
+   LISTA ABIERTA
+
+   Solo afecta a la lista
+   que realmente se abrió.
+*/
+
+details.lista-panel[open] > summary .chevron svg {
+
+  transform:
+    rotate(180deg);
+
+  stroke: #64748b;
 
 }
 
@@ -896,8 +886,6 @@ details[open] .chevron {
   display: flex;
 
   align-items: center;
-
-  gap: 12px;
 
 }
 
@@ -1065,7 +1053,7 @@ details[open] .chevron {
 
 
 /* =====================================================
-   LISTAS DE ESTUDIANTES
+   LISTAS
    ===================================================== */
 
 .lista-panel {
@@ -1080,12 +1068,6 @@ details[open] .chevron {
 
 }
 
-
-/* =====================================================
-   SUMMARY DE LISTAS
-
-   AQUÍ TAMBIÉN USAMOS EL CHEVRON REAL
-   ===================================================== */
 
 .lista-panel summary {
 
@@ -1122,7 +1104,7 @@ details[open] .chevron {
 
 
 /* =====================================================
-   COLORES DE LISTAS
+   COLORES
    ===================================================== */
 
 .lista-panel.presente summary {
@@ -1165,12 +1147,6 @@ details[open] .chevron {
 }
 
 
-/* =====================================================
-   ESTUDIANTE
-
-   GRID PARA ALINEACIÓN PERFECTA
-   ===================================================== */
-
 .estudiante-item {
 
   display: grid;
@@ -1199,10 +1175,6 @@ details[open] .chevron {
 }
 
 
-/* =====================================================
-   NÚMERO
-   ===================================================== */
-
 .estudiante-numero {
 
   display: flex;
@@ -1221,10 +1193,6 @@ details[open] .chevron {
 
 }
 
-
-/* =====================================================
-   NOMBRE
-   ===================================================== */
 
 .estudiante-nombre {
 
@@ -1436,8 +1404,7 @@ details[open] .chevron {
 
   .grupo summary {
 
-    padding:
-      13px 12px;
+    padding: 13px 12px;
 
   }
 
@@ -1460,8 +1427,7 @@ details[open] .chevron {
 
     font-size: 10px;
 
-    padding:
-      6px 8px;
+    padding: 6px 8px;
 
   }
 
@@ -1478,11 +1444,20 @@ details[open] .chevron {
 
   .chevron {
 
-    width: 12px;
+    width: 22px;
 
-    height: 12px;
+    height: 22px;
 
-    flex-basis: 12px;
+    min-width: 22px;
+
+  }
+
+
+  .chevron svg {
+
+    width: 18px;
+
+    height: 18px;
 
   }
 
@@ -2584,7 +2559,7 @@ function mostrarUltimoRegistro(
 
 
 /* =====================================================
-   CREAR LISTA DE ESTUDIANTES
+   CREAR LISTA
    ===================================================== */
 
 function crearLista(
@@ -2672,16 +2647,6 @@ function crearLista(
   }
 
 
-  /*
-     IMPORTANTE:
-
-     La flecha es un elemento
-     <span class="chevron">.
-
-     No existe ningún ▲ ▼ ^ v
-     escrito como texto.
-  */
-
   return `
 
     <details
@@ -2711,6 +2676,16 @@ function crearLista(
         <span
           class="chevron"
           aria-hidden="true">
+
+          <svg
+            viewBox="0 0 24 24">
+
+            <path
+              d="M6 9l6 6 6-6">
+            </path>
+
+          </svg>
+
         </span>
 
 
@@ -2780,10 +2755,11 @@ function mostrarGrupos(
 
 
       /*
-        NO colocamos open.
+         NO se agrega:
 
-        Por lo tanto todos comienzan
-        cerrados.
+         tarjeta.open = true;
+
+         Por eso comienza cerrado.
       */
 
 
@@ -2843,6 +2819,16 @@ function mostrarGrupos(
           <span
             class="chevron"
             aria-hidden="true">
+
+            <svg
+              viewBox="0 0 24 24">
+
+              <path
+                d="M6 9l6 6 6-6">
+              </path>
+
+            </svg>
+
           </span>
 
 
