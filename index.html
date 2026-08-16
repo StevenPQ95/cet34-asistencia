@@ -17,7 +17,7 @@
 <style>
 
 /* =====================================================
-   GENERAL
+   CONFIGURACIÓN GENERAL
    ===================================================== */
 
 * {
@@ -48,7 +48,7 @@ body {
 
   color: white;
 
-  min-height: 110px;
+  min-height: 105px;
 
   display: flex;
 
@@ -71,8 +71,7 @@ body {
 
   text-align: center;
 
-  padding:
-    0 90px;
+  padding: 0 90px;
 
 }
 
@@ -81,7 +80,7 @@ body {
 
   margin: 0;
 
-  font-size: 29px;
+  font-size: 28px;
 
   font-weight: 800;
 
@@ -90,8 +89,7 @@ body {
 
 .header-centro p {
 
-  margin:
-    5px 0 0;
+  margin: 5px 0 0;
 
   font-size: 13px;
 
@@ -104,9 +102,9 @@ body {
 
 .header-insignia {
 
-  width: 70px;
+  width: 65px;
 
-  height: 70px;
+  height: 65px;
 
   border-radius: 50%;
 
@@ -125,8 +123,7 @@ body {
 
   top: 50%;
 
-  transform:
-    translateY(-50%);
+  transform: translateY(-50%);
 
 }
 
@@ -217,8 +214,7 @@ body {
 
   font-size: 13px;
 
-  margin:
-    5px 0 12px;
+  margin: 5px 0 12px;
 
 }
 
@@ -434,8 +430,7 @@ body {
 
   justify-content: center;
 
-  padding:
-    8px 11px;
+  padding: 8px 11px;
 
   border-radius: 12px;
 
@@ -460,7 +455,7 @@ body {
 
 
 /* =====================================================
-   TITULOS
+   TÍTULOS
    ===================================================== */
 
 .titulo {
@@ -498,8 +493,7 @@ body {
 
   border-radius: 14px;
 
-  padding:
-    11px 4px;
+  padding: 11px 4px;
 
   text-align: center;
 
@@ -615,8 +609,7 @@ body {
 
   border-radius: 20px;
 
-  transition:
-    width .5s ease;
+  transition: width .5s ease;
 
 }
 
@@ -642,8 +635,7 @@ body {
 
   background: #f8fafc;
 
-  border:
-    1px solid #e2e8f0;
+  border: 1px solid #e2e8f0;
 
   border-radius: 16px;
 
@@ -709,8 +701,7 @@ body {
 
 .ultimo-estado {
 
-  padding:
-    6px 9px;
+  padding: 6px 9px;
 
   border-radius: 10px;
 
@@ -740,13 +731,150 @@ body {
 
 
 /* =====================================================
-   CONTROL POR SECCIÓN
+   DETAILS GENERALES
+   ===================================================== */
+
+.grupo,
+.lista-panel {
+
+  position: relative;
+
+}
+
+
+.grupo summary,
+.lista-panel summary {
+
+  list-style: none;
+
+  cursor: pointer;
+
+}
+
+
+.grupo summary::-webkit-details-marker,
+.lista-panel summary::-webkit-details-marker {
+
+  display: none;
+
+}
+
+
+.grupo summary::marker,
+.lista-panel summary::marker {
+
+  content: "";
+
+}
+
+
+/* =====================================================
+   NUEVO CHEVRON PROFESIONAL
+
+   ES UN ELEMENTO REAL, NO UN CARÁCTER.
+
+   CERRADO:
+        \ /
+         V
+
+   ABIERTO:
+         ^
+        / \
+   ===================================================== */
+
+.chevron {
+
+  width: 13px;
+
+  height: 13px;
+
+  flex: 0 0 13px;
+
+  position: relative;
+
+  display: inline-block;
+
+  transform: rotate(45deg);
+
+  transition:
+    transform .28s cubic-bezier(.4,0,.2,1);
+
+}
+
+
+/* Dos líneas que forman el chevron */
+
+.chevron::before {
+
+  content: "";
+
+  position: absolute;
+
+  width: 8px;
+
+  height: 2px;
+
+  background: #94a3b8;
+
+  border-radius: 4px;
+
+  top: 6px;
+
+  left: 0;
+
+  transform:
+    rotate(0deg);
+
+}
+
+
+.chevron::after {
+
+  content: "";
+
+  position: absolute;
+
+  width: 8px;
+
+  height: 2px;
+
+  background: #94a3b8;
+
+  border-radius: 4px;
+
+  top: 0;
+
+  right: 0;
+
+  transform:
+    rotate(90deg);
+
+}
+
+
+/*
+   ESTADO ABIERTO
+
+   Rotamos el elemento completo
+   para que la flecha cambie
+   suavemente de dirección.
+*/
+
+details[open] .chevron {
+
+  transform:
+    rotate(225deg);
+
+}
+
+
+/* =====================================================
+   CABECERA DEL GRUPO
    ===================================================== */
 
 .grupo {
 
-  border:
-    1px solid #dbe3ec;
+  border: 1px solid #dbe3ec;
 
   border-radius: 17px;
 
@@ -757,48 +885,11 @@ body {
 }
 
 
-/* =====================================================
-   ELIMINAR INDICADORES NATIVOS
-   ===================================================== */
-
-.grupo summary,
-.lista-panel summary {
-
-  list-style: none;
-
-}
-
-
-.grupo summary::-webkit-details-marker,
-.lista-panel summary::-webkit-details-marker {
-
-  display: none !important;
-
-}
-
-
-.grupo summary::marker,
-.lista-panel summary::marker {
-
-  content: "" !important;
-
-}
-
-
-/* =====================================================
-   CABECERA DEL GRUPO
-   ===================================================== */
-
 .grupo summary {
-
-  cursor: pointer;
-
-  padding:
-    14px 52px 14px 14px;
 
   background: white;
 
-  position: relative;
+  padding: 14px;
 
   min-height: 78px;
 
@@ -806,58 +897,10 @@ body {
 
   align-items: center;
 
-}
-
-
-/* =====================================================
-   CHEVRON PROFESIONAL DEL GRUPO
-   ===================================================== */
-
-.grupo summary::after {
-
-  content: "";
-
-  position: absolute;
-
-  right: 21px;
-
-  top: 50%;
-
-  width: 10px;
-
-  height: 10px;
-
-  border-right:
-    2px solid #94a3b8;
-
-  border-bottom:
-    2px solid #94a3b8;
-
-  transform:
-    translateY(-70%)
-    rotate(45deg);
-
-  transition:
-    transform .25s ease;
+  gap: 12px;
 
 }
 
-
-/* GRUPO ABIERTO */
-
-.grupo[open]
-summary::after {
-
-  transform:
-    translateY(-30%)
-    rotate(225deg);
-
-}
-
-
-/* =====================================================
-   CABECERA GRUPO
-   ===================================================== */
 
 .grupo-cabecera {
 
@@ -902,8 +945,7 @@ summary::after {
 
   border-radius: 11px;
 
-  padding:
-    6px 9px;
+  padding: 6px 9px;
 
   font-size: 11px;
 
@@ -918,17 +960,15 @@ summary::after {
 
 .grupo-contenido {
 
-  padding:
-    0 14px 14px;
+  padding: 0 14px 14px;
 
-  border-top:
-    1px solid #f1f5f9;
+  border-top: 1px solid #f1f5f9;
 
 }
 
 
 /* =====================================================
-   ESTADISTICAS GRUPO
+   ESTADÍSTICAS DEL GRUPO
    ===================================================== */
 
 .grupo-estadisticas {
@@ -951,8 +991,7 @@ summary::after {
 
   border-radius: 12px;
 
-  padding:
-    9px 4px;
+  padding: 9px 4px;
 
   text-align: center;
 
@@ -1037,33 +1076,30 @@ summary::after {
 
   overflow: hidden;
 
-  border:
-    1px solid #dbe3ec;
+  border: 1px solid #dbe3ec;
 
 }
 
 
 /* =====================================================
-   SUMMARY DE LAS LISTAS
+   SUMMARY DE LISTAS
 
-   USAMOS EXACTAMENTE EL MISMO
-   SISTEMA DE LOS GRUPOS
+   AQUÍ TAMBIÉN USAMOS EL CHEVRON REAL
    ===================================================== */
 
 .lista-panel summary {
 
-  cursor: pointer;
+  min-height: 48px;
 
-  position: relative;
-
-  min-height: 46px;
-
-  padding:
-    11px 48px 11px 14px;
+  padding: 11px 13px;
 
   display: flex;
 
   align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
 
   font-weight: 800;
 
@@ -1072,61 +1108,21 @@ summary::after {
 }
 
 
-/* =====================================================
-   CHEVRON PROFESIONAL DE LAS LISTAS
+.lista-titulo {
 
-   CERRADO = HACIA ABAJO
-   ABIERTO = HACIA ARRIBA
-   ===================================================== */
+  display: flex;
 
-.lista-panel summary::after {
+  align-items: center;
 
-  content: "";
+  gap: 7px;
 
-  position: absolute;
-
-  right: 17px;
-
-  top: 50%;
-
-  width: 9px;
-
-  height: 9px;
-
-  border-right:
-    2px solid #94a3b8;
-
-  border-bottom:
-    2px solid #94a3b8;
-
-  transform:
-    translateY(-70%)
-    rotate(45deg);
-
-  transition:
-    transform .25s ease;
+  line-height: 1;
 
 }
 
 
 /* =====================================================
-   LISTA ABIERTA
-
-   MISMO COMPORTAMIENTO QUE LOS GRUPOS
-   ===================================================== */
-
-.lista-panel[open]
-summary::after {
-
-  transform:
-    translateY(-30%)
-    rotate(225deg);
-
-}
-
-
-/* =====================================================
-   COLORES DE LAS LISTAS
+   COLORES DE LISTAS
    ===================================================== */
 
 .lista-panel.presente summary {
@@ -1157,15 +1153,14 @@ summary::after {
 
 
 /* =====================================================
-   CONTENIDO DE LA LISTA
+   CONTENIDO LISTA
    ===================================================== */
 
 .lista-estudiantes {
 
   background: white;
 
-  padding:
-    2px 12px 8px;
+  padding: 2px 12px 8px;
 
 }
 
@@ -1187,8 +1182,7 @@ summary::after {
 
   min-height: 43px;
 
-  padding:
-    7px 3px;
+  padding: 7px 3px;
 
   border-bottom:
     1px solid #edf2f7;
@@ -1291,14 +1285,13 @@ summary::after {
 
   font-size: 11px;
 
-  padding:
-    5px 5px 20px;
+  padding: 5px 5px 20px;
 
 }
 
 
 /* =====================================================
-   CELULARES
+   MÓVILES
    ===================================================== */
 
 @media (max-width: 430px) {
@@ -1307,8 +1300,7 @@ summary::after {
 
     min-height: 92px;
 
-    padding:
-      10px 12px;
+    padding: 10px 12px;
 
   }
 
@@ -1338,8 +1330,7 @@ summary::after {
 
   .header-centro {
 
-    padding:
-      0 58px;
+    padding: 0 58px;
 
   }
 
@@ -1443,6 +1434,14 @@ summary::after {
   }
 
 
+  .grupo summary {
+
+    padding:
+      13px 12px;
+
+  }
+
+
   .grupo-titulo {
 
     font-size: 16px;
@@ -1457,12 +1456,33 @@ summary::after {
   }
 
 
+  .grupo-badge {
+
+    font-size: 10px;
+
+    padding:
+      6px 8px;
+
+  }
+
+
   .estudiante-item {
 
     grid-template-columns:
       35px 1fr;
 
     font-size: 12px;
+
+  }
+
+
+  .chevron {
+
+    width: 12px;
+
+    height: 12px;
+
+    flex-basis: 12px;
 
   }
 
@@ -1483,8 +1503,7 @@ summary::after {
 <div class="header">
 
 
-  <div
-    class="header-insignia izquierda">
+  <div class="header-insignia izquierda">
 
     <img
       src="insignia-izquierda.png"
@@ -1506,8 +1525,7 @@ summary::after {
   </div>
 
 
-  <div
-    class="header-insignia derecha">
+  <div class="header-insignia derecha">
 
     <img
       src="insignia-derecha.png"
@@ -1791,7 +1809,7 @@ summary::after {
 <script>
 
 /* =====================================================
-   URL DE APPS SCRIPT
+   URL APPS SCRIPT
    ===================================================== */
 
 const URL_APPS_SCRIPT =
@@ -1900,7 +1918,6 @@ function formatearHora(hora) {
 
 
   return (
-
     horas12 +
     ":" +
     minutos +
@@ -1908,7 +1925,6 @@ function formatearHora(hora) {
     segundos +
     " " +
     periodo
-
   );
 
 }
@@ -2148,9 +2164,7 @@ function sonidoPresente() {
   );
 
 
-  if (
-    navigator.vibrate
-  ) {
+  if (navigator.vibrate) {
 
     navigator.vibrate(100);
 
@@ -2178,9 +2192,7 @@ function sonidoTardanza() {
   );
 
 
-  if (
-    navigator.vibrate
-  ) {
+  if (navigator.vibrate) {
 
     navigator.vibrate([
       120,
@@ -2212,9 +2224,7 @@ function sonidoDuplicado() {
   );
 
 
-  if (
-    navigator.vibrate
-  ) {
+  if (navigator.vibrate) {
 
     navigator.vibrate([
       100,
@@ -2246,9 +2256,7 @@ function sonidoError() {
   );
 
 
-  if (
-    navigator.vibrate
-  ) {
+  if (navigator.vibrate) {
 
     navigator.vibrate([
       160,
@@ -2576,7 +2584,7 @@ function mostrarUltimoRegistro(
 
 
 /* =====================================================
-   CREAR LISTA
+   CREAR LISTA DE ESTUDIANTES
    ===================================================== */
 
 function crearLista(
@@ -2665,31 +2673,52 @@ function crearLista(
 
 
   /*
-    IMPORTANTE:
+     IMPORTANTE:
 
-    No colocamos ninguna flecha
-    dentro del summary.
+     La flecha es un elemento
+     <span class="chevron">.
 
-    El chevron se genera
-    exclusivamente mediante CSS.
+     No existe ningún ▲ ▼ ^ v
+     escrito como texto.
   */
-
 
   return `
 
     <details
       class="lista-panel ${tipo}">
 
+
       <summary>
 
-        ${emoji}
-        ${titulo}
-        · ${lista.length}
+
+        <span
+          class="lista-titulo">
+
+          <span>
+            ${emoji}
+          </span>
+
+          <span>
+
+            ${titulo}
+            · ${lista.length}
+
+          </span>
+
+        </span>
+
+
+        <span
+          class="chevron"
+          aria-hidden="true">
+        </span>
+
 
       </summary>
 
 
       ${contenido}
+
 
     </details>
 
@@ -2751,9 +2780,9 @@ function mostrarGrupos(
 
 
       /*
-        NO colocamos "open".
+        NO colocamos open.
 
-        Todos los grupos comienzan
+        Por lo tanto todos comienzan
         cerrados.
       */
 
@@ -2761,6 +2790,7 @@ function mostrarGrupos(
       tarjeta.innerHTML = `
 
         <summary>
+
 
           <div
             class="grupo-cabecera">
@@ -2808,6 +2838,13 @@ function mostrarGrupos(
 
 
           </div>
+
+
+          <span
+            class="chevron"
+            aria-hidden="true">
+          </span>
+
 
         </summary>
 
@@ -3010,9 +3047,7 @@ function qrDetectado(
   codigo
 ) {
 
-  if (
-    procesando
-  ) {
+  if (procesando) {
 
     return;
 
