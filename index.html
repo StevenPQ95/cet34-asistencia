@@ -3,1158 +3,1084 @@
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0">
 
-  <title>CET 34 - Control de Asistencia</title>
+<title>CET 34 - Control de Asistencia</title>
 
 
-  <!-- =========================================
-       LIBRERÍA PARA ESCANEAR QR
-       ========================================= -->
+<script
+  src="https://unpkg.com/html5-qrcode"
+  type="text/javascript">
+</script>
 
-  <script
-    src="https://unpkg.com/html5-qrcode"
-    type="text/javascript">
-  </script>
 
+<style>
 
-  <style>
+/* =====================================================
+   GENERAL
+   ===================================================== */
 
-    /* =========================================
-       CONFIGURACIÓN GENERAL
-       ========================================= */
+* {
+  box-sizing: border-box;
+}
 
-    * {
-      box-sizing: border-box;
-    }
+body {
 
+  margin: 0;
 
-    body {
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
 
-      margin: 0;
+  background: #f1f5f9;
 
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
+  color: #0f172a;
 
-      background:
-        #f1f5f9;
+}
 
-      color:
-        #0f172a;
 
-    }
+/* =====================================================
+   ENCABEZADO
+   ===================================================== */
 
+.header {
 
-    /* =========================================
-       ENCABEZADO
-       ========================================= */
+  background: #0f172a;
 
-    .header {
+  color: white;
 
-      background:
-        #0f172a;
+  text-align: center;
 
-      color:
-        white;
+  padding: 18px 15px;
 
-      text-align:
-        center;
+}
 
-      padding:
-        20px 15px;
+.header h1 {
 
-    }
+  margin: 0;
 
+  font-size: 27px;
 
-    .header h1 {
+}
 
-      margin:
-        0;
+.header p {
 
-      font-size:
-        27px;
+  margin: 5px 0 0;
 
-    }
+  font-size: 14px;
 
+  opacity: .85;
 
-    .header p {
+}
 
-      margin:
-        6px 0 0;
 
-      font-size:
-        14px;
+/* =====================================================
+   CONTENEDOR
+   ===================================================== */
 
-      opacity:
-        0.85;
+.container {
 
-    }
+  width: 100%;
 
+  max-width: 720px;
 
-    /* =========================================
-       CONTENEDOR
-       ========================================= */
+  margin: auto;
 
-    .container {
+  padding: 14px;
 
-      width:
-        100%;
+}
 
-      max-width:
-        720px;
 
-      margin:
-        auto;
+/* =====================================================
+   TARJETAS
+   ===================================================== */
 
-      padding:
-        15px;
+.card {
 
-    }
+  background: white;
 
+  border-radius: 20px;
 
-    /* =========================================
-       TARJETAS
-       ========================================= */
+  padding: 17px;
 
-    .card {
+  margin-bottom: 14px;
 
-      background:
-        white;
+  box-shadow:
+    0 4px 15px
+    rgba(0,0,0,.07);
 
-      border-radius:
-        20px;
+}
 
-      padding:
-        18px;
 
-      margin-bottom:
-        15px;
+/* =====================================================
+   ESCÁNER
+   ===================================================== */
 
-      box-shadow:
-        0 4px 16px
-        rgba(0,0,0,0.08);
+.scanner-titulo {
 
-    }
+  text-align: center;
 
+  font-size: 21px;
 
-    /* =========================================
-       FECHA
-       ========================================= */
+  font-weight: bold;
 
-    .fecha {
+}
 
-      text-align:
-        center;
+.scanner-instruccion {
 
-      color:
-        #64748b;
+  text-align: center;
 
-      font-size:
-        14px;
+  color: #64748b;
 
-      margin-bottom:
-        15px;
+  font-size: 13px;
 
-      font-weight:
-        600;
+  margin:
+    6px 0 14px;
 
-    }
+}
 
+#reader {
 
-    /* =========================================
-       TÍTULOS
-       ========================================= */
+  width: 100%;
 
-    .titulo {
+  max-width: 550px;
 
-      text-align:
-        center;
+  margin: auto;
 
-      font-size:
-        19px;
+  overflow: hidden;
 
-      font-weight:
-        bold;
+  border-radius: 17px;
 
-      margin-bottom:
-        15px;
+}
 
-    }
+#reader video {
 
+  width: 100%;
 
-    /* =========================================
-       ESTADO DE JORNADA
-       ========================================= */
+  border-radius: 17px;
 
-    .jornada {
+}
 
-      display:
-        flex;
 
-      align-items:
-        center;
+/* =====================================================
+   RESULTADO DEL ESCANEO
+   ===================================================== */
 
-      justify-content:
-        center;
+#resultado {
 
-      gap:
-        8px;
+  display: none;
 
-      margin-bottom:
-        15px;
+  margin-top: 14px;
 
-      padding:
-        9px;
+  padding: 20px;
 
-      border-radius:
-        12px;
+  border-radius: 18px;
 
-      background:
-        #f0fdf4;
+  text-align: center;
 
-      color:
-        #166534;
+}
 
-      font-size:
-        13px;
+.resultado-presente {
 
-      font-weight:
-        bold;
+  display: block !important;
 
-    }
+  background: #dcfce7;
 
+  color: #166534;
 
-    .jornada.pausa {
+}
 
-      background:
-        #f8fafc;
+.resultado-tardanza {
 
-      color:
-        #64748b;
+  display: block !important;
 
-    }
+  background: #fef3c7;
 
+  color: #92400e;
 
-    /* =========================================
-       RESUMEN GENERAL
-       ========================================= */
+}
 
-    .estadisticas {
+.resultado-duplicado {
 
-      display:
-        grid;
+  display: block !important;
 
-      grid-template-columns:
-        repeat(3, 1fr);
+  background: #fef3c7;
 
-      gap:
-        8px;
+  color: #92400e;
 
-    }
+}
 
+.resultado-error {
 
-    .estadistica {
+  display: block !important;
 
-      background:
-        #f8fafc;
+  background: #fee2e2;
 
-      border-radius:
-        14px;
+  color: #991b1b;
 
-      padding:
-        13px 5px;
+}
 
-      text-align:
-        center;
+.resultado-procesando {
 
-    }
+  display: block !important;
 
+  background: #e0f2fe;
 
-    .estadistica .numero {
+  color: #075985;
 
-      font-size:
-        28px;
+}
 
-      font-weight:
-        bold;
+.resultado-icono {
 
-    }
+  font-size: 45px;
 
+}
 
-    .estadistica .etiqueta {
+.resultado-titulo {
 
-      margin-top:
-        4px;
+  font-size: 21px;
 
-      font-size:
-        11px;
+  font-weight: bold;
 
-      color:
-        #64748b;
+}
 
-    }
+.resultado-estudiante {
 
+  font-size: 20px;
 
-    /* =========================================
-       COLORES DE NÚMEROS
-       ========================================= */
+  font-weight: bold;
 
-    .numero-presente {
+  margin-top: 9px;
 
-      color:
-        #16a34a;
+}
 
-    }
+.resultado-grupo {
 
+  margin-top: 6px;
 
-    .numero-tardanza {
+  font-size: 15px;
 
-      color:
-        #d97706;
+}
 
-    }
+.resultado-hora {
 
+  font-size: 30px;
 
-    .numero-faltante {
+  font-weight: bold;
 
-      color:
-        #dc2626;
+  margin-top: 10px;
 
-    }
+}
 
+.resultado-estado {
 
-    /* =========================================
-       TOTAL GENERAL
-       ========================================= */
+  font-size: 18px;
 
-    .total-general {
+  font-weight: bold;
 
-      margin-top:
-        15px;
+  margin-top: 5px;
 
-      padding:
-        12px;
+}
 
-      background:
-        #f8fafc;
 
-      border-radius:
-        14px;
+/* =====================================================
+   AUDIO
+   ===================================================== */
 
-      text-align:
-        center;
+.audio-indicador {
 
-      color:
-        #64748b;
+  text-align: center;
 
-    }
+  font-size: 11px;
 
+  color: #94a3b8;
 
-    .total-general strong {
+  margin-top: 8px;
 
-      display:
-        block;
+}
 
-      color:
-        #0f172a;
 
-      font-size:
-        28px;
+/* =====================================================
+   FECHA
+   ===================================================== */
 
-      margin-top:
-        3px;
+.fecha {
 
-    }
+  text-align: center;
 
+  color: #64748b;
 
-    /* =========================================
-       BARRAS
-       ========================================= */
+  font-size: 14px;
 
-    .barra-contenedor {
+  font-weight: bold;
 
-      margin-top:
-        15px;
+  margin-bottom: 12px;
 
-    }
+}
 
 
-    .barra-fondo {
+/* =====================================================
+   JORNADA
+   ===================================================== */
 
-      width:
-        100%;
+.jornada {
 
-      height:
-        12px;
+  display: flex;
 
-      background:
-        #e2e8f0;
+  justify-content: center;
 
-      border-radius:
-        20px;
+  align-items: center;
 
-      overflow:
-        hidden;
+  gap: 7px;
 
-    }
+  padding: 9px;
 
+  border-radius: 12px;
 
-    .barra {
+  background: #f0fdf4;
 
-      height:
-        100%;
+  color: #166534;
 
-      width:
-        0%;
+  font-size: 13px;
 
-      background:
-        #16a34a;
+  font-weight: bold;
 
-      border-radius:
-        20px;
+  margin-bottom: 14px;
 
-      transition:
-        width 0.5s ease;
+}
 
-    }
+.jornada.pausa {
 
+  background: #f8fafc;
 
-    .porcentaje {
+  color: #64748b;
 
-      text-align:
-        center;
+}
 
-      margin-top:
-        7px;
 
-      font-size:
-        14px;
+/* =====================================================
+   TÍTULOS
+   ===================================================== */
 
-      font-weight:
-        bold;
+.titulo {
 
-    }
+  text-align: center;
 
+  font-size: 19px;
 
-    /* =========================================
-       GRUPOS
-       ========================================= */
+  font-weight: bold;
 
-    .grupo {
+  margin-bottom: 14px;
 
-      border:
-        1px solid #e2e8f0;
+}
 
-      border-radius:
-        18px;
 
-      padding:
-        15px;
+/* =====================================================
+   RESUMEN GENERAL
+   ===================================================== */
 
-      margin-bottom:
-        13px;
+.estadisticas {
 
-      background:
-        #ffffff;
+  display: grid;
 
-    }
+  grid-template-columns:
+    repeat(3, 1fr);
 
+  gap: 8px;
 
-    .grupo:last-child {
+}
 
-      margin-bottom:
-        0;
+.estadistica {
 
-    }
+  background: #f8fafc;
 
+  border-radius: 14px;
 
-    .grupo-cabecera {
+  padding: 12px 4px;
 
-      display:
-        flex;
+  text-align: center;
 
-      justify-content:
-        space-between;
+}
 
-      align-items:
-        flex-start;
+.estadistica .numero {
 
-      gap:
-        10px;
+  font-size: 27px;
 
-    }
+  font-weight: bold;
 
+}
 
-    .grupo-titulo {
+.estadistica .etiqueta {
 
-      font-size:
-        20px;
+  font-size: 11px;
 
-      font-weight:
-        bold;
+  color: #64748b;
 
-    }
+  margin-top: 3px;
 
+}
 
-    .grupo-hora {
+.numero-presente {
 
-      color:
-        #64748b;
+  color: #16a34a;
 
-      font-size:
-        13px;
+}
 
-      margin-top:
-        5px;
+.numero-tardanza {
 
-    }
+  color: #d97706;
 
+}
 
-    .grupo-badge {
+.numero-faltante {
 
-      background:
-        #eff6ff;
+  color: #dc2626;
 
-      color:
-        #1d4ed8;
+}
 
-      border-radius:
-        10px;
 
-      padding:
-        6px 9px;
+.total-general {
 
-      font-size:
-        11px;
+  margin-top: 13px;
 
-      font-weight:
-        bold;
+  padding: 11px;
 
-      white-space:
-        nowrap;
+  background: #f8fafc;
 
-    }
+  border-radius: 13px;
 
+  text-align: center;
 
-    /* =========================================
-       ESTADÍSTICAS DEL GRUPO
-       ========================================= */
+  color: #64748b;
 
-    .grupo-estadisticas {
+}
 
-      display:
-        grid;
+.total-general strong {
 
-      grid-template-columns:
-        repeat(3, 1fr);
+  display: block;
 
-      gap:
-        7px;
+  color: #0f172a;
 
-      margin-top:
-        15px;
+  font-size: 27px;
 
-    }
+  margin-top: 2px;
 
+}
 
-    .grupo-estado {
 
-      background:
-        #f8fafc;
+/* =====================================================
+   BARRA
+   ===================================================== */
 
-      border-radius:
-        12px;
+.barra-contenedor {
 
-      padding:
-        10px 4px;
+  margin-top: 14px;
 
-      text-align:
-        center;
+}
 
-    }
+.barra-fondo {
 
+  width: 100%;
 
-    .grupo-estado .numero {
+  height: 11px;
 
-      font-size:
-        23px;
+  background: #e2e8f0;
 
-      font-weight:
-        bold;
+  border-radius: 20px;
 
-    }
+  overflow: hidden;
 
+}
 
-    .grupo-estado .etiqueta {
+.barra {
 
-      font-size:
-        10px;
+  height: 100%;
 
-      color:
-        #64748b;
+  width: 0%;
 
-      margin-top:
-        3px;
+  background: #16a34a;
 
-    }
+  border-radius: 20px;
 
+  transition:
+    width .5s ease;
 
-    /* =========================================
-       INFORMACIÓN DEL GRUPO
-       ========================================= */
+}
 
-    .grupo-info {
+.porcentaje {
 
-      display:
-        grid;
+  text-align: center;
 
-      grid-template-columns:
-        1fr 1fr;
+  margin-top: 6px;
 
-      gap:
-        8px;
+  font-size: 14px;
 
-      margin-top:
-        12px;
+  font-weight: bold;
 
-    }
+}
 
 
-    .info-item {
+/* =====================================================
+   ÚLTIMO REGISTRO
+   ===================================================== */
 
-      background:
-        #f8fafc;
+.ultimo-registro {
 
-      border-radius:
-        10px;
+  background: #f8fafc;
 
-      padding:
-        8px;
+  border: 1px solid #e2e8f0;
 
-      text-align:
-        center;
+  border-radius: 17px;
 
-      font-size:
-        12px;
+  padding: 16px;
 
-      color:
-        #64748b;
+}
 
-    }
+.ultimo-titulo {
 
+  color: #64748b;
 
-    .info-item strong {
+  font-size: 13px;
 
-      display:
-        block;
+  font-weight: bold;
 
-      color:
-        #0f172a;
+  margin-bottom: 9px;
 
-      margin-top:
-        2px;
+}
 
-    }
+.ultimo-estudiante {
 
+  font-size: 19px;
 
-    /* =========================================
-       ÚLTIMO REGISTRO
-       ========================================= */
+  font-weight: bold;
 
-    .ultimo-registro {
+  line-height: 1.2;
 
-      border-radius:
-        18px;
+}
 
-      padding:
-        18px;
+.ultimo-grupo {
 
-      background:
-        #f8fafc;
+  color: #64748b;
 
-      border:
-        1px solid #e2e8f0;
+  font-size: 14px;
 
-    }
+  margin-top: 5px;
 
+}
 
-    .ultimo-titulo {
+.ultimo-detalles {
 
-      font-size:
-        14px;
+  display: flex;
 
-      color:
-        #64748b;
+  justify-content: space-between;
 
-      font-weight:
-        bold;
+  align-items: center;
 
-      margin-bottom:
-        10px;
+  margin-top: 11px;
 
-    }
+  gap: 8px;
 
+}
 
-    .ultimo-estudiante {
+.ultimo-hora {
 
-      font-size:
-        20px;
+  font-size: 24px;
 
-      font-weight:
-        bold;
+  font-weight: bold;
 
-      line-height:
-        1.2;
+}
 
-    }
+.ultimo-estado {
 
+  padding: 7px 10px;
 
-    .ultimo-grupo {
+  border-radius: 10px;
 
-      margin-top:
-        6px;
+  font-size: 11px;
 
-      font-size:
-        14px;
+  font-weight: bold;
 
-      color:
-        #64748b;
+}
 
-    }
+.ultimo-estado.presente {
 
+  background: #dcfce7;
 
-    .ultimo-detalles {
+  color: #166534;
 
-      display:
-        flex;
+}
 
-      align-items:
-        center;
+.ultimo-estado.tardanza {
 
-      justify-content:
-        space-between;
+  background: #fef3c7;
 
-      gap:
-        10px;
+  color: #92400e;
 
-      margin-top:
-        13px;
+}
 
-    }
 
+/* =====================================================
+   GRUPOS
+   ===================================================== */
 
-    .ultimo-hora {
+.grupo {
 
-      font-size:
-        25px;
+  border: 1px solid #e2e8f0;
 
-      font-weight:
-        bold;
+  border-radius: 17px;
 
-    }
+  margin-bottom: 12px;
 
+  overflow: hidden;
 
-    .ultimo-estado {
+}
 
-      padding:
-        7px 10px;
+.grupo:last-child {
 
-      border-radius:
-        10px;
+  margin-bottom: 0;
 
-      font-size:
-        12px;
+}
 
-      font-weight:
-        bold;
 
-    }
+/* =====================================================
+   PANEL PLEGABLE
+   ===================================================== */
 
+.grupo summary {
 
-    .ultimo-estado.presente {
+  list-style: none;
 
-      background:
-        #dcfce7;
+  cursor: pointer;
 
-      color:
-        #166534;
+  padding: 15px;
 
-    }
+  background: #ffffff;
 
+}
 
-    .ultimo-estado.tardanza {
+.grupo summary::-webkit-details-marker {
 
-      background:
-        #fef3c7;
+  display: none;
 
-      color:
-        #92400e;
+}
 
-    }
+.grupo summary:after {
 
+  content: "▼";
 
-    /* =========================================
-       SIN REGISTROS
-       ========================================= */
+  float: right;
 
-    .sin-registros {
+  color: #94a3b8;
 
-      text-align:
-        center;
+  font-size: 11px;
 
-      color:
-        #94a3b8;
+  margin-top: 4px;
 
-      padding:
-        15px 5px;
+  transition:
+    transform .2s;
 
-      font-size:
-        13px;
+}
 
-    }
+.grupo[open] summary:after {
 
+  transform:
+    rotate(180deg);
 
-    /* =========================================
-       ESCÁNER
-       ========================================= */
+}
 
-    .scanner-titulo {
+.grupo-cabecera {
 
-      text-align:
-        center;
+  display: flex;
 
-      font-size:
-        20px;
+  justify-content: space-between;
 
-      font-weight:
-        bold;
+  align-items: flex-start;
 
-    }
+  gap: 8px;
 
+}
 
-    .scanner-instruccion {
+.grupo-titulo {
 
-      text-align:
-        center;
+  font-size: 19px;
 
-      color:
-        #64748b;
+  font-weight: bold;
 
-      font-size:
-        13px;
+}
 
-      margin:
-        6px 0 15px;
+.grupo-hora {
 
-    }
+  color: #64748b;
 
+  font-size: 13px;
 
-    #reader {
+  margin-top: 5px;
 
-      width:
-        100%;
+}
 
-      max-width:
-        550px;
+.grupo-badge {
 
-      margin:
-        auto;
+  background: #eff6ff;
 
-      overflow:
-        hidden;
+  color: #1d4ed8;
 
-      border-radius:
-        16px;
+  border-radius: 10px;
 
-    }
+  padding: 6px 9px;
 
+  font-size: 11px;
 
-    #reader video {
+  font-weight: bold;
 
-      width:
-        100%;
+}
 
-      border-radius:
-        16px;
 
-    }
+/* =====================================================
+   CONTENIDO DEL GRUPO
+   ===================================================== */
 
+.grupo-contenido {
 
-    /* =========================================
-       RESULTADO
-       ========================================= */
+  padding:
+    0 15px 15px;
 
-    #resultado {
+  border-top:
+    1px solid #f1f5f9;
 
-      display:
-        none;
+}
 
-      margin-top:
-        15px;
 
-      padding:
-        22px;
+/* =====================================================
+   ESTADÍSTICAS DEL GRUPO
+   ===================================================== */
 
-      border-radius:
-        18px;
+.grupo-estadisticas {
 
-      text-align:
-        center;
+  display: grid;
 
-    }
+  grid-template-columns:
+    repeat(3, 1fr);
 
+  gap: 7px;
 
-    .resultado-presente {
+  margin-top: 14px;
 
-      display:
-        block !important;
+}
 
-      background:
-        #dcfce7;
+.grupo-estado {
 
-      color:
-        #166534;
+  background: #f8fafc;
 
-    }
+  border-radius: 12px;
 
+  padding: 10px 4px;
 
-    .resultado-tardanza {
+  text-align: center;
 
-      display:
-        block !important;
+}
 
-      background:
-        #fef3c7;
+.grupo-estado .numero {
 
-      color:
-        #92400e;
+  font-size: 22px;
 
-    }
+  font-weight: bold;
 
+}
 
-    .resultado-duplicado {
+.grupo-estado .etiqueta {
 
-      display:
-        block !important;
+  font-size: 10px;
 
-      background:
-        #fef3c7;
+  color: #64748b;
 
-      color:
-        #92400e;
+  margin-top: 3px;
 
-    }
+}
 
 
-    .resultado-error {
+/* =====================================================
+   INFORMACIÓN
+   ===================================================== */
 
-      display:
-        block !important;
+.grupo-info {
 
-      background:
-        #fee2e2;
+  display: grid;
 
-      color:
-        #991b1b;
+  grid-template-columns:
+    1fr 1fr;
 
-    }
+  gap: 8px;
 
+  margin-top: 10px;
 
-    .resultado-procesando {
+}
 
-      display:
-        block !important;
+.info-item {
 
-      background:
-        #e0f2fe;
+  background: #f8fafc;
 
-      color:
-        #075985;
+  border-radius: 10px;
 
-    }
+  padding: 8px;
 
+  text-align: center;
 
-    .resultado-icono {
+  font-size: 11px;
 
-      font-size:
-        48px;
+  color: #64748b;
 
-      margin-bottom:
-        5px;
+}
 
-    }
+.info-item strong {
 
+  display: block;
 
-    .resultado-titulo {
+  color: #0f172a;
 
-      font-size:
-        21px;
+  margin-top: 2px;
 
-      font-weight:
-        bold;
+}
 
-    }
 
+/* =====================================================
+   LISTAS DE ESTUDIANTES
+   ===================================================== */
 
-    .resultado-estudiante {
+.lista-panel {
 
-      font-size:
-        20px;
+  margin-top: 12px;
 
-      font-weight:
-        bold;
+  border-radius: 13px;
 
-      margin-top:
-        10px;
+  overflow: hidden;
 
-    }
+  border: 1px solid #e2e8f0;
 
+}
 
-    .resultado-grupo {
+.lista-panel summary {
 
-      margin-top:
-        7px;
+  list-style: none;
 
-      font-size:
-        15px;
+  cursor: pointer;
 
-    }
+  padding: 12px;
 
+  font-weight: bold;
 
-    .resultado-hora {
+  font-size: 13px;
 
-      font-size:
-        31px;
+}
 
-      font-weight:
-        bold;
+.lista-panel summary::-webkit-details-marker {
 
-      margin-top:
-        10px;
+  display: none;
 
-    }
+}
 
+.lista-panel summary:after {
 
-    .resultado-estado {
+  content: "▼";
 
-      font-size:
-        18px;
+  float: right;
 
-      font-weight:
-        bold;
+  color: #94a3b8;
 
-      margin-top:
-        5px;
+  font-size: 10px;
 
-    }
+}
 
+.lista-panel[open] summary:after {
 
-    /* =========================================
-       AUDIO
-       ========================================= */
+  transform: rotate(180deg);
 
-    .audio-indicador {
+}
 
-      text-align:
-        center;
 
-      font-size:
-        11px;
+/* Colores */
 
-      color:
-        #94a3b8;
+.lista-panel.presente summary {
 
-      margin-top:
-        10px;
+  background: #f0fdf4;
 
-    }
+  color: #166534;
 
+}
 
-    /* =========================================
-       FOOTER
-       ========================================= */
+.lista-panel.tardanza summary {
 
-    .footer {
+  background: #fffbeb;
 
-      text-align:
-        center;
+  color: #92400e;
 
-      color:
-        #94a3b8;
+}
 
-      font-size:
-        11px;
+.lista-panel.faltante summary {
 
-      padding:
-        10px 5px 20px;
+  background: #fef2f2;
 
-    }
+  color: #991b1b;
 
+}
 
-    /* =========================================
-       RESPONSIVE
-       ========================================= */
 
-    @media (
-      max-width: 400px
-    ) {
+/* =====================================================
+   LISTA
+   ===================================================== */
 
-      .estadistica .numero {
+.lista-estudiantes {
 
-        font-size:
-          23px;
+  background: white;
 
-      }
+  padding: 5px 10px 9px;
 
+}
 
-      .estadistica .etiqueta {
+.estudiante-item {
 
-        font-size:
-          10px;
+  display: flex;
 
-      }
+  align-items: flex-start;
 
+  gap: 8px;
 
-      .grupo-estado .numero {
+  padding: 8px 3px;
 
-        font-size:
-          20px;
+  border-bottom:
+    1px solid #f1f5f9;
 
-      }
+  font-size: 12px;
 
+}
 
-      .grupo-titulo {
+.estudiante-item:last-child {
 
-        font-size:
-          18px;
+  border-bottom: none;
 
-      }
+}
 
+.estudiante-numero {
 
-      .ultimo-estudiante {
+  min-width: 23px;
 
-        font-size:
-          18px;
+  color: #94a3b8;
 
-      }
+  font-weight: bold;
 
+}
 
-      .ultimo-hora {
+.estudiante-nombre {
 
-        font-size:
-          22px;
+  flex: 1;
 
-      }
+  line-height: 1.25;
 
-    }
+}
 
-  </style>
+.estudiante-codigo {
+
+  display: block;
+
+  color: #94a3b8;
+
+  font-size: 10px;
+
+  margin-top: 2px;
+
+}
+
+.lista-vacia {
+
+  padding: 12px;
+
+  text-align: center;
+
+  color: #94a3b8;
+
+  font-size: 12px;
+
+}
+
+
+/* =====================================================
+   SIN REGISTROS
+   ===================================================== */
+
+.sin-registros {
+
+  text-align: center;
+
+  color: #94a3b8;
+
+  padding: 13px 5px;
+
+  font-size: 13px;
+
+}
+
+
+/* =====================================================
+   FOOTER
+   ===================================================== */
+
+.footer {
+
+  text-align: center;
+
+  color: #94a3b8;
+
+  font-size: 11px;
+
+  padding:
+    5px 5px 20px;
+
+}
+
+
+/* =====================================================
+   RESPONSIVE
+   ===================================================== */
+
+@media (max-width: 400px) {
+
+  .estadistica .numero {
+
+    font-size: 23px;
+
+  }
+
+  .grupo-estado .numero {
+
+    font-size: 20px;
+
+  }
+
+  .grupo-titulo {
+
+    font-size: 18px;
+
+  }
+
+  .ultimo-estudiante {
+
+    font-size: 18px;
+
+  }
+
+  .ultimo-hora {
+
+    font-size: 21px;
+
+  }
+
+}
+
+</style>
 
 </head>
 
@@ -1162,967 +1088,1079 @@
 <body>
 
 
-  <!-- =========================================
-       ENCABEZADO
-       ========================================= -->
+<!-- =================================================
+     ENCABEZADO
+     ================================================= -->
 
-  <div class="header">
+<div class="header">
 
-    <h1>
-      🏫 CET 34
-    </h1>
+  <h1>
+    🏫 CET 34
+  </h1>
 
-    <p>
-      CONTROL DE ASISTENCIA QR
-    </p>
+  <p>
+    CONTROL DE ASISTENCIA QR
+  </p>
+
+</div>
+
+
+<div class="container">
+
+
+<!-- =================================================
+     1. ESCÁNER — AHORA ARRIBA
+     ================================================= -->
+
+<div class="card">
+
+  <div class="scanner-titulo">
+
+    📷 ESCANEAR QR
+
+  </div>
+
+  <div class="scanner-instruccion">
+
+    Coloca el código QR del estudiante
+    frente a la cámara
+
+  </div>
+
+  <div id="reader"></div>
+
+  <div id="resultado"></div>
+
+  <div
+    id="audioIndicador"
+    class="audio-indicador">
+
+    🔊 Toca la pantalla para activar
+    el sonido
+
+  </div>
+
+</div>
+
+
+
+<!-- =================================================
+     2. FECHA + JORNADA
+     ================================================= -->
+
+<div class="card">
+
+  <div
+    id="fecha"
+    class="fecha">
+
+    Cargando fecha...
+
+  </div>
+
+  <div
+    id="jornada"
+    class="jornada">
+
+    🟢 Cargando jornada...
+
+  </div>
+
+</div>
+
+
+
+<!-- =================================================
+     3. RESUMEN DEL DÍA
+     ================================================= -->
+
+<div class="card">
+
+  <div class="titulo">
+
+    📊 RESUMEN DEL DÍA
+
+  </div>
+
+  <div class="estadisticas">
+
+
+    <div class="estadistica">
+
+      <div
+        id="presentesGeneral"
+        class="numero numero-presente">
+
+        0
+
+      </div>
+
+      <div class="etiqueta">
+
+        🟢 Presentes
+
+      </div>
+
+    </div>
+
+
+    <div class="estadistica">
+
+      <div
+        id="tardanzasGeneral"
+        class="numero numero-tardanza">
+
+        0
+
+      </div>
+
+      <div class="etiqueta">
+
+        🟡 Tardanzas
+
+      </div>
+
+    </div>
+
+
+    <div class="estadistica">
+
+      <div
+        id="faltantesGeneral"
+        class="numero numero-faltante">
+
+        0
+
+      </div>
+
+      <div class="etiqueta">
+
+        🔴 Faltantes
+
+      </div>
+
+    </div>
 
   </div>
 
 
-  <div class="container">
+  <div class="total-general">
 
+    👥 Total de estudiantes
 
-    <!-- =======================================
-         RESUMEN GENERAL
-         ======================================= -->
+    <strong id="totalGeneral">
 
-    <div class="card">
+      0
 
-      <div
-        id="fecha"
-        class="fecha">
-
-        Cargando fecha...
-
-      </div>
-
-
-      <div
-        id="jornada"
-        class="jornada">
-
-        🟢 JORNADA ACTIVA
-
-      </div>
-
-
-      <div class="titulo">
-
-        📊 RESUMEN DEL DÍA
-
-      </div>
-
-
-      <div class="estadisticas">
-
-
-        <div class="estadistica">
-
-          <div
-            id="presentesGeneral"
-            class="numero numero-presente">
-
-            0
-
-          </div>
-
-          <div class="etiqueta">
-
-            🟢 Presentes
-
-          </div>
-
-        </div>
-
-
-        <div class="estadistica">
-
-          <div
-            id="tardanzasGeneral"
-            class="numero numero-tardanza">
-
-            0
-
-          </div>
-
-          <div class="etiqueta">
-
-            🟡 Tardanzas
-
-          </div>
-
-        </div>
-
-
-        <div class="estadistica">
-
-          <div
-            id="faltantesGeneral"
-            class="numero numero-faltante">
-
-            0
-
-          </div>
-
-          <div class="etiqueta">
-
-            🔴 Faltantes
-
-          </div>
-
-        </div>
-
-
-      </div>
-
-
-      <div class="total-general">
-
-        👥 Total de estudiantes
-
-        <strong
-          id="totalGeneral">
-
-          0
-
-        </strong>
-
-      </div>
-
-
-      <div class="barra-contenedor">
-
-        <div class="barra-fondo">
-
-          <div
-            id="barraGeneral"
-            class="barra">
-          </div>
-
-        </div>
-
-
-        <div
-          id="porcentajeGeneral"
-          class="porcentaje">
-
-          Asistencia: 0%
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =======================================
-         ÚLTIMO REGISTRO
-         ======================================= -->
-
-    <div class="card">
-
-      <div class="titulo">
-
-        👤 ÚLTIMO REGISTRO
-
-      </div>
-
-
-      <div
-        id="ultimoRegistro"
-        class="ultimo-registro">
-
-        <div class="sin-registros">
-
-          Todavía no hay registros de hoy.
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =======================================
-         CONTROL POR SECCIÓN
-         ======================================= -->
-
-    <div class="card">
-
-      <div class="titulo">
-
-        🎓 CONTROL POR SECCIÓN
-
-      </div>
-
-
-      <div id="grupos">
-
-        <div class="sin-registros">
-
-          Cargando grupos...
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-
-    <!-- =======================================
-         ESCÁNER
-         ======================================= -->
-
-    <div class="card">
-
-      <div class="scanner-titulo">
-
-        📷 ESCANEAR QR
-
-      </div>
-
-
-      <div class="scanner-instruccion">
-
-        Coloca el código QR del estudiante
-        frente a la cámara
-
-      </div>
-
-
-      <div id="reader"></div>
-
-
-      <div
-        id="resultado">
-      </div>
-
-
-      <div
-        id="audioIndicador"
-        class="audio-indicador">
-
-        🔊 Toca la pantalla para activar
-        el sonido
-
-      </div>
-
-    </div>
-
-
-    <!-- =======================================
-         FOOTER
-         ======================================= -->
-
-    <div class="footer">
-
-      CET 34 · Sistema de Asistencia Digital
-      · Prof. StevenQP
-
-    </div>
-
+    </strong>
 
   </div>
+
+
+  <div class="barra-contenedor">
+
+    <div class="barra-fondo">
+
+      <div
+        id="barraGeneral"
+        class="barra">
+      </div>
+
+    </div>
+
+    <div
+      id="porcentajeGeneral"
+      class="porcentaje">
+
+      Asistencia: 0%
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =================================================
+     4. ÚLTIMO REGISTRO
+     ================================================= -->
+
+<div class="card">
+
+  <div class="titulo">
+
+    👤 ÚLTIMO REGISTRO
+
+  </div>
+
+  <div
+    id="ultimoRegistro"
+    class="ultimo-registro">
+
+    <div class="sin-registros">
+
+      Todavía no hay registros de hoy.
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =================================================
+     5. CONTROL POR SECCIÓN
+     ================================================= -->
+
+<div class="card">
+
+  <div class="titulo">
+
+    🎓 CONTROL POR SECCIÓN
+
+  </div>
+
+  <div id="grupos">
+
+    <div class="sin-registros">
+
+      Cargando grupos...
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =================================================
+     FOOTER
+     ================================================= -->
+
+<div class="footer">
+
+  CET 34 · Sistema de Asistencia Digital
+  · Prof. StevenQP
+
+</div>
+
+
+</div>
 
 
 
 <script>
 
+/* =====================================================
+   URL APPS SCRIPT
+   ===================================================== */
 
-  /* =========================================
-     URL DE APPS SCRIPT
-     ========================================= */
-
-  const URL_APPS_SCRIPT =
-    "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
-
-
-  /* =========================================
-     VARIABLES
-     ========================================= */
-
-  let scanner = null;
-
-  let procesando = false;
-
-  let audioContext = null;
+const URL_APPS_SCRIPT =
+  "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
 
 
+/* =====================================================
+   VARIABLES
+   ===================================================== */
 
-  /* =========================================
-     ACTIVAR AUDIO
-     ========================================= */
+let scanner = null;
 
-  function activarAudio() {
+let procesando = false;
 
-    try {
-
-      const AudioContext =
-        window.AudioContext ||
-        window.webkitAudioContext;
+let audioContext = null;
 
 
-      if (!AudioContext) {
+/* =====================================================
+   ESCAPAR TEXTO HTML
+   ===================================================== */
 
-        return;
+function escaparHTML(texto) {
 
-      }
+  return String(texto ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 
-
-      if (!audioContext) {
-
-        audioContext =
-          new AudioContext();
-
-      }
-
-
-      if (
-        audioContext.state ===
-        "suspended"
-      ) {
-
-        audioContext.resume();
-
-      }
+}
 
 
-      const indicador =
-        document.getElementById(
-          "audioIndicador"
-        );
+/* =====================================================
+   FORMATEAR HORA
+   ===================================================== */
 
+function formatearHora(hora) {
 
-      if (indicador) {
+  if (!hora) {
 
-        indicador.textContent =
-          "🔊 Sonido activo";
-
-      }
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Error activando audio:",
-        error
-      );
-
-    }
+    return "";
 
   }
 
 
+  const partes =
+    String(hora)
+      .trim()
+      .split(":");
 
-  /* =========================================
-     GENERADOR DE TONO
-     ========================================= */
 
-  function tono(
-    frecuencia,
-    duracion,
-    retraso,
-    volumen
+  if (partes.length < 2) {
+
+    return hora;
+
+  }
+
+
+  let horas =
+    parseInt(partes[0], 10);
+
+
+  const minutos =
+    partes[1];
+
+
+  const segundos =
+    partes.length >= 3
+      ? partes[2]
+      : "00";
+
+
+  if (
+    isNaN(horas)
   ) {
 
-    try {
-
-      activarAudio();
-
-
-      if (!audioContext) {
-
-        return;
-
-      }
-
-
-      const inicio =
-        audioContext.currentTime +
-        (retraso || 0);
-
-
-      const oscilador =
-        audioContext.createOscillator();
-
-
-      const ganancia =
-        audioContext.createGain();
-
-
-      oscilador.type =
-        "sine";
-
-
-      oscilador.frequency.setValueAtTime(
-        frecuencia,
-        inicio
-      );
-
-
-      ganancia.gain.setValueAtTime(
-        0.0001,
-        inicio
-      );
-
-
-      ganancia.gain.exponentialRampToValueAtTime(
-        volumen || 1.15,
-        inicio + 0.025
-      );
-
-
-      ganancia.gain.exponentialRampToValueAtTime(
-        0.0001,
-        inicio + duracion
-      );
-
-
-      oscilador.connect(
-        ganancia
-      );
-
-
-      ganancia.connect(
-        audioContext.destination
-      );
-
-
-      oscilador.start(
-        inicio
-      );
-
-
-      oscilador.stop(
-        inicio + duracion + 0.02
-      );
-
-    }
-
-    catch (error) {
-
-      console.error(
-        "Error generando sonido:",
-        error
-      );
-
-    }
+    return hora;
 
   }
 
 
+  const periodo =
+    horas >= 12
+      ? "PM"
+      : "AM";
 
-  /* =========================================
-     🟢 SONIDO PRESENTE
-     ========================================= */
 
-  function sonidoPresente() {
+  let horas12 =
+    horas % 12;
 
-    activarAudio();
 
-
-    tono(
-      784,
-      0.14,
-      0,
-      0.80
-    );
-
-
-    tono(
-      1175,
-      0.18,
-      0.15,
-      0.85
-    );
-
-
-    if (
-      navigator.vibrate
-    ) {
-
-      navigator.vibrate(
-        100
-      );
-
-    }
-
-  }
-
-
-
-  /* =========================================
-     🟡 SONIDO TARDANZA
-     ========================================= */
-
-  function sonidoTardanza() {
-
-    activarAudio();
-
-
-    tono(
-      700,
-      0.18,
-      0,
-      0.85
-    );
-
-
-    tono(
-      440,
-      0.22,
-      0.20,
-      0.90
-    );
-
-
-    if (
-      navigator.vibrate
-    ) {
-
-      navigator.vibrate([
-        120,
-        80,
-        120
-      ]);
-
-    }
-
-  }
-
-
-
-  /* =========================================
-     ⚠️ SONIDO DUPLICADO
-     ========================================= */
-
-  function sonidoDuplicado() {
-
-    activarAudio();
-
-
-    tono(
-      520,
-      0.16,
-      0,
-      0.90
-    );
-
-
-    tono(
-      520,
-      0.16,
-      0.30,
-      0.90
-    );
-
-
-    if (
-      navigator.vibrate
-    ) {
-
-      navigator.vibrate([
-        100,
-        100,
-        100
-      ]);
-
-    }
-
-  }
-
-
-
-  /* =========================================
-     🚫 SONIDO ERROR
-     ========================================= */
-
-  function sonidoError() {
-
-    activarAudio();
-
-
-    tono(
-      300,
-      0.25,
-      0,
-      0.95
-    );
-
-
-    tono(
-      180,
-      0.30,
-      0.28,
-      1.00
-    );
-
-
-    if (
-      navigator.vibrate
-    ) {
-
-      navigator.vibrate([
-        160,
-        90,
-        160,
-        90,
-        160
-      ]);
-
-    }
-
-  }
-
-
-
-  /* =========================================
-     ACTIVAR AUDIO AL TOCAR
-     ========================================= */
-
-  document.addEventListener(
-    "touchstart",
-    activarAudio,
-    {
-      passive: true
-    }
-  );
-
-
-  document.addEventListener(
-    "click",
-    activarAudio
-  );
-
-
-
-  /* =========================================
-     CARGAR ESTADÍSTICAS
-     ========================================= */
-
-  function cargarEstadisticas() {
-
-    const url =
-      URL_APPS_SCRIPT +
-      "?action=estadisticas";
-
-
-    fetch(url)
-
-      .then(function(response) {
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Error HTTP: " +
-            response.status
-          );
-
-        }
-
-
-        return response.json();
-
-      })
-
-
-      .then(function(data) {
-
-        console.log(
-          "Estadísticas:",
-          data
-        );
-
-
-        if (
-          data.exito !== true
-        ) {
-
-          throw new Error(
-            data.mensaje ||
-            "No se pudieron obtener las estadísticas."
-          );
-
-        }
-
-
-        mostrarEstadisticas(
-          data
-        );
-
-      })
-
-
-      .catch(function(error) {
-
-        console.error(
-          "Error estadísticas:",
-          error
-        );
-
-
-        document.getElementById(
-          "grupos"
-        ).innerHTML = `
-
-          <div class="sin-registros">
-
-            ⚠️ No se pudieron cargar
-            las estadísticas.
-
-          </div>
-
-        `;
-
-      });
-
-  }
-
-
-
-  /* =========================================
-     MOSTRAR ESTADÍSTICAS
-     ========================================= */
-
-  function mostrarEstadisticas(data) {
-
-
-    /* =======================================
-       FECHA
-       ======================================= */
-
-    document.getElementById(
-      "fecha"
-    ).textContent =
-
-      data.dia +
-      " · " +
-      data.fecha;
-
-
-
-    /* =======================================
-       RESUMEN GENERAL
-       ======================================= */
-
-    document.getElementById(
-      "presentesGeneral"
-    ).textContent =
-
-      data.presentesGeneral;
-
-
-    document.getElementById(
-      "tardanzasGeneral"
-    ).textContent =
-
-      data.tardanzasGeneral;
-
-
-    document.getElementById(
-      "faltantesGeneral"
-    ).textContent =
-
-      data.faltantesGeneral;
-
-
-    document.getElementById(
-      "totalGeneral"
-    ).textContent =
-
-      data.totalGeneral;
-
-
-    document.getElementById(
-      "porcentajeGeneral"
-    ).textContent =
-
-      "Asistencia: " +
-      data.porcentajeGeneral +
-      "%";
-
-
-    document.getElementById(
-      "barraGeneral"
-    ).style.width =
-
-      data.porcentajeGeneral +
-      "%";
-
-
-
-    /* =======================================
-       JORNADA
-       ======================================= */
-
-    const jornada =
-      document.getElementById(
-        "jornada"
-      );
-
-
-    if (
-      data.grupos &&
-      data.grupos.length > 0
-    ) {
-
-      jornada.className =
-        "jornada";
-
-
-      jornada.innerHTML =
-
-        "🟢 JORNADA ACTIVA · " +
-        data.grupos.length +
-        " grupo" +
-        (
-          data.grupos.length > 1
-          ? "s"
-          : ""
-        );
-
-    }
-
-    else {
-
-      jornada.className =
-        "jornada pausa";
-
-
-      jornada.innerHTML =
-        "⚪ SIN HORARIO ACTIVO";
-
-    }
-
-
-
-    /* =======================================
-       ÚLTIMO REGISTRO
-       ======================================= */
-
-    mostrarUltimoRegistro(
-      data.ultimoRegistro
-    );
-
-
-
-    /* =======================================
-       GRUPOS
-       ======================================= */
-
-    mostrarGrupos(
-      data.grupos
-    );
-
-  }
-
-
-
-  /* =========================================
-     MOSTRAR ÚLTIMO REGISTRO
-     ========================================= */
-
-  function mostrarUltimoRegistro(
-    registro
+  if (
+    horas12 === 0
   ) {
 
+    horas12 = 12;
 
-    const contenedor =
-      document.getElementById(
-        "ultimoRegistro"
-      );
+  }
 
 
-    if (
-      !registro
-    ) {
+  return (
+    horas12 +
+    ":" +
+    minutos +
+    ":" +
+    segundos +
+    " " +
+    periodo
+  );
 
-      contenedor.innerHTML = `
+}
 
-        <div class="sin-registros">
 
-          Todavía no hay registros
-          de hoy.
+/* =====================================================
+   ACTIVAR AUDIO
+   ===================================================== */
 
-        </div>
+function activarAudio() {
 
-      `;
+  try {
+
+    const AudioContext =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+
+    if (!AudioContext) {
 
       return;
 
     }
 
 
-    const estado =
-      String(
-        registro.estado || ""
-      )
-        .trim()
-        .toUpperCase();
+    if (!audioContext) {
+
+      audioContext =
+        new AudioContext();
+
+    }
 
 
-    const esTardanza =
-      estado === "TARDANZA";
+    if (
+      audioContext.state ===
+      "suspended"
+    ) {
+
+      audioContext.resume();
+
+    }
 
 
-    const claseEstado =
-      esTardanza
+    const indicador =
+      document.getElementById(
+        "audioIndicador"
+      );
+
+
+    if (indicador) {
+
+      indicador.textContent =
+        "🔊 Sonido activo";
+
+    }
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Error activando audio:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   GENERAR TONO
+   ===================================================== */
+
+function tono(
+  frecuencia,
+  duracion,
+  retraso,
+  volumen
+) {
+
+  try {
+
+    activarAudio();
+
+
+    if (!audioContext) {
+
+      return;
+
+    }
+
+
+    const inicio =
+      audioContext.currentTime +
+      (retraso || 0);
+
+
+    const oscilador =
+      audioContext.createOscillator();
+
+
+    const ganancia =
+      audioContext.createGain();
+
+
+    oscilador.type =
+      "sine";
+
+
+    oscilador.frequency.setValueAtTime(
+      frecuencia,
+      inicio
+    );
+
+
+    ganancia.gain.setValueAtTime(
+      0.0001,
+      inicio
+    );
+
+
+    ganancia.gain.exponentialRampToValueAtTime(
+      volumen || 0.80,
+      inicio + 0.025
+    );
+
+
+    ganancia.gain.exponentialRampToValueAtTime(
+      0.0001,
+      inicio + duracion
+    );
+
+
+    oscilador.connect(
+      ganancia
+    );
+
+
+    ganancia.connect(
+      audioContext.destination
+    );
+
+
+    oscilador.start(
+      inicio
+    );
+
+
+    oscilador.stop(
+      inicio + duracion + 0.02
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Error generando sonido:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   SONIDO PRESENTE
+   ===================================================== */
+
+function sonidoPresente() {
+
+  activarAudio();
+
+  tono(
+    784,
+    0.14,
+    0,
+    0.80
+  );
+
+  tono(
+    1175,
+    0.18,
+    0.15,
+    0.85
+  );
+
+
+  if (
+    navigator.vibrate
+  ) {
+
+    navigator.vibrate(100);
+
+  }
+
+}
+
+
+/* =====================================================
+   SONIDO TARDANZA
+   ===================================================== */
+
+function sonidoTardanza() {
+
+  activarAudio();
+
+  tono(
+    700,
+    0.18,
+    0,
+    0.85
+  );
+
+  tono(
+    440,
+    0.22,
+    0.20,
+    0.90
+  );
+
+
+  if (
+    navigator.vibrate
+  ) {
+
+    navigator.vibrate([
+      120,
+      80,
+      120
+    ]);
+
+  }
+
+}
+
+
+/* =====================================================
+   SONIDO DUPLICADO
+   ===================================================== */
+
+function sonidoDuplicado() {
+
+  activarAudio();
+
+  tono(
+    520,
+    0.16,
+    0,
+    0.90
+  );
+
+  tono(
+    520,
+    0.16,
+    0.30,
+    0.90
+  );
+
+
+  if (
+    navigator.vibrate
+  ) {
+
+    navigator.vibrate([
+      100,
+      100,
+      100
+    ]);
+
+  }
+
+}
+
+
+/* =====================================================
+   SONIDO ERROR
+   ===================================================== */
+
+function sonidoError() {
+
+  activarAudio();
+
+  tono(
+    300,
+    0.25,
+    0,
+    0.95
+  );
+
+  tono(
+    180,
+    0.30,
+    0.28,
+    1.00
+  );
+
+
+  if (
+    navigator.vibrate
+  ) {
+
+    navigator.vibrate([
+      160,
+      90,
+      160
+    ]);
+
+  }
+
+}
+
+
+/* =====================================================
+   ACTIVAR AUDIO AL TOCAR
+   ===================================================== */
+
+document.addEventListener(
+  "touchstart",
+  activarAudio,
+  {
+    passive: true
+  }
+);
+
+
+document.addEventListener(
+  "click",
+  activarAudio
+);
+
+
+/* =====================================================
+   CARGAR ESTADÍSTICAS
+   ===================================================== */
+
+function cargarEstadisticas() {
+
+  const url =
+    URL_APPS_SCRIPT +
+    "?action=estadisticas";
+
+
+  fetch(url)
+
+    .then(function(response) {
+
+      if (!response.ok) {
+
+        throw new Error(
+          "Error HTTP: " +
+          response.status
+        );
+
+      }
+
+
+      return response.json();
+
+    })
+
+
+    .then(function(data) {
+
+      console.log(
+        "Estadísticas:",
+        data
+      );
+
+
+      if (
+        data.exito !== true
+      ) {
+
+        throw new Error(
+          data.mensaje ||
+          "No se pudieron obtener las estadísticas."
+        );
+
+      }
+
+
+      mostrarEstadisticas(
+        data
+      );
+
+    })
+
+
+    .catch(function(error) {
+
+      console.error(
+        "Error estadísticas:",
+        error
+      );
+
+
+      document.getElementById(
+        "grupos"
+      ).innerHTML = `
+
+        <div class="sin-registros">
+
+          ⚠️ No se pudieron cargar
+          las estadísticas.
+
+        </div>
+
+      `;
+
+    });
+
+}
+
+
+/* =====================================================
+   MOSTRAR ESTADÍSTICAS
+   ===================================================== */
+
+function mostrarEstadisticas(data) {
+
+
+  /* -----------------------------------------------
+     FECHA
+     ----------------------------------------------- */
+
+  document.getElementById(
+    "fecha"
+  ).textContent =
+
+    escaparHTML(
+      data.dia
+    ) +
+    " · " +
+    escaparHTML(
+      data.fecha
+    );
+
+
+  /* -----------------------------------------------
+     RESUMEN
+     ----------------------------------------------- */
+
+  document.getElementById(
+    "presentesGeneral"
+  ).textContent =
+
+    data.presentesGeneral;
+
+
+  document.getElementById(
+    "tardanzasGeneral"
+  ).textContent =
+
+    data.tardanzasGeneral;
+
+
+  document.getElementById(
+    "faltantesGeneral"
+  ).textContent =
+
+    data.faltantesGeneral;
+
+
+  document.getElementById(
+    "totalGeneral"
+  ).textContent =
+
+    data.totalGeneral;
+
+
+  document.getElementById(
+    "porcentajeGeneral"
+  ).textContent =
+
+    "Asistencia: " +
+    data.porcentajeGeneral +
+    "%";
+
+
+  document.getElementById(
+    "barraGeneral"
+  ).style.width =
+
+    data.porcentajeGeneral +
+    "%";
+
+
+  /* -----------------------------------------------
+     JORNADA
+     ----------------------------------------------- */
+
+  const jornada =
+    document.getElementById(
+      "jornada"
+    );
+
+
+  if (
+    data.grupos &&
+    data.grupos.length > 0
+  ) {
+
+    jornada.className =
+      "jornada";
+
+
+    jornada.innerHTML =
+
+      "🟢 JORNADA ACTIVA · " +
+      data.grupos.length +
+      (
+        data.grupos.length === 1
+          ? " grupo"
+          : " grupos"
+      );
+
+  }
+
+  else {
+
+    jornada.className =
+      "jornada pausa";
+
+
+    jornada.innerHTML =
+      "⚪ SIN HORARIO ACTIVO";
+
+  }
+
+
+  /* -----------------------------------------------
+     ÚLTIMO REGISTRO
+     ----------------------------------------------- */
+
+  mostrarUltimoRegistro(
+    data.ultimoRegistro
+  );
+
+
+  /* -----------------------------------------------
+     GRUPOS
+     ----------------------------------------------- */
+
+  mostrarGrupos(
+    data.grupos
+  );
+
+}
+
+
+/* =====================================================
+   ÚLTIMO REGISTRO
+   ===================================================== */
+
+function mostrarUltimoRegistro(
+  registro
+) {
+
+
+  const contenedor =
+    document.getElementById(
+      "ultimoRegistro"
+    );
+
+
+  if (!registro) {
+
+    contenedor.innerHTML = `
+
+      <div class="sin-registros">
+
+        Todavía no hay registros de hoy.
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+
+  const estado =
+    String(
+      registro.estado || ""
+    )
+      .trim()
+      .toUpperCase();
+
+
+  const esTardanza =
+    estado === "TARDANZA";
+
+
+  const clase =
+    esTardanza
       ? "tardanza"
       : "presente";
 
 
-    const textoEstado =
-      esTardanza
+  const textoEstado =
+    esTardanza
       ? "🟡 TARDANZA"
       : "🟢 PRESENTE";
 
 
-    contenedor.innerHTML = `
+  contenedor.innerHTML = `
 
-      <div class="ultimo-titulo">
+    <div class="ultimo-titulo">
 
-        👤 ÚLTIMO ESTUDIANTE REGISTRADO
+      👤 ÚLTIMO ESTUDIANTE REGISTRADO
+
+    </div>
+
+
+    <div class="ultimo-estudiante">
+
+      ${escaparHTML(
+        registro.estudiante
+      )}
+
+    </div>
+
+
+    <div class="ultimo-grupo">
+
+      ${escaparHTML(
+        registro.grado
+      )}
+
+      · Sección
+
+      ${escaparHTML(
+        registro.seccion
+      )}
+
+    </div>
+
+
+    <div class="ultimo-detalles">
+
+      <div class="ultimo-hora">
+
+        🕐
+        ${formatearHora(
+          registro.hora
+        )}
 
       </div>
 
 
-      <div class="ultimo-estudiante">
+      <div
+        class="ultimo-estado ${clase}">
 
-        ${registro.estudiante || ""}
-
-      </div>
-
-
-      <div class="ultimo-grupo">
-
-        ${registro.grado || ""}
-
-        ·
-
-        Sección ${registro.seccion || ""}
+        ${textoEstado}
 
       </div>
 
+    </div>
 
-      <div class="ultimo-detalles">
+  `;
 
-        <div class="ultimo-hora">
-
-          🕐 ${registro.hora || ""}
-
-        </div>
+}
 
 
-        <div
-          class="ultimo-estado ${claseEstado}">
+/* =====================================================
+   CREAR LISTA DE ESTUDIANTES
+   ===================================================== */
 
-          ${textoEstado}
+function crearLista(
+  estudiantes,
+  tipo,
+  titulo,
+  emoji
+) {
 
-        </div>
+
+  const lista =
+    estudiantes || [];
+
+
+  let contenido = "";
+
+
+  if (
+    lista.length === 0
+  ) {
+
+    contenido = `
+
+      <div class="lista-vacia">
+
+        No hay estudiantes en esta categoría.
 
       </div>
 
@@ -2130,73 +2168,171 @@
 
   }
 
+  else {
+
+    contenido =
+      '<div class="lista-estudiantes">';
 
 
-  /* =========================================
-     MOSTRAR GRUPOS
-     ========================================= */
+    lista.forEach(
+      function(estudiante, indice) {
 
-  function mostrarGrupos(
-    grupos
+        contenido += `
+
+          <div class="estudiante-item">
+
+            <div class="estudiante-numero">
+
+              ${String(
+                indice + 1
+              ).padStart(2, "0")}
+
+            </div>
+
+
+            <div class="estudiante-nombre">
+
+              ${escaparHTML(
+                estudiante.nombre
+              )}
+
+              <span
+                class="estudiante-codigo">
+
+                ${escaparHTML(
+                  estudiante.codigo
+                )}
+
+              </span>
+
+            </div>
+
+          </div>
+
+        `;
+
+      }
+    );
+
+
+    contenido +=
+      "</div>";
+
+  }
+
+
+  return `
+
+    <details
+      class="lista-panel ${tipo}">
+
+      <summary>
+
+        ${emoji}
+        ${titulo}
+
+        · ${lista.length}
+
+      </summary>
+
+      ${contenido}
+
+    </details>
+
+  `;
+
+}
+
+
+/* =====================================================
+   MOSTRAR GRUPOS
+   ===================================================== */
+
+function mostrarGrupos(
+  grupos
+) {
+
+
+  const contenedor =
+    document.getElementById(
+      "grupos"
+    );
+
+
+  contenedor.innerHTML =
+    "";
+
+
+  if (
+    !grupos ||
+    grupos.length === 0
   ) {
 
+    contenedor.innerHTML = `
 
-    const contenedor =
-      document.getElementById(
-        "grupos"
-      );
+      <div class="sin-registros">
 
+        📅 Hoy no hay grupos
+        con horario configurado.
 
-    contenedor.innerHTML =
-      "";
+      </div>
 
+    `;
 
-    if (
-      !grupos ||
-      grupos.length === 0
-    ) {
+    return;
 
-      contenedor.innerHTML = `
-
-        <div class="sin-registros">
-
-          📅 Hoy no hay grupos
-          con horario configurado.
-
-        </div>
-
-      `;
-
-      return;
-
-    }
+  }
 
 
-    grupos.forEach(
-      function(grupo) {
+  grupos.forEach(
+    function(grupo, indice) {
 
 
-        const tarjeta =
-          document.createElement(
-            "div"
-          );
+      const tarjeta =
+        document.createElement(
+          "details"
+        );
 
 
-        tarjeta.className =
-          "grupo";
+      tarjeta.className =
+        "grupo";
 
 
-        tarjeta.innerHTML = `
+      /*
+        El primer grupo queda abierto.
+        Los demás quedan cerrados.
+      */
+
+      if (
+        indice === 0
+      ) {
+
+        tarjeta.open =
+          true;
+
+      }
+
+
+      tarjeta.innerHTML = `
+
+        <summary>
 
           <div class="grupo-cabecera">
-
 
             <div>
 
               <div class="grupo-titulo">
 
-                🎓 ${grupo.grado}
-                · Sección ${grupo.seccion}
+                🎓
+                ${escaparHTML(
+                  grupo.grado
+                )}
+
+                · Sección
+
+                ${escaparHTML(
+                  grupo.seccion
+                )}
 
               </div>
 
@@ -2204,7 +2340,10 @@
               <div class="grupo-hora">
 
                 🕐 Entrada:
-                ${grupo.hora}
+
+                ${formatearHora(
+                  grupo.hora
+                )}
 
               </div>
 
@@ -2217,10 +2356,15 @@
 
             </div>
 
-
           </div>
 
+        </summary>
 
+
+        <div class="grupo-contenido">
+
+
+          <!-- ESTADÍSTICAS -->
 
           <div class="grupo-estadisticas">
 
@@ -2278,10 +2422,11 @@
 
             </div>
 
-
           </div>
 
 
+
+          <!-- INFORMACIÓN -->
 
           <div class="grupo-info">
 
@@ -2316,6 +2461,8 @@
 
 
 
+          <!-- PORCENTAJE -->
+
           <div class="barra-contenedor">
 
             <div class="barra-fondo">
@@ -2339,320 +2486,211 @@
 
           </div>
 
-        `;
 
 
-        contenedor.appendChild(
-          tarjeta
-        );
+          <!-- ==================================
+               LISTA PRESENTES
+               ================================== -->
 
-      }
-    );
+          ${crearLista(
+
+            grupo.estudiantesPresentes,
+
+            "presente",
+
+            "Presentes",
+
+            "🟢"
+
+          )}
+
+
+
+          <!-- ==================================
+               LISTA TARDANZAS
+               ================================== -->
+
+          ${crearLista(
+
+            grupo.estudiantesTardanza,
+
+            "tardanza",
+
+            "Tardanzas",
+
+            "🟡"
+
+          )}
+
+
+
+          <!-- ==================================
+               LISTA FALTANTES
+               ================================== -->
+
+          ${crearLista(
+
+            grupo.estudiantesFaltantes,
+
+            "faltante",
+
+            "Faltantes",
+
+            "🔴"
+
+          )}
+
+        </div>
+
+      `;
+
+
+      contenedor.appendChild(
+        tarjeta
+      );
+
+    }
+  );
+
+}
+
+
+/* =====================================================
+   QR DETECTADO
+   ===================================================== */
+
+function qrDetectado(
+  codigo
+) {
+
+
+  if (
+    procesando
+  ) {
+
+    return;
 
   }
 
 
+  procesando =
+    true;
 
-  /* =========================================
-     QR DETECTADO
-     ========================================= */
 
-  function qrDetectado(
+  console.log(
+    "QR detectado:",
     codigo
+  );
+
+
+  if (
+    scanner
   ) {
 
+    scanner.stop()
 
-    if (
-      procesando
-    ) {
+      .then(function() {
 
-      return;
-
-    }
-
-
-    procesando =
-      true;
-
-
-    console.log(
-      "QR detectado:",
-      codigo
-    );
-
-
-    if (
-      scanner
-    ) {
-
-      scanner.stop()
-
-        .then(function() {
-
-          registrarAsistencia(
-            codigo
-          );
-
-        })
-
-        .catch(function(error) {
-
-          console.error(
-            "Error al detener cámara:",
-            error
-          );
-
-
-          registrarAsistencia(
-            codigo
-          );
-
-        });
-
-    }
-
-    else {
-
-      registrarAsistencia(
-        codigo
-      );
-
-    }
-
-  }
-
-
-
-  /* =========================================
-     REGISTRAR ASISTENCIA
-     ========================================= */
-
-  function registrarAsistencia(
-    codigo
-  ) {
-
-
-    mostrarProcesando();
-
-
-    const url =
-      URL_APPS_SCRIPT +
-      "?codigo=" +
-      encodeURIComponent(
-        codigo
-      );
-
-
-    fetch(url)
-
-      .then(function(response) {
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Error HTTP: " +
-            response.status
-          );
-
-        }
-
-
-        return response.json();
-
-      })
-
-
-      .then(function(data) {
-
-        console.log(
-          "Respuesta:",
-          data
-        );
-
-
-        procesarRespuesta(
-          data
+        registrarAsistencia(
+          codigo
         );
 
       })
-
 
       .catch(function(error) {
 
         console.error(
-          "Error de conexión:",
+          "Error al detener cámara:",
           error
         );
 
 
-        sonidoError();
-
-
-        mostrarError(
-          "No se pudo conectar con el servidor."
-        );
-
-
-        setTimeout(
-          function() {
-
-            iniciarScanner();
-
-          },
-          2500
+        registrarAsistencia(
+          codigo
         );
 
       });
 
   }
 
+  else {
+
+    registrarAsistencia(
+      codigo
+    );
+
+  }
+
+}
 
 
-  /* =========================================
-     PROCESAR RESPUESTA
-     ========================================= */
+/* =====================================================
+   REGISTRAR ASISTENCIA
+   ===================================================== */
 
-  function procesarRespuesta(
-    data
-  ) {
-
-
-    procesando =
-      false;
+function registrarAsistencia(
+  codigo
+) {
 
 
-    /* =======================================
-       REGISTRADO
-       ======================================= */
-
-    if (
-
-      data.exito === true &&
-
-      data.tipo === "registrado"
-
-    ) {
+  mostrarProcesando();
 
 
-      const estado =
-        String(
-          data.estado || ""
-        )
-          .trim()
-          .toUpperCase();
+  const url =
+    URL_APPS_SCRIPT +
+    "?codigo=" +
+    encodeURIComponent(
+      codigo
+    );
 
 
-      if (
-        estado === "TARDANZA"
-      ) {
+  fetch(url)
 
-        sonidoTardanza();
+    .then(function(response) {
 
-      }
+      if (!response.ok) {
 
-      else {
-
-        sonidoPresente();
+        throw new Error(
+          "Error HTTP: " +
+          response.status
+        );
 
       }
 
 
-      mostrarAsistencia(
+      return response.json();
+
+    })
+
+
+    .then(function(data) {
+
+      console.log(
+        "Respuesta:",
         data
       );
 
 
-      /*
-        Actualizamos estadísticas
-        después de guardar el registro.
-      */
-
-      setTimeout(
-        function() {
-
-          cargarEstadisticas();
-
-        },
-        300
-      );
-
-
-      /*
-        Regresamos automáticamente
-        al escáner.
-      */
-
-      setTimeout(
-        function() {
-
-          iniciarScanner();
-
-        },
-        2500
-      );
-
-
-      return;
-
-    }
-
-
-
-    /* =======================================
-       DUPLICADO
-       ======================================= */
-
-    if (
-
-      data.exito === false &&
-
-      data.tipo === "duplicado"
-
-    ) {
-
-
-      sonidoDuplicado();
-
-
-      mostrarDuplicado(
+      procesarRespuesta(
         data
       );
 
+    })
 
-      setTimeout(
-        function() {
 
-          iniciarScanner();
+    .catch(function(error) {
 
-        },
-        2500
+      console.error(
+        "Error:",
+        error
       );
-
-
-      return;
-
-    }
-
-
-
-    /* =======================================
-       SIN HORARIO
-       ======================================= */
-
-    if (
-
-      data.tipo === "sin_horario" ||
-
-      data.estado === "Sin horario"
-
-    ) {
 
 
       sonidoError();
 
 
-      mostrarSinHorario(
-        data
+      mostrarError(
+        "No se pudo conectar con el servidor."
       );
 
 
@@ -2665,26 +2703,117 @@
         2500
       );
 
+    });
 
-      return;
+}
+
+
+/* =====================================================
+   PROCESAR RESPUESTA
+   ===================================================== */
+
+function procesarRespuesta(
+  data
+) {
+
+
+  procesando =
+    false;
+
+
+  /* -----------------------------------------------
+     REGISTRADO
+     ----------------------------------------------- */
+
+  if (
+
+    data.exito === true &&
+
+    data.tipo === "registrado"
+
+  ) {
+
+
+    const estado =
+      String(
+        data.estado || ""
+      )
+        .trim()
+        .toUpperCase();
+
+
+    if (
+      estado === "TARDANZA"
+    ) {
+
+      sonidoTardanza();
+
+    }
+
+    else {
+
+      sonidoPresente();
 
     }
 
 
-
-    /* =======================================
-       ERROR
-       ======================================= */
-
-    sonidoError();
+    mostrarAsistencia(
+      data
+    );
 
 
-    mostrarError(
+    /*
+      Actualizar estadísticas.
+    */
 
-      data.mensaje ||
+    setTimeout(
+      function() {
 
-      "No se pudo registrar la asistencia."
+        cargarEstadisticas();
 
+      },
+      300
+    );
+
+
+    /*
+      Volver automáticamente
+      al escáner.
+    */
+
+    setTimeout(
+      function() {
+
+        iniciarScanner();
+
+      },
+      2500
+    );
+
+
+    return;
+
+  }
+
+
+  /* -----------------------------------------------
+     DUPLICADO
+     ----------------------------------------------- */
+
+  if (
+
+    data.exito === false &&
+
+    data.tipo === "duplicado"
+
+  ) {
+
+
+    sonidoDuplicado();
+
+
+    mostrarDuplicado(
+      data
     );
 
 
@@ -2697,511 +2826,592 @@
       2500
     );
 
-  }
 
-
-
-  /* =========================================
-     PROCESANDO
-     ========================================= */
-
-  function mostrarProcesando() {
-
-
-    const resultado =
-      document.getElementById(
-        "resultado"
-      );
-
-
-    resultado.className =
-      "resultado-procesando";
-
-
-    resultado.innerHTML = `
-
-      <div class="resultado-icono">
-
-        ⏳
-
-      </div>
-
-
-      <div class="resultado-titulo">
-
-        REGISTRANDO...
-
-      </div>
-
-
-      <div>
-
-        Guardando asistencia...
-
-      </div>
-
-    `;
+    return;
 
   }
 
 
-
-  /* =========================================
-     MOSTRAR ASISTENCIA
-     ========================================= */
-
-  function mostrarAsistencia(
-    data
-  ) {
-
-
-    const resultado =
-      document.getElementById(
-        "resultado"
-      );
-
-
-    const esTardanza =
-
-      String(
-        data.estado || ""
-      )
-        .trim()
-        .toUpperCase() ===
-      "TARDANZA";
-
-
-    if (
-      esTardanza
-    ) {
-
-      resultado.className =
-        "resultado-tardanza";
-
-    }
-
-    else {
-
-      resultado.className =
-        "resultado-presente";
-
-    }
-
-
-    resultado.innerHTML = `
-
-      <div class="resultado-icono">
-
-        ${esTardanza ? "🟡" : "🟢"}
-
-      </div>
-
-
-      <div class="resultado-titulo">
-
-        ASISTENCIA REGISTRADA
-
-      </div>
-
-
-      <div class="resultado-estudiante">
-
-        ${data.estudiante}
-
-      </div>
-
-
-      <div class="resultado-grupo">
-
-        ${data.grado}
-        ·
-        Sección ${data.seccion}
-
-      </div>
-
-
-      <div class="resultado-hora">
-
-        ${data.hora}
-
-      </div>
-
-
-      <div class="resultado-estado">
-
-        ${
-          esTardanza
-          ? "🟡 Tardanza"
-          : "🟢 Presente"
-        }
-
-      </div>
-
-    `;
-
-  }
-
-
-
-  /* =========================================
-     DUPLICADO
-     ========================================= */
-
-  function mostrarDuplicado(
-    data
-  ) {
-
-
-    const resultado =
-      document.getElementById(
-        "resultado"
-      );
-
-
-    resultado.className =
-      "resultado-duplicado";
-
-
-    resultado.innerHTML = `
-
-      <div class="resultado-icono">
-
-        ⚠️
-
-      </div>
-
-
-      <div class="resultado-titulo">
-
-        YA REGISTRADO
-
-      </div>
-
-
-      <div class="resultado-estudiante">
-
-        ${data.estudiante}
-
-      </div>
-
-
-      <div class="resultado-grupo">
-
-        ${data.grado || ""}
-
-        ${
-          data.seccion
-          ? "· Sección " + data.seccion
-          : ""
-        }
-
-      </div>
-
-
-      <div style="
-        margin-top:10px;
-      ">
-
-        La asistencia ya fue registrada.
-
-      </div>
-
-
-      <div class="resultado-hora">
-
-        ${data.horaRegistro}
-
-      </div>
-
-
-      <div style="
-        margin-top:5px;
-        font-weight:bold;
-      ">
-
-        🕐 Hora del registro
-
-      </div>
-
-    `;
-
-  }
-
-
-
-  /* =========================================
+  /* -----------------------------------------------
      SIN HORARIO
-     ========================================= */
+     ----------------------------------------------- */
 
-  function mostrarSinHorario(
-    data
+  if (
+
+    data.tipo === "sin_horario" ||
+
+    data.estado === "Sin horario"
+
   ) {
 
 
-    const resultado =
-      document.getElementById(
-        "resultado"
-      );
+    sonidoError();
 
 
-    resultado.className =
-      "resultado-error";
+    mostrarSinHorario(
+      data
+    );
 
 
-    resultado.innerHTML = `
+    setTimeout(
+      function() {
 
-      <div class="resultado-icono">
+        iniciarScanner();
 
-        🚫
-
-      </div>
-
-
-      <div class="resultado-titulo">
-
-        SIN HORARIO
-
-      </div>
-
-
-      <div class="resultado-estudiante">
-
-        ${data.estudiante || ""}
-
-      </div>
-
-
-      <div style="
-        margin-top:10px;
-      ">
-
-        Este estudiante no tiene
-        horario configurado para hoy.
-
-      </div>
-
-
-      <div style="
-        margin-top:10px;
-        font-weight:bold;
-      ">
-
-        ${data.grado || ""}
-
-        ${
-          data.seccion
-          ? "· Sección " + data.seccion
-          : ""
-        }
-
-      </div>
-
-    `;
-
-  }
-
-
-
-  /* =========================================
-     ERROR
-     ========================================= */
-
-  function mostrarError(
-    mensaje
-  ) {
-
-
-    const resultado =
-      document.getElementById(
-        "resultado"
-      );
-
-
-    resultado.className =
-      "resultado-error";
-
-
-    resultado.innerHTML = `
-
-      <div class="resultado-icono">
-
-        ❌
-
-      </div>
-
-
-      <div class="resultado-titulo">
-
-        ERROR
-
-      </div>
-
-
-      <div style="
-        margin-top:10px;
-      ">
-
-        ${mensaje}
-
-      </div>
-
-    `;
-
-  }
-
-
-
-  /* =========================================
-     INICIAR ESCÁNER
-     ========================================= */
-
-  function iniciarScanner() {
-
-
-    procesando =
-      false;
-
-
-    const reader =
-      document.getElementById(
-        "reader"
-      );
-
-
-    reader.innerHTML =
-      "";
-
-
-    const resultado =
-      document.getElementById(
-        "resultado"
-      );
-
-
-    resultado.style.display =
-      "none";
-
-
-    scanner =
-      new Html5Qrcode(
-        "reader"
-      );
-
-
-    const configuracion = {
-
-      fps:
-        10,
-
-
-      qrbox:
-        function(
-          width,
-          height
-        ) {
-
-          const size =
-            Math.min(
-              width,
-              height
-            ) * 0.70;
-
-
-          return {
-
-            width:
-              size,
-
-            height:
-              size
-
-          };
-
-        }
-
-    };
-
-
-    scanner.start(
-
-      {
-        facingMode:
-          "environment"
       },
+      2500
+    );
 
 
-      configuracion,
-
-
-      qrDetectado,
-
-
-      function(errorMessage) {
-
-        /*
-          Errores normales de lectura.
-          El escáner continúa funcionando.
-        */
-
-      }
-
-    )
-
-
-    .catch(function(error) {
-
-      console.error(
-        "Error de cámara:",
-        error
-      );
-
-
-      sonidoError();
-
-
-      mostrarError(
-        "No se pudo acceder a la cámara."
-      );
-
-    });
+    return;
 
   }
 
 
+  /* -----------------------------------------------
+     ERROR
+     ----------------------------------------------- */
 
-  /* =========================================
-     INICIO
-     ========================================= */
+  sonidoError();
 
-  window.addEventListener(
-    "load",
+
+  mostrarError(
+
+    data.mensaje ||
+
+    "No se pudo registrar la asistencia."
+
+  );
+
+
+  setTimeout(
     function() {
-
-
-      /*
-        Cargar estadísticas
-        inmediatamente.
-      */
-
-      cargarEstadisticas();
-
-
-      /*
-        Activar cámara.
-      */
 
       iniciarScanner();
 
-
-      /*
-        Preparar audio.
-      */
-
-      activarAudio();
-
-    }
+    },
+    2500
   );
 
+}
+
+
+/* =====================================================
+   PROCESANDO
+   ===================================================== */
+
+function mostrarProcesando() {
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  resultado.className =
+    "resultado-procesando";
+
+
+  resultado.innerHTML = `
+
+    <div class="resultado-icono">
+
+      ⏳
+
+    </div>
+
+
+    <div class="resultado-titulo">
+
+      REGISTRANDO...
+
+    </div>
+
+
+    <div>
+
+      Guardando asistencia...
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   ASISTENCIA REGISTRADA
+   ===================================================== */
+
+function mostrarAsistencia(
+  data
+) {
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  const esTardanza =
+
+    String(
+      data.estado || ""
+    )
+      .trim()
+      .toUpperCase() ===
+    "TARDANZA";
+
+
+  resultado.className =
+
+    esTardanza
+      ? "resultado-tardanza"
+      : "resultado-presente";
+
+
+  resultado.innerHTML = `
+
+    <div class="resultado-icono">
+
+      ${esTardanza ? "🟡" : "🟢"}
+
+    </div>
+
+
+    <div class="resultado-titulo">
+
+      ASISTENCIA REGISTRADA
+
+    </div>
+
+
+    <div class="resultado-estudiante">
+
+      ${escaparHTML(
+        data.estudiante
+      )}
+
+    </div>
+
+
+    <div class="resultado-grupo">
+
+      ${escaparHTML(
+        data.grado
+      )}
+
+      · Sección
+
+      ${escaparHTML(
+        data.seccion
+      )}
+
+    </div>
+
+
+    <div class="resultado-hora">
+
+      ${formatearHora(
+        data.hora
+      )}
+
+    </div>
+
+
+    <div class="resultado-estado">
+
+      ${
+        esTardanza
+          ? "🟡 TARDANZA"
+          : "🟢 PRESENTE"
+      }
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   DUPLICADO
+   ===================================================== */
+
+function mostrarDuplicado(
+  data
+) {
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  resultado.className =
+    "resultado-duplicado";
+
+
+  resultado.innerHTML = `
+
+    <div class="resultado-icono">
+
+      ⚠️
+
+    </div>
+
+
+    <div class="resultado-titulo">
+
+      YA REGISTRADO
+
+    </div>
+
+
+    <div class="resultado-estudiante">
+
+      ${escaparHTML(
+        data.estudiante
+      )}
+
+    </div>
+
+
+    <div class="resultado-grupo">
+
+      ${
+        data.grado
+          ? escaparHTML(
+              data.grado
+            )
+          : ""
+      }
+
+      ${
+        data.seccion
+          ? " · Sección " +
+            escaparHTML(
+              data.seccion
+            )
+          : ""
+      }
+
+    </div>
+
+
+    <div style="
+      margin-top:10px;
+    ">
+
+      La asistencia ya fue registrada.
+
+    </div>
+
+
+    <div class="resultado-hora">
+
+      ${formatearHora(
+        data.horaRegistro
+      )}
+
+    </div>
+
+
+    <div style="
+      margin-top:4px;
+      font-weight:bold;
+    ">
+
+      🕐 Hora del registro
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   SIN HORARIO
+   ===================================================== */
+
+function mostrarSinHorario(
+  data
+) {
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  resultado.className =
+    "resultado-error";
+
+
+  resultado.innerHTML = `
+
+    <div class="resultado-icono">
+
+      🚫
+
+    </div>
+
+
+    <div class="resultado-titulo">
+
+      SIN HORARIO
+
+    </div>
+
+
+    <div class="resultado-estudiante">
+
+      ${escaparHTML(
+        data.estudiante || ""
+      )}
+
+    </div>
+
+
+    <div style="
+      margin-top:10px;
+    ">
+
+      Este estudiante no tiene
+      horario configurado para hoy.
+
+    </div>
+
+
+    <div style="
+      margin-top:10px;
+      font-weight:bold;
+    ">
+
+      ${
+        data.grado
+          ? escaparHTML(
+              data.grado
+            )
+          : ""
+      }
+
+      ${
+        data.seccion
+          ? " · Sección " +
+            escaparHTML(
+              data.seccion
+            )
+          : ""
+      }
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   ERROR
+   ===================================================== */
+
+function mostrarError(
+  mensaje
+) {
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  resultado.className =
+    "resultado-error";
+
+
+  resultado.innerHTML = `
+
+    <div class="resultado-icono">
+
+      ❌
+
+    </div>
+
+
+    <div class="resultado-titulo">
+
+      ERROR
+
+    </div>
+
+
+    <div style="
+      margin-top:10px;
+    ">
+
+      ${escaparHTML(
+        mensaje
+      )}
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   INICIAR ESCÁNER
+   ===================================================== */
+
+function iniciarScanner() {
+
+
+  procesando =
+    false;
+
+
+  const reader =
+    document.getElementById(
+      "reader"
+    );
+
+
+  reader.innerHTML =
+    "";
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  resultado.style.display =
+    "none";
+
+
+  scanner =
+    new Html5Qrcode(
+      "reader"
+    );
+
+
+  const configuracion = {
+
+    fps: 10,
+
+
+    qrbox:
+      function(
+        width,
+        height
+      ) {
+
+        const size =
+          Math.min(
+            width,
+            height
+          ) * .70;
+
+
+        return {
+
+          width: size,
+
+          height: size
+
+        };
+
+      }
+
+  };
+
+
+  scanner.start(
+
+    {
+      facingMode:
+        "environment"
+    },
+
+
+    configuracion,
+
+
+    qrDetectado,
+
+
+    function(errorMessage) {
+
+      /*
+        Errores normales de lectura.
+        No hacemos nada.
+      */
+
+    }
+
+  )
+
+
+  .catch(function(error) {
+
+    console.error(
+      "Error de cámara:",
+      error
+    );
+
+
+    sonidoError();
+
+
+    mostrarError(
+      "No se pudo acceder a la cámara."
+    );
+
+  });
+
+}
+
+
+/* =====================================================
+   INICIO
+   ===================================================== */
+
+window.addEventListener(
+  "load",
+  function() {
+
+
+    /*
+      Cargar estadísticas.
+    */
+
+    cargarEstadisticas();
+
+
+    /*
+      Iniciar cámara.
+    */
+
+    iniciarScanner();
+
+
+    /*
+      Preparar audio.
+    */
+
+    activarAudio();
+
+  }
+);
 
 </script>
 
