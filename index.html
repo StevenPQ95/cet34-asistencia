@@ -11,14 +11,13 @@
 <title>CET 34 - Control de Asistencia</title>
 
 <script src="https://unpkg.com/html5-qrcode"
-        type="text/javascript">
-</script>
+        type="text/javascript"></script>
 
 
 <style>
 
 /* =====================================================
-   CONFIGURACIÓN GENERAL
+   GENERAL
    ===================================================== */
 
 * {
@@ -76,6 +75,35 @@ body {
 }
 
 
+.header-centro {
+
+  text-align: center;
+
+  padding:
+    0 90px;
+
+}
+
+.header-centro h1 {
+
+  margin: 0;
+
+  font-size: 30px;
+
+  font-weight: 800;
+
+}
+
+.header-centro p {
+
+  margin:
+    5px 0 0;
+
+  font-size: 14px;
+
+}
+
+
 /* =====================================================
    INSIGNIAS
    ===================================================== */
@@ -127,43 +155,6 @@ body {
 .header-insignia.derecha {
 
   right: 18px;
-
-}
-
-
-/* =====================================================
-   TEXTO ENCABEZADO
-   ===================================================== */
-
-.header-centro {
-
-  text-align: center;
-
-  padding:
-    0 85px;
-
-}
-
-.header-centro h1 {
-
-  margin: 0;
-
-  font-size: 30px;
-
-  font-weight: 800;
-
-  letter-spacing: .5px;
-
-}
-
-.header-centro p {
-
-  margin:
-    5px 0 0;
-
-  font-size: 14px;
-
-  opacity: .95;
 
 }
 
@@ -257,7 +248,7 @@ body {
 
 
 /* =====================================================
-   RESULTADO DEL ESCANEO
+   RESULTADO
    ===================================================== */
 
 #resultado {
@@ -271,9 +262,6 @@ body {
   border-radius: 16px;
 
   text-align: center;
-
-  transition:
-    opacity .25s ease;
 
 }
 
@@ -338,8 +326,6 @@ body {
   font-size: 17px;
 
   font-weight: 800;
-
-  margin-top: 3px;
 
 }
 
@@ -431,11 +417,9 @@ body {
 
   display: inline-flex;
 
-  justify-content: center;
-
   align-items: center;
 
-  gap: 5px;
+  justify-content: center;
 
   padding:
     8px 11px;
@@ -462,7 +446,7 @@ body {
 
 
 /* =====================================================
-   TÍTULOS
+   TITULOS
    ===================================================== */
 
 .titulo {
@@ -520,8 +504,6 @@ body {
 
   color: #64748b;
 
-  margin-top: 3px;
-
 }
 
 .numero-presente {
@@ -544,7 +526,7 @@ body {
 
 
 /* =====================================================
-   TOTAL GENERAL
+   TOTAL
    ===================================================== */
 
 .total-general {
@@ -572,8 +554,6 @@ body {
   color: #0f172a;
 
   font-size: 26px;
-
-  margin-top: 2px;
 
 }
 
@@ -631,7 +611,7 @@ body {
 
 
 /* =====================================================
-   ÚLTIMO REGISTRO
+   ULTIMO REGISTRO
    ===================================================== */
 
 .ultimo-registro {
@@ -654,8 +634,6 @@ body {
   font-size: 11px;
 
   font-weight: 800;
-
-  margin-bottom: 6px;
 
 }
 
@@ -688,8 +666,6 @@ body {
   align-items: center;
 
   margin-top: 8px;
-
-  gap: 8px;
 
 }
 
@@ -732,7 +708,7 @@ body {
 
 
 /* =====================================================
-   CONTROL POR SECCIÓN
+   CONTROL POR SECCION
    ===================================================== */
 
 .grupo {
@@ -748,52 +724,51 @@ body {
 
 }
 
-.grupo:last-child {
 
-  margin-bottom: 0;
+/* =====================================================
+   ELIMINAR COMPLETAMENTE
+   EL INDICADOR NATIVO
+   ===================================================== */
 
-}
-
-
-/* ELIMINAR COMPLETAMENTE
-   EL MARCADOR NATIVO DEL SUMMARY */
-
-.grupo summary {
+.grupo summary,
+.lista-panel summary {
 
   list-style: none;
 
 }
 
-.grupo summary::-webkit-details-marker {
+.grupo summary::-webkit-details-marker,
+.lista-panel summary::-webkit-details-marker {
 
-  display: none;
+  display: none !important;
 
 }
 
-.grupo summary::marker {
+.grupo summary::marker,
+.lista-panel summary::marker {
 
-  display: none;
+  content: "" !important;
 
-  content: "";
+  display: none !important;
 
 }
 
 
 /* =====================================================
-   CABECERA GRUPO
+   CABECERA DEL GRUPO
    ===================================================== */
 
 .grupo summary {
 
   cursor: pointer;
 
-  padding: 14px;
+  padding: 14px 48px 14px 14px;
 
-  background: #ffffff;
+  background: white;
 
   position: relative;
 
-  padding-right: 48px;
+  min-height: 78px;
 
   display: flex;
 
@@ -803,7 +778,7 @@ body {
 
 
 /* =====================================================
-   FLECHA CONTROL POR SECCIÓN
+   UNA SOLA FLECHA DEL GRUPO
    ===================================================== */
 
 .grupo summary::after {
@@ -812,13 +787,13 @@ body {
 
   position: absolute;
 
-  right: 18px;
+  right: 20px;
 
   top: 50%;
 
-  width: 9px;
+  width: 10px;
 
-  height: 9px;
+  height: 10px;
 
   border-right:
     2px solid #94a3b8;
@@ -846,7 +821,7 @@ summary::after {
 
 
 /* =====================================================
-   CABECERA DEL GRUPO
+   CABECERA GRUPO
    ===================================================== */
 
 .grupo-cabecera {
@@ -855,9 +830,9 @@ summary::after {
 
   justify-content: space-between;
 
-  align-items: flex-start;
+  align-items: center;
 
-  gap: 8px;
+  gap: 10px;
 
   width: 100%;
 
@@ -915,7 +890,7 @@ summary::after {
 
 
 /* =====================================================
-   ESTADÍSTICAS GRUPO
+   ESTADISTICAS GRUPO
    ===================================================== */
 
 .grupo-estadisticas {
@@ -958,13 +933,11 @@ summary::after {
 
   color: #64748b;
 
-  margin-top: 3px;
-
 }
 
 
 /* =====================================================
-   INFORMACIÓN GRUPO
+   INFORMACION GRUPO
    ===================================================== */
 
 .grupo-info {
@@ -1027,60 +1000,41 @@ summary::after {
 }
 
 
-/* ELIMINAR MARCADOR NATIVO */
-
-.lista-panel summary {
-
-  list-style: none;
-
-}
-
-.lista-panel summary::-webkit-details-marker {
-
-  display: none;
-
-}
-
-.lista-panel summary::marker {
-
-  display: none;
-
-  content: "";
-
-}
-
-
 /* =====================================================
-   CABECERA DE LISTA
+   SUMMARY DE LISTA
    ===================================================== */
 
 .lista-panel summary {
 
   cursor: pointer;
 
-  padding:
-    11px 48px 11px 13px;
-
-  font-weight: 800;
-
-  font-size: 13px;
-
   position: relative;
+
+  min-height: 46px;
+
+  padding:
+    11px 45px 11px 14px;
 
   display: flex;
 
   align-items: center;
 
-  min-height: 44px;
+  font-weight: 800;
+
+  font-size: 13px;
 
 }
 
 
 /* =====================================================
-   ÚNICA FLECHA DE LAS LISTAS
+   IMPORTANTE:
+   SOLO UNA FLECHA.
+   NO HAY SPAN EXTRA.
    ===================================================== */
 
-.lista-chevron {
+.lista-panel summary::after {
+
+  content: "";
 
   position: absolute;
 
@@ -1108,10 +1062,12 @@ summary::after {
 }
 
 
-/* ABIERTA */
+/* =====================================================
+   FLECHA ABIERTA
+   ===================================================== */
 
 .lista-panel[open]
-.lista-chevron {
+summary::after {
 
   transform:
     translateY(-35%)
@@ -1121,7 +1077,7 @@ summary::after {
 
 
 /* =====================================================
-   COLORES DE LAS LISTAS
+   COLORES LISTAS
    ===================================================== */
 
 .lista-panel.presente summary {
@@ -1150,7 +1106,7 @@ summary::after {
 
 
 /* =====================================================
-   LISTA DE ESTUDIANTES
+   CONTENIDO LISTA
    ===================================================== */
 
 .lista-estudiantes {
@@ -1158,20 +1114,28 @@ summary::after {
   background: white;
 
   padding:
-    3px 10px 8px;
+    2px 12px 8px;
 
 }
 
+
+/* =====================================================
+   ITEM ESTUDIANTE
+   ===================================================== */
+
 .estudiante-item {
 
-  display: flex;
+  display: grid;
 
-  align-items: flex-start;
+  grid-template-columns:
+    38px 1fr;
 
-  gap: 8px;
+  align-items: center;
+
+  min-height: 43px;
 
   padding:
-    9px 3px;
+    7px 3px;
 
   border-bottom:
     1px solid #edf2f7;
@@ -1180,33 +1144,56 @@ summary::after {
 
 }
 
+
 .estudiante-item:last-child {
 
   border-bottom: none;
 
 }
 
+
+/* =====================================================
+   NUMERO
+   ===================================================== */
+
 .estudiante-numero {
 
-  min-width: 27px;
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-start;
+
+  height: 100%;
 
   color: #94a3b8;
 
   font-weight: 800;
 
-}
-
-.estudiante-nombre {
-
-  flex: 1;
-
-  line-height: 1.3;
+  line-height: 1;
 
 }
 
 
 /* =====================================================
-   LISTA VACÍA
+   NOMBRE
+   ===================================================== */
+
+.estudiante-nombre {
+
+  display: flex;
+
+  align-items: center;
+
+  min-height: 29px;
+
+  line-height: 1.25;
+
+}
+
+
+/* =====================================================
+   LISTA VACIA
    ===================================================== */
 
 .lista-vacia {
@@ -1258,7 +1245,7 @@ summary::after {
 
 
 /* =====================================================
-   MÓVILES
+   MOVIL
    ===================================================== */
 
 @media (max-width: 430px) {
@@ -1397,19 +1384,10 @@ summary::after {
 
   }
 
-  .ultimo-estudiante {
-
-    font-size: 16px;
-
-  }
-
-  .ultimo-hora {
-
-    font-size: 20px;
-
-  }
-
   .estudiante-item {
+
+    grid-template-columns:
+      35px 1fr;
 
     font-size: 12px;
 
@@ -1432,7 +1410,8 @@ summary::after {
 <div class="header">
 
 
-  <div class="header-insignia izquierda">
+  <div
+    class="header-insignia izquierda">
 
     <img
       src="insignia-izquierda.png"
@@ -1454,7 +1433,8 @@ summary::after {
   </div>
 
 
-  <div class="header-insignia derecha">
+  <div
+    class="header-insignia derecha">
 
     <img
       src="insignia-derecha.png"
@@ -1471,7 +1451,7 @@ summary::after {
 
 
 <!-- =====================================================
-     ESCÁNER
+     ESCANER
      ===================================================== -->
 
 <div class="card">
@@ -1664,7 +1644,7 @@ summary::after {
 
 
 <!-- =====================================================
-     ÚLTIMO REGISTRO
+     ULTIMO REGISTRO
      ===================================================== -->
 
 <div class="card">
@@ -1695,7 +1675,7 @@ summary::after {
 
 
 <!-- =====================================================
-     CONTROL POR SECCIÓN
+     CONTROL POR SECCION
      ===================================================== -->
 
 <div class="card">
@@ -1775,7 +1755,7 @@ function escaparHTML(texto) {
 
 
 /* =====================================================
-   FORMATO HORA
+   FORMATEAR HORA
    ===================================================== */
 
 function formatearHora(hora) {
@@ -1817,9 +1797,7 @@ function formatearHora(hora) {
       : "00";
 
 
-  if (
-    isNaN(horas)
-  ) {
+  if (isNaN(horas)) {
 
     return hora;
 
@@ -1836,9 +1814,7 @@ function formatearHora(hora) {
     horas % 12;
 
 
-  if (
-    horas12 === 0
-  ) {
+  if (horas12 === 0) {
 
     horas12 = 12;
 
@@ -1846,7 +1822,6 @@ function formatearHora(hora) {
 
 
   return (
-
     horas12 +
     ":" +
     minutos +
@@ -1854,7 +1829,6 @@ function formatearHora(hora) {
     segundos +
     " " +
     periodo
-
   );
 
 }
@@ -2222,7 +2196,7 @@ document.addEventListener(
 
 
 /* =====================================================
-   CARGAR ESTADÍSTICAS
+   CARGAR ESTADISTICAS
    ===================================================== */
 
 function cargarEstadisticas() {
@@ -2302,7 +2276,7 @@ function cargarEstadisticas() {
 
 
 /* =====================================================
-   MOSTRAR ESTADÍSTICAS
+   MOSTRAR ESTADISTICAS
    ===================================================== */
 
 function mostrarEstadisticas(
@@ -2349,7 +2323,6 @@ function mostrarEstadisticas(
   document.getElementById(
     "porcentajeGeneral"
   ).textContent =
-
     "Asistencia: " +
     data.porcentajeGeneral +
     "%";
@@ -2358,7 +2331,6 @@ function mostrarEstadisticas(
   document.getElementById(
     "barraGeneral"
   ).style.width =
-
     data.porcentajeGeneral +
     "%";
 
@@ -2377,9 +2349,7 @@ function mostrarEstadisticas(
     jornada.className =
       "jornada";
 
-
     jornada.innerHTML =
-
       "🟢 JORNADA ACTIVA · " +
       data.grupos.length +
       (
@@ -2394,7 +2364,6 @@ function mostrarEstadisticas(
 
     jornada.className =
       "jornada pausa";
-
 
     jornada.innerHTML =
       "⚪ SIN HORARIO ACTIVO";
@@ -2415,7 +2384,7 @@ function mostrarEstadisticas(
 
 
 /* =====================================================
-   ÚLTIMO REGISTRO
+   ULTIMO REGISTRO
    ===================================================== */
 
 function mostrarUltimoRegistro(
@@ -2551,7 +2520,8 @@ function crearLista(
 
       <div class="lista-vacia">
 
-        No hay estudiantes en esta categoría.
+        No hay estudiantes
+        en esta categoría.
 
       </div>
 
@@ -2613,6 +2583,16 @@ function crearLista(
   }
 
 
+  /*
+   IMPORTANTE:
+
+   AQUÍ NO HAY NINGÚN SPAN
+   PARA LA FLECHA.
+
+   LA ÚNICA FLECHA ES
+   summary::after EN CSS.
+  */
+
   return `
 
     <details
@@ -2620,18 +2600,9 @@ function crearLista(
 
       <summary>
 
-        <span>
-
-          ${emoji}
-          ${titulo}
-          · ${lista.length}
-
-        </span>
-
-
-        <span
-          class="lista-chevron">
-        </span>
+        ${emoji}
+        ${titulo}
+        · ${lista.length}
 
       </summary>
 
@@ -2685,9 +2656,7 @@ function mostrarGrupos(
 
 
   grupos.forEach(
-    function(
-      grupo
-    ) {
+    function(grupo) {
 
       const tarjeta =
         document.createElement(
@@ -2699,8 +2668,12 @@ function mostrarGrupos(
         "grupo";
 
 
-      /* TODOS LOS GRUPOS
-         EMPIEZAN CERRADOS */
+      /*
+       NO colocamos open.
+
+       Por lo tanto TODOS
+       empiezan cerrados.
+      */
 
 
       tarjeta.innerHTML = `
@@ -2867,8 +2840,7 @@ function mostrarGrupos(
           <div
             class="barra-contenedor">
 
-            <div
-              class="barra-fondo">
+            <div class="barra-fondo">
 
               <div
                 class="barra"
@@ -2881,8 +2853,7 @@ function mostrarGrupos(
             </div>
 
 
-            <div
-              class="porcentaje">
+            <div class="porcentaje">
 
               Asistencia:
               ${grupo.porcentaje}%
@@ -2970,9 +2941,7 @@ function qrDetectado(
     true;
 
 
-  if (
-    scanner
-  ) {
+  if (scanner) {
 
     scanner.stop()
 
@@ -3149,9 +3118,7 @@ function procesarRespuesta(
       "TARDANZA";
 
 
-    if (
-      tardanza
-    ) {
+    if (tardanza) {
 
       sonidoTardanza();
 
@@ -3582,7 +3549,7 @@ function mostrarSinHorario(
 
 
 /* =====================================================
-   INICIAR ESCÁNER
+   INICIAR SCANNER
    ===================================================== */
 
 function iniciarScanner() {
@@ -3634,7 +3601,6 @@ function iniciarScanner() {
 
     fps: 10,
 
-
     qrbox:
       function(
         width,
@@ -3675,14 +3641,7 @@ function iniciarScanner() {
     qrDetectado,
 
 
-    function() {
-
-      /*
-        Error normal mientras
-        busca códigos QR.
-      */
-
-    }
+    function() {}
 
   )
 
@@ -3756,7 +3715,6 @@ window.addEventListener(
 );
 
 </script>
-
 
 </body>
 
