@@ -741,7 +741,7 @@
 
 
     /* =========================================
-       INDICADOR DE SONIDO
+       INDICADOR AUDIO
        ========================================= */
 
     .audio-indicador {
@@ -1032,7 +1032,8 @@
         id="audioIndicador"
         class="audio-indicador">
 
-        🔊 Audio preparado
+        🔊 Toca la pantalla para activar
+        el sonido
 
       </div>
 
@@ -1059,7 +1060,7 @@
 
 
   /* =========================================
-     URL DE APPS SCRIPT
+     URL APPS SCRIPT
      ========================================= */
 
   const URL_APPS_SCRIPT =
@@ -1086,23 +1087,19 @@
 
     try {
 
+      const AudioContext =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+
+      if (!AudioContext) {
+
+        return;
+
+      }
+
+
       if (!audioContext) {
-
-        const AudioContext =
-          window.AudioContext ||
-          window.webkitAudioContext;
-
-
-        if (!AudioContext) {
-
-          console.log(
-            "Web Audio API no disponible."
-          );
-
-          return;
-
-        }
-
 
         audioContext =
           new AudioContext();
@@ -1149,37 +1146,24 @@
 
 
   /* =========================================
-     GENERAR TONO
+     GENERADOR DE TONO
      ========================================= */
 
   function tono(
     frecuencia,
     duracion,
-    retraso
+    retraso,
+    volumen
   ) {
 
     try {
 
-      if (!audioContext) {
-
-        activarAudio();
-
-      }
+      activarAudio();
 
 
       if (!audioContext) {
 
         return;
-
-      }
-
-
-      if (
-        audioContext.state ===
-        "suspended"
-      ) {
-
-        audioContext.resume();
 
       }
 
@@ -1214,8 +1198,8 @@
 
 
       ganancia.gain.exponentialRampToValueAtTime(
-        1.00,
-        inicio + 0.02
+        volumen || 0.75,
+        inicio + 0.025
       );
 
 
@@ -1241,7 +1225,7 @@
 
 
       oscilador.stop(
-        inicio + duracion
+        inicio + duracion + 0.02
       );
 
     }
@@ -1260,8 +1244,7 @@
 
 
   /* =========================================
-     SONIDO + VIBRACIÓN
-     PRESENTE
+     🟢 SONIDO PRESENTE
      ========================================= */
 
   function sonidoPresente() {
@@ -1269,30 +1252,38 @@
     activarAudio();
 
 
-    // Tonos de confirmación
+    /*
+      Dos tonos ascendentes.
+
+      ♪ Ding → Ding ↑
+    */
 
     tono(
-      880,
-      0.12,
-      0
+      784,
+      0.14,
+      0,
+      0.80
     );
 
 
     tono(
       1175,
+      0.18,
       0.15,
-      0.13
+      0.85
     );
 
 
-    // Vibración
+    /*
+      Vibración corta.
+    */
 
     if (
       navigator.vibrate
     ) {
 
       navigator.vibrate(
-        120
+        100
       );
 
     }
@@ -1302,8 +1293,7 @@
 
 
   /* =========================================
-     SONIDO + VIBRACIÓN
-     TARDANZA
+     🟡 SONIDO TARDANZA
      ========================================= */
 
   function sonidoTardanza() {
@@ -1311,19 +1301,31 @@
     activarAudio();
 
 
-    tono(
-      650,
-      0.16,
-      0
-    );
+    /*
+      Dos tonos descendentes.
 
+      ♪ Bip → Bip ↓
+    */
 
     tono(
-      500,
+      700,
       0.18,
-      0.18
+      0,
+      0.85
     );
 
+
+    tono(
+      440,
+      0.22,
+      0.20,
+      0.90
+    );
+
+
+    /*
+      Dos vibraciones.
+    */
 
     if (
       navigator.vibrate
@@ -1342,8 +1344,7 @@
 
 
   /* =========================================
-     SONIDO + VIBRACIÓN
-     DUPLICADO
+     ⚠️ SONIDO DUPLICADO
      ========================================= */
 
   function sonidoDuplicado() {
@@ -1351,19 +1352,31 @@
     activarAudio();
 
 
+    /*
+      Sonido de advertencia.
+
+      Bip... Bip...
+    */
+
     tono(
-      500,
+      520,
       0.16,
-      0
+      0,
+      0.90
     );
 
 
     tono(
-      500,
+      520,
       0.16,
-      0.22
+      0.30,
+      0.90
     );
 
+
+    /*
+      Vibración de advertencia.
+    */
 
     if (
       navigator.vibrate
@@ -1371,7 +1384,7 @@
 
       navigator.vibrate([
         100,
-        70,
+        100,
         100
       ]);
 
@@ -1382,8 +1395,7 @@
 
 
   /* =========================================
-     SONIDO + VIBRACIÓN
-     ERROR
+     🚫 SONIDO SIN HORARIO / ERROR
      ========================================= */
 
   function sonidoError() {
@@ -1391,30 +1403,42 @@
     activarAudio();
 
 
-    tono(
-      350,
-      0.20,
-      0
-    );
+    /*
+      Tonos graves y fuertes.
 
+      Buuup → Buuup
+    */
 
     tono(
-      220,
+      300,
       0.25,
-      0.24
+      0,
+      0.95
     );
 
+
+    tono(
+      180,
+      0.30,
+      0.28,
+      1.00
+    );
+
+
+    /*
+      Vibración larga.
+    */
 
     if (
       navigator.vibrate
     ) {
 
       navigator.vibrate([
-        150,
-        80,
-        150,
-        80,
-        150
+        160,
+        90,
+        160,
+        90,
+        160
       ]);
 
     }
@@ -1424,7 +1448,7 @@
 
 
   /* =========================================
-     ACTIVAR AUDIO AL INTERACTUAR
+     ACTIVAR AUDIO AL TOCAR
      ========================================= */
 
   document.addEventListener(
@@ -1964,8 +1988,6 @@
       );
 
 
-      // Actualizar estadísticas
-
       setTimeout(
         function() {
 
@@ -1975,8 +1997,6 @@
         300
       );
 
-
-      // Regresar al escáner
 
       setTimeout(
         function() {
@@ -2566,22 +2586,11 @@
     function() {
 
 
-      // Estadísticas
-
       cargarEstadisticas();
 
 
-      // Cámara
-
       iniciarScanner();
 
-
-      /*
-        Intentamos preparar el audio.
-        El navegador puede mantenerlo
-        suspendido hasta que el usuario
-        interactúe con la página.
-      */
 
       activarAudio();
 
