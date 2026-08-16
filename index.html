@@ -11,7 +11,6 @@
 
 <title>CET 34 - Control de Asistencia</title>
 
-
 <script
   src="https://unpkg.com/html5-qrcode"
   type="text/javascript">
@@ -21,7 +20,7 @@
 <style>
 
 /* =====================================================
-   GENERAL
+   CONFIGURACIÓN GENERAL
    ===================================================== */
 
 * {
@@ -45,49 +44,155 @@ body {
 
 
 /* =====================================================
-   ENCABEZADO
+   ENCABEZADO INSTITUCIONAL
    ===================================================== */
 
 .header {
 
-  background: #0f172a;
+  background:
+    linear-gradient(
+      135deg,
+      #5b001f,
+      #72002b,
+      #4d001b
+    );
 
   color: white;
 
-  text-align: center;
+  min-height: 125px;
 
-  padding: 18px 15px;
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 14px 18px;
+
+  position: relative;
+
+  box-shadow:
+    0 3px 12px
+    rgba(0,0,0,.18);
 
 }
 
-.header h1 {
+
+/* CONTENEDOR DE INSIGNIAS */
+
+.header-insignia {
+
+  width: 76px;
+
+  height: 76px;
+
+  border-radius: 50%;
+
+  background: rgba(255,255,255,.12);
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  overflow: hidden;
+
+  position: absolute;
+
+  top: 50%;
+
+  transform:
+    translateY(-50%);
+
+}
+
+
+/*
+  IMÁGENES DE EJEMPLO.
+
+  Posteriormente reemplaza:
+
+  insignia-izquierda.png
+  insignia-derecha.png
+
+  por las imágenes reales
+  de tu institución.
+*/
+
+.header-insignia img {
+
+  width: 100%;
+
+  height: 100%;
+
+  object-fit: contain;
+
+}
+
+
+/* IZQUIERDA */
+
+.header-insignia.izquierda {
+
+  left: 18px;
+
+}
+
+
+/* DERECHA */
+
+.header-insignia.derecha {
+
+  right: 18px;
+
+}
+
+
+/* TEXTO CENTRAL */
+
+.header-centro {
+
+  text-align: center;
+
+  padding:
+    0 85px;
+
+}
+
+.header-centro h1 {
 
   margin: 0;
 
-  font-size: 27px;
+  font-size: 30px;
+
+  font-weight: 800;
+
+  letter-spacing: .5px;
 
 }
 
-.header p {
+.header-centro p {
 
-  margin: 5px 0 0;
+  margin:
+    5px 0 0;
 
   font-size: 14px;
 
-  opacity: .85;
+  opacity: .95;
 
 }
 
 
 /* =====================================================
-   CONTENEDOR
+   CONTENEDOR PRINCIPAL
    ===================================================== */
 
 .container {
 
   width: 100%;
 
-  max-width: 720px;
+  max-width: 760px;
 
   margin: auto;
 
@@ -106,13 +211,13 @@ body {
 
   border-radius: 20px;
 
-  padding: 17px;
+  padding: 16px;
 
   margin-bottom: 14px;
 
   box-shadow:
     0 4px 15px
-    rgba(0,0,0,.07);
+    rgba(15,23,42,.07);
 
 }
 
@@ -127,7 +232,7 @@ body {
 
   font-size: 21px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -140,7 +245,7 @@ body {
   font-size: 13px;
 
   margin:
-    6px 0 14px;
+    5px 0 12px;
 
 }
 
@@ -148,7 +253,7 @@ body {
 
   width: 100%;
 
-  max-width: 550px;
+  max-width: 560px;
 
   margin: auto;
 
@@ -175,13 +280,16 @@ body {
 
   display: none;
 
-  margin-top: 14px;
+  margin-top: 12px;
 
-  padding: 20px;
+  padding: 16px;
 
-  border-radius: 18px;
+  border-radius: 16px;
 
   text-align: center;
+
+  transition:
+    opacity .25s ease;
 
 }
 
@@ -237,53 +345,57 @@ body {
 
 .resultado-icono {
 
-  font-size: 45px;
+  font-size: 34px;
 
 }
 
 .resultado-titulo {
 
-  font-size: 21px;
+  font-size: 18px;
 
-  font-weight: bold;
+  font-weight: 800;
+
+  margin-top: 3px;
 
 }
 
 .resultado-estudiante {
 
-  font-size: 20px;
+  font-size: 17px;
 
-  font-weight: bold;
+  font-weight: 800;
 
-  margin-top: 9px;
+  margin-top: 7px;
+
+  line-height: 1.2;
 
 }
 
 .resultado-grupo {
 
-  margin-top: 6px;
+  margin-top: 4px;
 
-  font-size: 15px;
+  font-size: 13px;
 
 }
 
 .resultado-hora {
 
-  font-size: 30px;
+  font-size: 25px;
 
-  font-weight: bold;
+  font-weight: 800;
 
-  margin-top: 10px;
+  margin-top: 7px;
 
 }
 
 .resultado-estado {
 
-  font-size: 18px;
+  font-size: 16px;
 
-  font-weight: bold;
+  font-weight: 800;
 
-  margin-top: 5px;
+  margin-top: 3px;
 
 }
 
@@ -300,45 +412,49 @@ body {
 
   color: #94a3b8;
 
-  margin-top: 8px;
+  margin-top: 7px;
 
 }
 
 
 /* =====================================================
-   FECHA
+   FECHA / JORNADA
    ===================================================== */
 
-.fecha {
+.fecha-jornada {
 
-  text-align: center;
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 10px;
+
+}
+
+.fecha {
 
   color: #64748b;
 
   font-size: 14px;
 
-  font-weight: bold;
-
-  margin-bottom: 12px;
+  font-weight: 700;
 
 }
 
-
-/* =====================================================
-   JORNADA
-   ===================================================== */
-
 .jornada {
 
-  display: flex;
+  display: inline-flex;
 
   justify-content: center;
 
   align-items: center;
 
-  gap: 7px;
+  gap: 5px;
 
-  padding: 9px;
+  padding:
+    8px 11px;
 
   border-radius: 12px;
 
@@ -346,11 +462,9 @@ body {
 
   color: #166534;
 
-  font-size: 13px;
+  font-size: 12px;
 
-  font-weight: bold;
-
-  margin-bottom: 14px;
+  font-weight: 800;
 
 }
 
@@ -373,15 +487,15 @@ body {
 
   font-size: 19px;
 
-  font-weight: bold;
+  font-weight: 800;
 
-  margin-bottom: 14px;
+  margin-bottom: 13px;
 
 }
 
 
 /* =====================================================
-   RESUMEN GENERAL
+   RESUMEN
    ===================================================== */
 
 .estadisticas {
@@ -401,7 +515,8 @@ body {
 
   border-radius: 14px;
 
-  padding: 12px 4px;
+  padding:
+    11px 4px;
 
   text-align: center;
 
@@ -411,7 +526,7 @@ body {
 
   font-size: 27px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -444,11 +559,13 @@ body {
 }
 
 
+/* TOTAL */
+
 .total-general {
 
-  margin-top: 13px;
+  margin-top: 11px;
 
-  padding: 11px;
+  padding: 10px;
 
   background: #f8fafc;
 
@@ -458,6 +575,8 @@ body {
 
   color: #64748b;
 
+  font-size: 13px;
+
 }
 
 .total-general strong {
@@ -466,7 +585,7 @@ body {
 
   color: #0f172a;
 
-  font-size: 27px;
+  font-size: 26px;
 
   margin-top: 2px;
 
@@ -479,7 +598,7 @@ body {
 
 .barra-contenedor {
 
-  margin-top: 14px;
+  margin-top: 13px;
 
 }
 
@@ -487,7 +606,7 @@ body {
 
   width: 100%;
 
-  height: 11px;
+  height: 10px;
 
   background: #e2e8f0;
 
@@ -518,9 +637,9 @@ body {
 
   margin-top: 6px;
 
-  font-size: 14px;
+  font-size: 15px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -535,9 +654,9 @@ body {
 
   border: 1px solid #e2e8f0;
 
-  border-radius: 17px;
+  border-radius: 16px;
 
-  padding: 16px;
+  padding: 13px;
 
 }
 
@@ -545,19 +664,19 @@ body {
 
   color: #64748b;
 
-  font-size: 13px;
+  font-size: 11px;
 
-  font-weight: bold;
+  font-weight: 800;
 
-  margin-bottom: 9px;
+  margin-bottom: 6px;
 
 }
 
 .ultimo-estudiante {
 
-  font-size: 19px;
+  font-size: 17px;
 
-  font-weight: bold;
+  font-weight: 800;
 
   line-height: 1.2;
 
@@ -567,9 +686,9 @@ body {
 
   color: #64748b;
 
-  font-size: 14px;
+  font-size: 13px;
 
-  margin-top: 5px;
+  margin-top: 4px;
 
 }
 
@@ -581,7 +700,7 @@ body {
 
   align-items: center;
 
-  margin-top: 11px;
+  margin-top: 8px;
 
   gap: 8px;
 
@@ -589,21 +708,22 @@ body {
 
 .ultimo-hora {
 
-  font-size: 24px;
+  font-size: 21px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
 .ultimo-estado {
 
-  padding: 7px 10px;
+  padding:
+    6px 9px;
 
   border-radius: 10px;
 
-  font-size: 11px;
+  font-size: 10px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -625,12 +745,12 @@ body {
 
 
 /* =====================================================
-   GRUPOS
+   CONTROL POR SECCIÓN
    ===================================================== */
 
 .grupo {
 
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe3ec;
 
   border-radius: 17px;
 
@@ -646,18 +766,13 @@ body {
 
 }
 
-
-/* =====================================================
-   PANEL PLEGABLE
-   ===================================================== */
-
 .grupo summary {
 
   list-style: none;
 
   cursor: pointer;
 
-  padding: 15px;
+  padding: 14px;
 
   background: #ffffff;
 
@@ -669,29 +784,35 @@ body {
 
 }
 
+
+/* FLECHA CONTROL SECCIÓN */
+
 .grupo summary:after {
 
-  content: "▼";
+  content: "⌃";
 
   float: right;
 
   color: #94a3b8;
 
-  font-size: 11px;
+  font-size: 14px;
 
-  margin-top: 4px;
+  margin-top: 3px;
 
   transition:
     transform .2s;
 
 }
 
-.grupo[open] summary:after {
+.grupo:not([open])
+summary:after {
 
-  transform:
-    rotate(180deg);
+  content: "⌄";
 
 }
+
+
+/* CABECERA */
 
 .grupo-cabecera {
 
@@ -707,9 +828,9 @@ body {
 
 .grupo-titulo {
 
-  font-size: 19px;
+  font-size: 18px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -729,25 +850,26 @@ body {
 
   color: #1d4ed8;
 
-  border-radius: 10px;
+  border-radius: 11px;
 
-  padding: 6px 9px;
+  padding:
+    6px 9px;
 
   font-size: 11px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
 
 /* =====================================================
-   CONTENIDO DEL GRUPO
+   CONTENIDO GRUPO
    ===================================================== */
 
 .grupo-contenido {
 
   padding:
-    0 15px 15px;
+    0 14px 14px;
 
   border-top:
     1px solid #f1f5f9;
@@ -756,7 +878,7 @@ body {
 
 
 /* =====================================================
-   ESTADÍSTICAS DEL GRUPO
+   ESTADÍSTICAS GRUPO
    ===================================================== */
 
 .grupo-estadisticas {
@@ -768,7 +890,7 @@ body {
 
   gap: 7px;
 
-  margin-top: 14px;
+  margin-top: 13px;
 
 }
 
@@ -778,7 +900,8 @@ body {
 
   border-radius: 12px;
 
-  padding: 10px 4px;
+  padding:
+    9px 4px;
 
   text-align: center;
 
@@ -786,9 +909,9 @@ body {
 
 .grupo-estado .numero {
 
-  font-size: 22px;
+  font-size: 23px;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -804,7 +927,7 @@ body {
 
 
 /* =====================================================
-   INFORMACIÓN
+   INFORMACIÓN GRUPO
    ===================================================== */
 
 .grupo-info {
@@ -816,7 +939,7 @@ body {
 
   gap: 8px;
 
-  margin-top: 10px;
+  margin-top: 9px;
 
 }
 
@@ -844,24 +967,35 @@ body {
 
   margin-top: 2px;
 
+  font-size: 12px;
+
 }
 
 
 /* =====================================================
-   LISTAS DE ESTUDIANTES
+   LISTAS
    ===================================================== */
 
 .lista-panel {
 
-  margin-top: 12px;
+  margin-top: 11px;
 
   border-radius: 13px;
 
   overflow: hidden;
 
-  border: 1px solid #e2e8f0;
+  border: 1px solid #dbe3ec;
 
 }
+
+
+/*
+  AQUÍ ESTÁ CORREGIDA LA FLECHA.
+
+  Ahora cada lista tiene
+  una flecha diferente según
+  esté abierta o cerrada.
+*/
 
 .lista-panel summary {
 
@@ -869,9 +1003,10 @@ body {
 
   cursor: pointer;
 
-  padding: 12px;
+  padding:
+    11px 13px;
 
-  font-weight: bold;
+  font-weight: 800;
 
   font-size: 13px;
 
@@ -883,26 +1018,34 @@ body {
 
 }
 
+
 .lista-panel summary:after {
 
-  content: "▼";
+  content: "⌄";
 
   float: right;
 
   color: #94a3b8;
 
-  font-size: 10px;
+  font-size: 15px;
+
+  font-weight: bold;
+
+  transition:
+    transform .2s;
 
 }
 
-.lista-panel[open] summary:after {
 
-  transform: rotate(180deg);
+.lista-panel[open]
+summary:after {
+
+  content: "⌃";
 
 }
 
 
-/* Colores */
+/* COLORES */
 
 .lista-panel.presente summary {
 
@@ -930,14 +1073,15 @@ body {
 
 
 /* =====================================================
-   LISTA
+   LISTA ESTUDIANTES
    ===================================================== */
 
 .lista-estudiantes {
 
   background: white;
 
-  padding: 5px 10px 9px;
+  padding:
+    3px 10px 8px;
 
 }
 
@@ -949,12 +1093,13 @@ body {
 
   gap: 8px;
 
-  padding: 8px 3px;
+  padding:
+    8px 3px;
 
   border-bottom:
-    1px solid #f1f5f9;
+    1px solid #edf2f7;
 
-  font-size: 12px;
+  font-size: 13px;
 
 }
 
@@ -970,7 +1115,7 @@ body {
 
   color: #94a3b8;
 
-  font-weight: bold;
+  font-weight: 800;
 
 }
 
@@ -996,7 +1141,7 @@ body {
 
 .lista-vacia {
 
-  padding: 12px;
+  padding: 11px;
 
   text-align: center;
 
@@ -1017,7 +1162,7 @@ body {
 
   color: #94a3b8;
 
-  padding: 13px 5px;
+  padding: 12px 5px;
 
   font-size: 13px;
 
@@ -1043,38 +1188,183 @@ body {
 
 
 /* =====================================================
-   RESPONSIVE
+   MÓVILES PEQUEÑOS
    ===================================================== */
 
-@media (max-width: 400px) {
+@media (max-width: 430px) {
 
-  .estadistica .numero {
+
+  .header {
+
+    min-height: 92px;
+
+    padding:
+      10px 12px;
+
+  }
+
+
+  .header-insignia {
+
+    width: 52px;
+
+    height: 52px;
+
+  }
+
+
+  .header-insignia.izquierda {
+
+    left: 10px;
+
+  }
+
+
+  .header-insignia.derecha {
+
+    right: 10px;
+
+  }
+
+
+  .header-centro {
+
+    padding:
+      0 58px;
+
+  }
+
+
+  .header-centro h1 {
 
     font-size: 23px;
 
   }
 
-  .grupo-estado .numero {
+
+  .header-centro p {
+
+    font-size: 10px;
+
+  }
+
+
+  .container {
+
+    padding: 10px;
+
+  }
+
+
+  .card {
+
+    border-radius: 18px;
+
+    padding: 13px;
+
+    margin-bottom: 10px;
+
+  }
+
+
+  .scanner-titulo {
+
+    font-size: 18px;
+
+  }
+
+
+  .scanner-instruccion {
+
+    font-size: 11px;
+
+  }
+
+
+  .resultado-estudiante {
+
+    font-size: 16px;
+
+  }
+
+
+  .resultado-hora {
+
+    font-size: 23px;
+
+  }
+
+
+  .fecha-jornada {
+
+    flex-direction: column;
+
+    align-items: stretch;
+
+    text-align: center;
+
+  }
+
+
+  .jornada {
+
+    justify-content: center;
+
+  }
+
+
+  .titulo {
+
+    font-size: 17px;
+
+  }
+
+
+  .estadistica .numero {
+
+    font-size: 24px;
+
+  }
+
+
+  .estadistica .etiqueta {
+
+    font-size: 10px;
+
+  }
+
+
+  .grupo-titulo {
+
+    font-size: 16px;
+
+  }
+
+
+  .grupo-hora {
+
+    font-size: 12px;
+
+  }
+
+
+  .ultimo-estudiante {
+
+    font-size: 16px;
+
+  }
+
+
+  .ultimo-hora {
 
     font-size: 20px;
 
   }
 
-  .grupo-titulo {
 
-    font-size: 18px;
+  .estudiante-item {
 
-  }
-
-  .ultimo-estudiante {
-
-    font-size: 18px;
-
-  }
-
-  .ultimo-hora {
-
-    font-size: 21px;
+    font-size: 12px;
 
   }
 
@@ -1088,37 +1378,91 @@ body {
 <body>
 
 
-<!-- =================================================
+<!-- =====================================================
      ENCABEZADO
-     ================================================= -->
+     ===================================================== -->
 
 <div class="header">
 
-  <h1>
-    🏫 CET 34
-  </h1>
 
-  <p>
-    CONTROL DE ASISTENCIA QR
-  </p>
+  <!-- INSIGNIA IZQUIERDA -->
+
+  <div
+    class="header-insignia izquierda">
+
+    <!--
+      REEMPLAZAR POR TU INSIGNIA:
+
+      insignia-izquierda.png
+    -->
+
+    <img
+      src="insignia-izquierda.png"
+      alt="Insignia IE">
+
+
+  </div>
+
+
+
+  <!-- TEXTO CENTRAL -->
+
+  <div class="header-centro">
+
+    <h1>
+
+      🏫 CET 34
+
+    </h1>
+
+    <p>
+
+      CONTROL DE ASISTENCIA QR
+
+    </p>
+
+  </div>
+
+
+
+  <!-- INSIGNIA DERECHA -->
+
+  <div
+    class="header-insignia derecha">
+
+    <!--
+      REEMPLAZAR POR TU INSIGNIA:
+
+      insignia-derecha.png
+    -->
+
+    <img
+      src="insignia-derecha.png"
+      alt="Insignia IE">
+
+  </div>
+
 
 </div>
+
 
 
 <div class="container">
 
 
-<!-- =================================================
-     1. ESCÁNER — AHORA ARRIBA
-     ================================================= -->
+<!-- =====================================================
+     ESCÁNER
+     ===================================================== -->
 
 <div class="card">
+
 
   <div class="scanner-titulo">
 
     📷 ESCANEAR QR
 
   </div>
+
 
   <div class="scanner-instruccion">
 
@@ -1127,9 +1471,12 @@ body {
 
   </div>
 
+
   <div id="reader"></div>
 
+
   <div id="resultado"></div>
+
 
   <div
     id="audioIndicador"
@@ -1140,47 +1487,57 @@ body {
 
   </div>
 
-</div>
-
-
-
-<!-- =================================================
-     2. FECHA + JORNADA
-     ================================================= -->
-
-<div class="card">
-
-  <div
-    id="fecha"
-    class="fecha">
-
-    Cargando fecha...
-
-  </div>
-
-  <div
-    id="jornada"
-    class="jornada">
-
-    🟢 Cargando jornada...
-
-  </div>
 
 </div>
 
 
 
-<!-- =================================================
-     3. RESUMEN DEL DÍA
-     ================================================= -->
+<!-- =====================================================
+     FECHA + JORNADA
+     ===================================================== -->
 
 <div class="card">
+
+  <div class="fecha-jornada">
+
+
+    <div
+      id="fecha"
+      class="fecha">
+
+      Cargando fecha...
+
+    </div>
+
+
+    <div
+      id="jornada"
+      class="jornada">
+
+      🟢 Cargando jornada...
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
+<!-- =====================================================
+     RESUMEN DEL DÍA
+     ===================================================== -->
+
+<div class="card">
+
 
   <div class="titulo">
 
     📊 RESUMEN DEL DÍA
 
   </div>
+
 
   <div class="estadisticas">
 
@@ -1241,7 +1598,9 @@ body {
 
     </div>
 
+
   </div>
+
 
 
   <div class="total-general">
@@ -1257,6 +1616,7 @@ body {
   </div>
 
 
+
   <div class="barra-contenedor">
 
     <div class="barra-fondo">
@@ -1264,9 +1624,11 @@ body {
       <div
         id="barraGeneral"
         class="barra">
+
       </div>
 
     </div>
+
 
     <div
       id="porcentajeGeneral"
@@ -1278,15 +1640,17 @@ body {
 
   </div>
 
+
 </div>
 
 
 
-<!-- =================================================
-     4. ÚLTIMO REGISTRO
-     ================================================= -->
+<!-- =====================================================
+     ÚLTIMO REGISTRO
+     ===================================================== -->
 
 <div class="card">
+
 
   <div class="titulo">
 
@@ -1294,9 +1658,11 @@ body {
 
   </div>
 
+
   <div
     id="ultimoRegistro"
     class="ultimo-registro">
+
 
     <div class="sin-registros">
 
@@ -1304,17 +1670,20 @@ body {
 
     </div>
 
+
   </div>
+
 
 </div>
 
 
 
-<!-- =================================================
-     5. CONTROL POR SECCIÓN
-     ================================================= -->
+<!-- =====================================================
+     CONTROL POR SECCIÓN
+     ===================================================== -->
 
 <div class="card">
+
 
   <div class="titulo">
 
@@ -1322,7 +1691,9 @@ body {
 
   </div>
 
+
   <div id="grupos">
+
 
     <div class="sin-registros">
 
@@ -1330,15 +1701,13 @@ body {
 
     </div>
 
+
   </div>
+
 
 </div>
 
 
-
-<!-- =================================================
-     FOOTER
-     ================================================= -->
 
 <div class="footer">
 
@@ -1372,9 +1741,11 @@ let procesando = false;
 
 let audioContext = null;
 
+let resultadoTimer = null;
+
 
 /* =====================================================
-   ESCAPAR TEXTO HTML
+   ESCAPAR HTML
    ===================================================== */
 
 function escaparHTML(texto) {
@@ -1390,7 +1761,7 @@ function escaparHTML(texto) {
 
 
 /* =====================================================
-   FORMATEAR HORA
+   FORMATO HORA
    ===================================================== */
 
 function formatearHora(hora) {
@@ -1416,7 +1787,10 @@ function formatearHora(hora) {
 
 
   let horas =
-    parseInt(partes[0], 10);
+    parseInt(
+      partes[0],
+      10
+    );
 
 
   const minutos =
@@ -1458,6 +1832,7 @@ function formatearHora(hora) {
 
 
   return (
+
     horas12 +
     ":" +
     minutos +
@@ -1465,13 +1840,72 @@ function formatearHora(hora) {
     segundos +
     " " +
     periodo
+
   );
 
 }
 
 
 /* =====================================================
-   ACTIVAR AUDIO
+   MOSTRAR RESULTADO 4 SEGUNDOS
+   ===================================================== */
+
+function mostrarResultadoTemporal(
+  clase,
+  contenido
+) {
+
+
+  const resultado =
+    document.getElementById(
+      "resultado"
+    );
+
+
+  if (resultadoTimer) {
+
+    clearTimeout(
+      resultadoTimer
+    );
+
+  }
+
+
+  resultado.className =
+    clase;
+
+
+  resultado.innerHTML =
+    contenido;
+
+
+  resultado.style.display =
+    "block";
+
+
+  /*
+    4 segundos.
+  */
+
+  resultadoTimer =
+    setTimeout(
+      function() {
+
+        resultado.style.display =
+          "none";
+
+        resultado.innerHTML =
+          "";
+
+      },
+      4000
+    );
+
+}
+
+
+/* =====================================================
+   AUDIO
    ===================================================== */
 
 function activarAudio() {
@@ -1523,12 +1957,9 @@ function activarAudio() {
 
   }
 
-  catch (error) {
+  catch(error) {
 
-    console.error(
-      "Error activando audio:",
-      error
-    );
+    console.error(error);
 
   }
 
@@ -1536,7 +1967,7 @@ function activarAudio() {
 
 
 /* =====================================================
-   GENERAR TONO
+   TONO
    ===================================================== */
 
 function tono(
@@ -1588,7 +2019,7 @@ function tono(
 
 
     ganancia.gain.exponentialRampToValueAtTime(
-      volumen || 0.80,
+      volumen || 0.8,
       inicio + 0.025
     );
 
@@ -1615,17 +2046,16 @@ function tono(
 
 
     oscilador.stop(
-      inicio + duracion + 0.02
+      inicio +
+      duracion +
+      0.02
     );
 
   }
 
-  catch (error) {
+  catch(error) {
 
-    console.error(
-      "Error generando sonido:",
-      error
-    );
+    console.error(error);
 
   }
 
@@ -1633,7 +2063,7 @@ function tono(
 
 
 /* =====================================================
-   SONIDO PRESENTE
+   SONIDOS
    ===================================================== */
 
 function sonidoPresente() {
@@ -1642,16 +2072,16 @@ function sonidoPresente() {
 
   tono(
     784,
-    0.14,
+    .14,
     0,
-    0.80
+    .8
   );
 
   tono(
     1175,
-    0.18,
-    0.15,
-    0.85
+    .18,
+    .15,
+    .85
   );
 
 
@@ -1666,26 +2096,22 @@ function sonidoPresente() {
 }
 
 
-/* =====================================================
-   SONIDO TARDANZA
-   ===================================================== */
-
 function sonidoTardanza() {
 
   activarAudio();
 
   tono(
     700,
-    0.18,
+    .18,
     0,
-    0.85
+    .85
   );
 
   tono(
     440,
-    0.22,
-    0.20,
-    0.90
+    .22,
+    .20,
+    .9
   );
 
 
@@ -1704,26 +2130,22 @@ function sonidoTardanza() {
 }
 
 
-/* =====================================================
-   SONIDO DUPLICADO
-   ===================================================== */
-
 function sonidoDuplicado() {
 
   activarAudio();
 
   tono(
     520,
-    0.16,
+    .16,
     0,
-    0.90
+    .9
   );
 
   tono(
     520,
-    0.16,
-    0.30,
-    0.90
+    .16,
+    .30,
+    .9
   );
 
 
@@ -1742,26 +2164,22 @@ function sonidoDuplicado() {
 }
 
 
-/* =====================================================
-   SONIDO ERROR
-   ===================================================== */
-
 function sonidoError() {
 
   activarAudio();
 
   tono(
     300,
-    0.25,
+    .25,
     0,
-    0.95
+    .95
   );
 
   tono(
     180,
-    0.30,
-    0.28,
-    1.00
+    .30,
+    .28,
+    1
   );
 
 
@@ -1792,7 +2210,6 @@ document.addEventListener(
   }
 );
 
-
 document.addEventListener(
   "click",
   activarAudio
@@ -1812,72 +2229,68 @@ function cargarEstadisticas() {
 
   fetch(url)
 
-    .then(function(response) {
+    .then(
+      function(response) {
 
-      if (!response.ok) {
+        if (!response.ok) {
 
-        throw new Error(
-          "Error HTTP: " +
-          response.status
+          throw new Error(
+            "Error HTTP: " +
+            response.status
+          );
+
+        }
+
+
+        return response.json();
+
+      }
+    )
+
+    .then(
+      function(data) {
+
+        if (
+          data.exito !== true
+        ) {
+
+          throw new Error(
+            data.mensaje ||
+            "Error estadísticas"
+          );
+
+        }
+
+
+        mostrarEstadisticas(
+          data
         );
 
       }
+    )
 
+    .catch(
+      function(error) {
 
-      return response.json();
-
-    })
-
-
-    .then(function(data) {
-
-      console.log(
-        "Estadísticas:",
-        data
-      );
-
-
-      if (
-        data.exito !== true
-      ) {
-
-        throw new Error(
-          data.mensaje ||
-          "No se pudieron obtener las estadísticas."
+        console.error(
+          error
         );
 
+        document.getElementById(
+          "grupos"
+        ).innerHTML = `
+
+          <div class="sin-registros">
+
+            ⚠️ No se pudieron cargar
+            las estadísticas.
+
+          </div>
+
+        `;
+
       }
-
-
-      mostrarEstadisticas(
-        data
-      );
-
-    })
-
-
-    .catch(function(error) {
-
-      console.error(
-        "Error estadísticas:",
-        error
-      );
-
-
-      document.getElementById(
-        "grupos"
-      ).innerHTML = `
-
-        <div class="sin-registros">
-
-          ⚠️ No se pudieron cargar
-          las estadísticas.
-
-        </div>
-
-      `;
-
-    });
+    );
 
 }
 
@@ -1886,12 +2299,10 @@ function cargarEstadisticas() {
    MOSTRAR ESTADÍSTICAS
    ===================================================== */
 
-function mostrarEstadisticas(data) {
+function mostrarEstadisticas(
+  data
+) {
 
-
-  /* -----------------------------------------------
-     FECHA
-     ----------------------------------------------- */
 
   document.getElementById(
     "fecha"
@@ -1906,35 +2317,27 @@ function mostrarEstadisticas(data) {
     );
 
 
-  /* -----------------------------------------------
-     RESUMEN
-     ----------------------------------------------- */
-
   document.getElementById(
     "presentesGeneral"
   ).textContent =
-
     data.presentesGeneral;
 
 
   document.getElementById(
     "tardanzasGeneral"
   ).textContent =
-
     data.tardanzasGeneral;
 
 
   document.getElementById(
     "faltantesGeneral"
   ).textContent =
-
     data.faltantesGeneral;
 
 
   document.getElementById(
     "totalGeneral"
   ).textContent =
-
     data.totalGeneral;
 
 
@@ -1954,10 +2357,6 @@ function mostrarEstadisticas(data) {
     data.porcentajeGeneral +
     "%";
 
-
-  /* -----------------------------------------------
-     JORNADA
-     ----------------------------------------------- */
 
   const jornada =
     document.getElementById(
@@ -1998,18 +2397,10 @@ function mostrarEstadisticas(data) {
   }
 
 
-  /* -----------------------------------------------
-     ÚLTIMO REGISTRO
-     ----------------------------------------------- */
-
   mostrarUltimoRegistro(
     data.ultimoRegistro
   );
 
-
-  /* -----------------------------------------------
-     GRUPOS
-     ----------------------------------------------- */
 
   mostrarGrupos(
     data.grupos
@@ -2062,18 +2453,6 @@ function mostrarUltimoRegistro(
     estado === "TARDANZA";
 
 
-  const clase =
-    esTardanza
-      ? "tardanza"
-      : "presente";
-
-
-  const textoEstado =
-    esTardanza
-      ? "🟡 TARDANZA"
-      : "🟢 PRESENTE";
-
-
   contenedor.innerHTML = `
 
     <div class="ultimo-titulo">
@@ -2119,10 +2498,18 @@ function mostrarUltimoRegistro(
       </div>
 
 
-      <div
-        class="ultimo-estado ${clase}">
+      <div class="ultimo-estado
+        ${
+          esTardanza
+            ? "tardanza"
+            : "presente"
+        }">
 
-        ${textoEstado}
+        ${
+          esTardanza
+            ? "🟡 TARDANZA"
+            : "🟢 PRESENTE"
+        }
 
       </div>
 
@@ -2134,7 +2521,7 @@ function mostrarUltimoRegistro(
 
 
 /* =====================================================
-   CREAR LISTA DE ESTUDIANTES
+   CREAR LISTA
    ===================================================== */
 
 function crearLista(
@@ -2175,26 +2562,37 @@ function crearLista(
 
 
     lista.forEach(
-      function(estudiante, indice) {
+      function(
+        estudiante,
+        indice
+      ) {
 
         contenido += `
 
           <div class="estudiante-item">
 
-            <div class="estudiante-numero">
+            <div
+              class="estudiante-numero">
 
-              ${String(
-                indice + 1
-              ).padStart(2, "0")}
+              ${
+                String(
+                  indice + 1
+                ).padStart(
+                  2,
+                  "0"
+                )
+              }
 
             </div>
 
 
-            <div class="estudiante-nombre">
+            <div
+              class="estudiante-nombre">
 
               ${escaparHTML(
                 estudiante.nombre
               )}
+
 
               <span
                 class="estudiante-codigo">
@@ -2285,7 +2683,10 @@ function mostrarGrupos(
 
 
   grupos.forEach(
-    function(grupo, indice) {
+    function(
+      grupo,
+      indice
+    ) {
 
 
       const tarjeta =
@@ -2299,8 +2700,7 @@ function mostrarGrupos(
 
 
       /*
-        El primer grupo queda abierto.
-        Los demás quedan cerrados.
+        Primer grupo abierto.
       */
 
       if (
@@ -2317,11 +2717,14 @@ function mostrarGrupos(
 
         <summary>
 
-          <div class="grupo-cabecera">
+          <div
+            class="grupo-cabecera">
+
 
             <div>
 
-              <div class="grupo-titulo">
+              <div
+                class="grupo-titulo">
 
                 🎓
                 ${escaparHTML(
@@ -2337,7 +2740,8 @@ function mostrarGrupos(
               </div>
 
 
-              <div class="grupo-hora">
+              <div
+                class="grupo-hora">
 
                 🕐 Entrada:
 
@@ -2350,29 +2754,35 @@ function mostrarGrupos(
             </div>
 
 
-            <div class="grupo-badge">
+            <div
+              class="grupo-badge">
 
               ${grupo.porcentaje}%
 
             </div>
+
 
           </div>
 
         </summary>
 
 
-        <div class="grupo-contenido">
+        <div
+          class="grupo-contenido">
 
 
           <!-- ESTADÍSTICAS -->
 
-          <div class="grupo-estadisticas">
+          <div
+            class="grupo-estadisticas">
 
 
-            <div class="grupo-estado">
+            <div
+              class="grupo-estado">
 
               <div
-                class="numero numero-presente">
+                class="numero
+                       numero-presente">
 
                 ${grupo.presentes}
 
@@ -2387,10 +2797,12 @@ function mostrarGrupos(
             </div>
 
 
-            <div class="grupo-estado">
+            <div
+              class="grupo-estado">
 
               <div
-                class="numero numero-tardanza">
+                class="numero
+                       numero-tardanza">
 
                 ${grupo.tardanzas}
 
@@ -2405,10 +2817,12 @@ function mostrarGrupos(
             </div>
 
 
-            <div class="grupo-estado">
+            <div
+              class="grupo-estado">
 
               <div
-                class="numero numero-faltante">
+                class="numero
+                       numero-faltante">
 
                 ${grupo.faltantes}
 
@@ -2422,13 +2836,14 @@ function mostrarGrupos(
 
             </div>
 
-          </div>
 
+          </div>
 
 
           <!-- INFORMACIÓN -->
 
-          <div class="grupo-info">
+          <div
+            class="grupo-info">
 
 
             <div class="info-item">
@@ -2457,27 +2872,31 @@ function mostrarGrupos(
 
             </div>
 
-          </div>
 
+          </div>
 
 
           <!-- PORCENTAJE -->
 
-          <div class="barra-contenedor">
+          <div
+            class="barra-contenedor">
 
-            <div class="barra-fondo">
+            <div
+              class="barra-fondo">
 
               <div
                 class="barra"
                 style="
                   width:${grupo.porcentaje}%;
                 ">
+
               </div>
 
             </div>
 
 
-            <div class="porcentaje">
+            <div
+              class="porcentaje">
 
               Asistencia:
               ${grupo.porcentaje}%
@@ -2487,10 +2906,7 @@ function mostrarGrupos(
           </div>
 
 
-
-          <!-- ==================================
-               LISTA PRESENTES
-               ================================== -->
+          <!-- PRESENTES -->
 
           ${crearLista(
 
@@ -2505,10 +2921,7 @@ function mostrarGrupos(
           )}
 
 
-
-          <!-- ==================================
-               LISTA TARDANZAS
-               ================================== -->
+          <!-- TARDANZAS -->
 
           ${crearLista(
 
@@ -2523,10 +2936,7 @@ function mostrarGrupos(
           )}
 
 
-
-          <!-- ==================================
-               LISTA FALTANTES
-               ================================== -->
+          <!-- FALTANTES -->
 
           ${crearLista(
 
@@ -2539,6 +2949,7 @@ function mostrarGrupos(
             "🔴"
 
           )}
+
 
         </div>
 
@@ -2577,39 +2988,31 @@ function qrDetectado(
     true;
 
 
-  console.log(
-    "QR detectado:",
-    codigo
-  );
-
-
   if (
     scanner
   ) {
 
     scanner.stop()
 
-      .then(function() {
+      .then(
+        function() {
 
-        registrarAsistencia(
-          codigo
-        );
+          registrarAsistencia(
+            codigo
+          );
 
-      })
+        }
+      )
 
-      .catch(function(error) {
+      .catch(
+        function() {
 
-        console.error(
-          "Error al detener cámara:",
-          error
-        );
+          registrarAsistencia(
+            codigo
+          );
 
-
-        registrarAsistencia(
-          codigo
-        );
-
-      });
+        }
+      );
 
   }
 
@@ -2646,64 +3049,91 @@ function registrarAsistencia(
 
   fetch(url)
 
-    .then(function(response) {
+    .then(
+      function(response) {
 
-      if (!response.ok) {
+        if (!response.ok) {
 
-        throw new Error(
-          "Error HTTP: " +
-          response.status
+          throw new Error(
+            "Error HTTP: " +
+            response.status
+          );
+
+        }
+
+
+        return response.json();
+
+      }
+    )
+
+    .then(
+      function(data) {
+
+        procesarRespuesta(
+          data
         );
 
       }
+    )
+
+    .catch(
+      function(error) {
+
+        console.error(
+          error
+        );
 
 
-      return response.json();
-
-    })
-
-
-    .then(function(data) {
-
-      console.log(
-        "Respuesta:",
-        data
-      );
+        procesando =
+          false;
 
 
-      procesarRespuesta(
-        data
-      );
-
-    })
+        sonidoError();
 
 
-    .catch(function(error) {
+        mostrarResultadoTemporal(
 
-      console.error(
-        "Error:",
-        error
-      );
+          "resultado-error",
 
+          `
 
-      sonidoError();
+            <div
+              class="resultado-icono">
 
+              ❌
 
-      mostrarError(
-        "No se pudo conectar con el servidor."
-      );
+            </div>
 
 
-      setTimeout(
-        function() {
+            <div
+              class="resultado-titulo">
 
-          iniciarScanner();
+              ERROR
 
-        },
-        2500
-      );
+            </div>
 
-    });
+
+            <div
+              style="margin-top:8px;">
+
+              No se pudo conectar
+              con el servidor.
+
+            </div>
+
+          `
+
+        );
+
+
+        setTimeout(
+          iniciarScanner,
+          4000
+        );
+
+      }
+    );
 
 }
 
@@ -2721,9 +3151,7 @@ function procesarRespuesta(
     false;
 
 
-  /* -----------------------------------------------
-     REGISTRADO
-     ----------------------------------------------- */
+  /* REGISTRADO */
 
   if (
 
@@ -2734,16 +3162,18 @@ function procesarRespuesta(
   ) {
 
 
-    const estado =
+    const tardanza =
+
       String(
         data.estado || ""
       )
         .trim()
-        .toUpperCase();
+        .toUpperCase() ===
+      "TARDANZA";
 
 
     if (
-      estado === "TARDANZA"
+      tardanza
     ) {
 
       sonidoTardanza();
@@ -2762,32 +3192,15 @@ function procesarRespuesta(
     );
 
 
-    /*
-      Actualizar estadísticas.
-    */
-
     setTimeout(
-      function() {
-
-        cargarEstadisticas();
-
-      },
+      cargarEstadisticas,
       300
     );
 
 
-    /*
-      Volver automáticamente
-      al escáner.
-    */
-
     setTimeout(
-      function() {
-
-        iniciarScanner();
-
-      },
-      2500
+      iniciarScanner,
+      4000
     );
 
 
@@ -2796,9 +3209,7 @@ function procesarRespuesta(
   }
 
 
-  /* -----------------------------------------------
-     DUPLICADO
-     ----------------------------------------------- */
+  /* DUPLICADO */
 
   if (
 
@@ -2818,12 +3229,8 @@ function procesarRespuesta(
 
 
     setTimeout(
-      function() {
-
-        iniciarScanner();
-
-      },
-      2500
+      iniciarScanner,
+      4000
     );
 
 
@@ -2832,9 +3239,7 @@ function procesarRespuesta(
   }
 
 
-  /* -----------------------------------------------
-     SIN HORARIO
-     ----------------------------------------------- */
+  /* SIN HORARIO */
 
   if (
 
@@ -2854,12 +3259,8 @@ function procesarRespuesta(
 
 
     setTimeout(
-      function() {
-
-        iniciarScanner();
-
-      },
-      2500
+      iniciarScanner,
+      4000
     );
 
 
@@ -2868,29 +3269,51 @@ function procesarRespuesta(
   }
 
 
-  /* -----------------------------------------------
-     ERROR
-     ----------------------------------------------- */
+  /* ERROR */
 
   sonidoError();
 
 
-  mostrarError(
+  mostrarResultadoTemporal(
 
-    data.mensaje ||
+    "resultado-error",
 
-    "No se pudo registrar la asistencia."
+    `
+
+      <div
+        class="resultado-icono">
+
+        ❌
+
+      </div>
+
+
+      <div
+        class="resultado-titulo">
+
+        ERROR
+
+      </div>
+
+
+      <div
+        style="margin-top:8px;">
+
+        ${escaparHTML(
+          data.mensaje ||
+          "No se pudo registrar."
+        )}
+
+      </div>
+
+    `
 
   );
 
 
   setTimeout(
-    function() {
-
-      iniciarScanner();
-
-    },
-    2500
+    iniciarScanner,
+    4000
   );
 
 }
@@ -2903,45 +3326,36 @@ function procesarRespuesta(
 function mostrarProcesando() {
 
 
-  const resultado =
-    document.getElementById(
-      "resultado"
-    );
+  mostrarResultadoTemporal(
+
+    "resultado-procesando",
+
+    `
+
+      <div
+        class="resultado-icono">
+
+        ⏳
+
+      </div>
 
 
-  resultado.className =
-    "resultado-procesando";
+      <div
+        class="resultado-titulo">
 
+        REGISTRANDO...
 
-  resultado.innerHTML = `
+      </div>
 
-    <div class="resultado-icono">
+    `
 
-      ⏳
-
-    </div>
-
-
-    <div class="resultado-titulo">
-
-      REGISTRANDO...
-
-    </div>
-
-
-    <div>
-
-      Guardando asistencia...
-
-    </div>
-
-  `;
+  );
 
 }
 
 
 /* =====================================================
-   ASISTENCIA REGISTRADA
+   ASISTENCIA
    ===================================================== */
 
 function mostrarAsistencia(
@@ -2949,13 +3363,7 @@ function mostrarAsistencia(
 ) {
 
 
-  const resultado =
-    document.getElementById(
-      "resultado"
-    );
-
-
-  const esTardanza =
+  const tardanza =
 
     String(
       data.estado || ""
@@ -2965,73 +3373,85 @@ function mostrarAsistencia(
     "TARDANZA";
 
 
-  resultado.className =
+  mostrarResultadoTemporal(
 
-    esTardanza
+    tardanza
       ? "resultado-tardanza"
-      : "resultado-presente";
+      : "resultado-presente",
 
 
-  resultado.innerHTML = `
+    `
 
-    <div class="resultado-icono">
+      <div
+        class="resultado-icono">
 
-      ${esTardanza ? "🟡" : "🟢"}
+        ${
+          tardanza
+            ? "🟡"
+            : "🟢"
+        }
 
-    </div>
-
-
-    <div class="resultado-titulo">
-
-      ASISTENCIA REGISTRADA
-
-    </div>
+      </div>
 
 
-    <div class="resultado-estudiante">
+      <div
+        class="resultado-titulo">
 
-      ${escaparHTML(
-        data.estudiante
-      )}
+        ASISTENCIA REGISTRADA
 
-    </div>
-
-
-    <div class="resultado-grupo">
-
-      ${escaparHTML(
-        data.grado
-      )}
-
-      · Sección
-
-      ${escaparHTML(
-        data.seccion
-      )}
-
-    </div>
+      </div>
 
 
-    <div class="resultado-hora">
+      <div
+        class="resultado-estudiante">
 
-      ${formatearHora(
-        data.hora
-      )}
+        ${escaparHTML(
+          data.estudiante
+        )}
 
-    </div>
+      </div>
 
 
-    <div class="resultado-estado">
+      <div
+        class="resultado-grupo">
 
-      ${
-        esTardanza
-          ? "🟡 TARDANZA"
-          : "🟢 PRESENTE"
-      }
+        ${escaparHTML(
+          data.grado
+        )}
 
-    </div>
+        · Sección
 
-  `;
+        ${escaparHTML(
+          data.seccion
+        )}
+
+      </div>
+
+
+      <div
+        class="resultado-hora">
+
+        ${formatearHora(
+          data.hora
+        )}
+
+      </div>
+
+
+      <div
+        class="resultado-estado">
+
+        ${
+          tardanza
+            ? "🟡 TARDANZA"
+            : "🟢 PRESENTE"
+        }
+
+      </div>
+
+    `
+
+  );
 
 }
 
@@ -3045,91 +3465,74 @@ function mostrarDuplicado(
 ) {
 
 
-  const resultado =
-    document.getElementById(
-      "resultado"
-    );
+  mostrarResultadoTemporal(
+
+    "resultado-duplicado",
+
+    `
+
+      <div
+        class="resultado-icono">
+
+        ⚠️
+
+      </div>
 
 
-  resultado.className =
-    "resultado-duplicado";
+      <div
+        class="resultado-titulo">
+
+        YA REGISTRADO
+
+      </div>
 
 
-  resultado.innerHTML = `
+      <div
+        class="resultado-estudiante">
 
-    <div class="resultado-icono">
+        ${escaparHTML(
+          data.estudiante
+        )}
 
-      ⚠️
-
-    </div>
-
-
-    <div class="resultado-titulo">
-
-      YA REGISTRADO
-
-    </div>
+      </div>
 
 
-    <div class="resultado-estudiante">
+      <div
+        class="resultado-grupo">
 
-      ${escaparHTML(
-        data.estudiante
-      )}
+        ${
+          data.grado
+            ? escaparHTML(
+                data.grado
+              )
+            : ""
+        }
 
-    </div>
+        ${
+          data.seccion
+            ? " · Sección " +
+              escaparHTML(
+                data.seccion
+              )
+            : ""
+        }
 
-
-    <div class="resultado-grupo">
-
-      ${
-        data.grado
-          ? escaparHTML(
-              data.grado
-            )
-          : ""
-      }
-
-      ${
-        data.seccion
-          ? " · Sección " +
-            escaparHTML(
-              data.seccion
-            )
-          : ""
-      }
-
-    </div>
+      </div>
 
 
-    <div style="
-      margin-top:10px;
-    ">
+      <div
+        class="resultado-hora">
 
-      La asistencia ya fue registrada.
+        🕐
+        ${formatearHora(
+          data.horaRegistro
+        )}
 
-    </div>
+      </div>
 
+    `
 
-    <div class="resultado-hora">
-
-      ${formatearHora(
-        data.horaRegistro
-      )}
-
-    </div>
-
-
-    <div style="
-      margin-top:4px;
-      font-weight:bold;
-    ">
-
-      🕐 Hora del registro
-
-    </div>
-
-  `;
+  );
 
 }
 
@@ -3143,126 +3546,72 @@ function mostrarSinHorario(
 ) {
 
 
-  const resultado =
-    document.getElementById(
-      "resultado"
-    );
+  mostrarResultadoTemporal(
+
+    "resultado-error",
+
+    `
+
+      <div
+        class="resultado-icono">
+
+        🚫
+
+      </div>
 
 
-  resultado.className =
-    "resultado-error";
+      <div
+        class="resultado-titulo">
+
+        SIN HORARIO
+
+      </div>
 
 
-  resultado.innerHTML = `
+      <div
+        class="resultado-estudiante">
 
-    <div class="resultado-icono">
+        ${escaparHTML(
+          data.estudiante || ""
+        )}
 
-      🚫
-
-    </div>
-
-
-    <div class="resultado-titulo">
-
-      SIN HORARIO
-
-    </div>
+      </div>
 
 
-    <div class="resultado-estudiante">
+      <div
+        class="resultado-grupo">
 
-      ${escaparHTML(
-        data.estudiante || ""
-      )}
+        ${
+          data.grado
+            ? escaparHTML(
+                data.grado
+              )
+            : ""
+        }
 
-    </div>
+        ${
+          data.seccion
+            ? " · Sección " +
+              escaparHTML(
+                data.seccion
+              )
+            : ""
+        }
 
-
-    <div style="
-      margin-top:10px;
-    ">
-
-      Este estudiante no tiene
-      horario configurado para hoy.
-
-    </div>
-
-
-    <div style="
-      margin-top:10px;
-      font-weight:bold;
-    ">
-
-      ${
-        data.grado
-          ? escaparHTML(
-              data.grado
-            )
-          : ""
-      }
-
-      ${
-        data.seccion
-          ? " · Sección " +
-            escaparHTML(
-              data.seccion
-            )
-          : ""
-      }
-
-    </div>
-
-  `;
-
-}
+      </div>
 
 
-/* =====================================================
-   ERROR
-   ===================================================== */
+      <div
+        style="margin-top:8px;">
 
-function mostrarError(
-  mensaje
-) {
+        Este estudiante no tiene
+        horario configurado para hoy.
 
+      </div>
 
-  const resultado =
-    document.getElementById(
-      "resultado"
-    );
+    `
 
-
-  resultado.className =
-    "resultado-error";
-
-
-  resultado.innerHTML = `
-
-    <div class="resultado-icono">
-
-      ❌
-
-    </div>
-
-
-    <div class="resultado-titulo">
-
-      ERROR
-
-    </div>
-
-
-    <div style="
-      margin-top:10px;
-    ">
-
-      ${escaparHTML(
-        mensaje
-      )}
-
-    </div>
-
-  `;
+  );
 
 }
 
@@ -3288,6 +3637,15 @@ function iniciarScanner() {
     "";
 
 
+  if (resultadoTimer) {
+
+    clearTimeout(
+      resultadoTimer
+    );
+
+  }
+
+
   const resultado =
     document.getElementById(
       "resultado"
@@ -3296,6 +3654,10 @@ function iniciarScanner() {
 
   resultado.style.display =
     "none";
+
+
+  resultado.innerHTML =
+    "";
 
 
   scanner =
@@ -3349,34 +3711,65 @@ function iniciarScanner() {
     qrDetectado,
 
 
-    function(errorMessage) {
+    function() {
 
       /*
-        Errores normales de lectura.
-        No hacemos nada.
+        Errores normales
+        de lectura QR.
       */
 
     }
 
   )
 
+  .catch(
+    function(error) {
 
-  .catch(function(error) {
-
-    console.error(
-      "Error de cámara:",
-      error
-    );
-
-
-    sonidoError();
+      console.error(
+        "Error cámara:",
+        error
+      );
 
 
-    mostrarError(
-      "No se pudo acceder a la cámara."
-    );
+      sonidoError();
 
-  });
+
+      mostrarResultadoTemporal(
+
+        "resultado-error",
+
+        `
+
+          <div
+            class="resultado-icono">
+
+            ❌
+
+          </div>
+
+
+          <div
+            class="resultado-titulo">
+
+            ERROR DE CÁMARA
+
+          </div>
+
+
+          <div
+            style="margin-top:8px;">
+
+            No se pudo acceder
+            a la cámara.
+
+          </div>
+
+        `
+
+      );
+
+    }
+  );
 
 }
 
@@ -3389,24 +3782,9 @@ window.addEventListener(
   "load",
   function() {
 
-
-    /*
-      Cargar estadísticas.
-    */
-
     cargarEstadisticas();
 
-
-    /*
-      Iniciar cámara.
-    */
-
     iniciarScanner();
-
-
-    /*
-      Preparar audio.
-    */
 
     activarAudio();
 
