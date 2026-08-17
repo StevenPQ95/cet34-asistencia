@@ -1,10 +1,2211 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8" />
-    <title>Mi pagina de prueba</title>
-  </head>
-  <body>
-    <h1>HOLA MUNDO</h1>
-  </body>
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    CET 34 - Reportes de Asistencia
+  </title>
+
+
+  <style>
+
+    /* =====================================================
+       VARIABLES
+    ===================================================== */
+
+    :root {
+
+      --vino: #641c2d;
+      --vino-oscuro: #4a1321;
+      --vino-claro: #7b293d;
+
+      --fondo: #f3f6fa;
+      --blanco: #ffffff;
+
+      --texto: #172033;
+      --texto-secundario: #64748b;
+
+      --verde: #16a34a;
+      --verde-fondo: #ecfdf3;
+
+      --amarillo: #d97706;
+      --amarillo-fondo: #fff9e8;
+
+      --rojo: #dc2626;
+      --rojo-fondo: #fff1f2;
+
+      --azul: #2563eb;
+      --azul-fondo: #eff6ff;
+
+      --borde: #dbe3ed;
+
+      --sombra:
+        0 10px 30px rgba(
+          15,
+          23,
+          42,
+          0.08
+        );
+
+    }
+
+
+    /* =====================================================
+       GENERAL
+    ===================================================== */
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    body {
+
+      margin: 0;
+
+      background:
+        linear-gradient(
+          180deg,
+          #eef2f7 0%,
+          #f7f9fc 100%
+        );
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      color: var(--texto);
+
+    }
+
+
+    /* =====================================================
+       ENCABEZADO
+    ===================================================== */
+
+    header {
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--vino-oscuro),
+          var(--vino)
+        );
+
+      color: white;
+
+      padding:
+        18px
+        20px
+        20px;
+
+      box-shadow:
+        0 4px 18px
+        rgba(
+          0,
+          0,
+          0,
+          0.18
+        );
+
+    }
+
+
+    .header-content {
+
+      max-width: 1050px;
+
+      margin: auto;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: space-between;
+
+      gap: 18px;
+
+    }
+
+
+    .insignia {
+
+      width: 62px;
+
+      height: 62px;
+
+      object-fit: contain;
+
+      background: rgba(
+        255,
+        255,
+        255,
+        0.12
+      );
+
+      border-radius: 14px;
+
+      padding: 5px;
+
+    }
+
+
+    .titulo {
+
+      text-align: center;
+
+      flex: 1;
+
+    }
+
+
+    .titulo h1 {
+
+      margin: 0;
+
+      font-size: 27px;
+
+      font-weight: 800;
+
+      letter-spacing: 0.4px;
+
+    }
+
+
+    .titulo p {
+
+      margin:
+        5px
+        0
+        0;
+
+      font-size: 14px;
+
+      opacity: 0.88;
+
+    }
+
+
+    /* =====================================================
+       CONTENEDOR
+    ===================================================== */
+
+    main {
+
+      width: min(
+        1050px,
+        calc(100% - 28px)
+      );
+
+      margin:
+        24px
+        auto
+        40px;
+
+    }
+
+
+    /* =====================================================
+       BOTÓN VOLVER
+    ===================================================== */
+
+    .volver {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 8px;
+
+      padding:
+        10px
+        16px;
+
+      border-radius: 12px;
+
+      border: 1px solid var(--borde);
+
+      background: white;
+
+      color: var(--vino);
+
+      text-decoration: none;
+
+      font-weight: 700;
+
+      margin-bottom: 18px;
+
+      box-shadow:
+        0 3px 10px
+        rgba(
+          15,
+          23,
+          42,
+          0.05
+        );
+
+      transition:
+        0.2s ease;
+
+    }
+
+
+    .volver:hover {
+
+      transform:
+        translateY(-1px);
+
+      box-shadow:
+        0 6px 15px
+        rgba(
+          15,
+          23,
+          42,
+          0.09
+        );
+
+    }
+
+
+    /* =====================================================
+       TARJETAS
+    ===================================================== */
+
+    .card {
+
+      background: white;
+
+      border:
+        1px solid var(--borde);
+
+      border-radius: 20px;
+
+      padding: 22px;
+
+      margin-bottom: 20px;
+
+      box-shadow: var(--sombra);
+
+    }
+
+
+    .card-title {
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 10px;
+
+      margin:
+        0
+        0
+        18px;
+
+      font-size: 21px;
+
+      font-weight: 800;
+
+    }
+
+
+    /* =====================================================
+       FILTROS
+    ===================================================== */
+
+    .filtros {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          4,
+          1fr
+        );
+
+      gap: 14px;
+
+    }
+
+
+    .campo {
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 7px;
+
+    }
+
+
+    .campo label {
+
+      font-size: 13px;
+
+      font-weight: 700;
+
+      color:
+        var(--texto-secundario);
+
+    }
+
+
+    .campo input,
+    .campo select {
+
+      width: 100%;
+
+      height: 44px;
+
+      border:
+        1px solid
+        #cfd8e3;
+
+      border-radius: 11px;
+
+      padding:
+        0
+        12px;
+
+      background: white;
+
+      color: var(--texto);
+
+      font-size: 14px;
+
+      outline: none;
+
+    }
+
+
+    .campo input:focus,
+    .campo select:focus {
+
+      border-color:
+        var(--vino);
+
+      box-shadow:
+        0 0 0 3px
+        rgba(
+          100,
+          28,
+          45,
+          0.10
+        );
+
+    }
+
+
+    .acciones {
+
+      margin-top: 18px;
+
+      display: flex;
+
+      justify-content: flex-end;
+
+      gap: 10px;
+
+    }
+
+
+    .btn {
+
+      border: none;
+
+      border-radius: 11px;
+
+      padding:
+        12px
+        20px;
+
+      font-size: 14px;
+
+      font-weight: 800;
+
+      cursor: pointer;
+
+      transition:
+        0.2s ease;
+
+    }
+
+
+    .btn-generar {
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--vino),
+          var(--vino-claro)
+        );
+
+      color: white;
+
+    }
+
+
+    .btn-generar:hover {
+
+      transform:
+        translateY(-1px);
+
+      box-shadow:
+        0 7px 18px
+        rgba(
+          100,
+          28,
+          45,
+          0.22
+        );
+
+    }
+
+
+    .btn-generar:disabled {
+
+      opacity: 0.6;
+
+      cursor:
+        wait;
+
+      transform:
+        none;
+
+    }
+
+
+    /* =====================================================
+       ESTADO DE CARGA
+    ===================================================== */
+
+    .estado {
+
+      display: none;
+
+      padding:
+        14px
+        16px;
+
+      border-radius: 12px;
+
+      margin-top: 16px;
+
+      text-align: center;
+
+      font-weight: 700;
+
+    }
+
+
+    .estado.cargando {
+
+      display: block;
+
+      background:
+        var(--azul-fondo);
+
+      color:
+        var(--azul);
+
+    }
+
+
+    .estado.error {
+
+      display: block;
+
+      background:
+        var(--rojo-fondo);
+
+      color:
+        var(--rojo);
+
+    }
+
+
+    .estado.exito {
+
+      display: block;
+
+      background:
+        var(--verde-fondo);
+
+      color:
+        var(--verde);
+
+    }
+
+
+    /* =====================================================
+       ENCABEZADO DEL REPORTE
+    ===================================================== */
+
+    #resultado {
+
+      display: none;
+
+    }
+
+
+    .reporte-cabecera {
+
+      display: flex;
+
+      justify-content: space-between;
+
+      align-items: center;
+
+      gap: 15px;
+
+      flex-wrap: wrap;
+
+    }
+
+
+    .reporte-info h2 {
+
+      margin: 0;
+
+      font-size: 22px;
+
+    }
+
+
+    .reporte-info p {
+
+      margin:
+        5px
+        0
+        0;
+
+      color:
+        var(--texto-secundario);
+
+      font-size: 14px;
+
+    }
+
+
+    .porcentaje {
+
+      background:
+        var(--azul-fondo);
+
+      color:
+        var(--azul);
+
+      padding:
+        11px
+        17px;
+
+      border-radius: 14px;
+
+      font-size: 20px;
+
+      font-weight: 900;
+
+    }
+
+
+    /* =====================================================
+       RESUMEN
+    ===================================================== */
+
+    .resumen {
+
+      display: grid;
+
+      grid-template-columns:
+        repeat(
+          5,
+          1fr
+        );
+
+      gap: 12px;
+
+      margin-top: 20px;
+
+    }
+
+
+    .resumen-card {
+
+      border-radius: 15px;
+
+      padding:
+        15px
+        10px;
+
+      text-align: center;
+
+      background:
+        #f8fafc;
+
+      border:
+        1px solid
+        #edf1f5;
+
+    }
+
+
+    .resumen-numero {
+
+      font-size: 28px;
+
+      font-weight: 900;
+
+      line-height: 1.1;
+
+    }
+
+
+    .resumen-label {
+
+      margin-top: 6px;
+
+      font-size: 12px;
+
+      color:
+        var(--texto-secundario);
+
+    }
+
+
+    .verde .resumen-numero {
+      color: var(--verde);
+    }
+
+
+    .amarillo .resumen-numero {
+      color: var(--amarillo);
+    }
+
+
+    .rojo .resumen-numero {
+      color: var(--rojo);
+    }
+
+
+    .azul .resumen-numero {
+      color: var(--azul);
+    }
+
+
+    .vino .resumen-numero {
+      color: var(--vino);
+    }
+
+
+    /* =====================================================
+       BARRA
+    ===================================================== */
+
+    .barra {
+
+      height: 12px;
+
+      background:
+        #e2e8f0;
+
+      border-radius: 20px;
+
+      overflow: hidden;
+
+      margin-top: 20px;
+
+    }
+
+
+    .barra-progreso {
+
+      height: 100%;
+
+      width: 0%;
+
+      background:
+        linear-gradient(
+          90deg,
+          #16a34a,
+          #22c55e
+        );
+
+      border-radius: inherit;
+
+      transition:
+        width
+        0.5s ease;
+
+    }
+
+
+    /* =====================================================
+       LISTA DE ESTUDIANTES
+    ===================================================== */
+
+    .lista {
+
+      margin-top: 22px;
+
+    }
+
+
+    .lista-title {
+
+      font-size: 19px;
+
+      font-weight: 800;
+
+      margin-bottom: 12px;
+
+    }
+
+
+    .estudiante {
+
+      display: grid;
+
+      grid-template-columns:
+        55px
+        1fr
+        140px
+        120px;
+
+      align-items: center;
+
+      gap: 10px;
+
+      padding:
+        13px
+        8px;
+
+      border-bottom:
+        1px solid
+        #edf1f5;
+
+    }
+
+
+    .numero {
+
+      color:
+        #94a3b8;
+
+      font-weight: 800;
+
+      text-align: center;
+
+    }
+
+
+    .nombre {
+
+      font-weight: 700;
+
+    }
+
+
+    .codigo {
+
+      margin-top: 3px;
+
+      color:
+        #94a3b8;
+
+      font-size: 12px;
+
+    }
+
+
+    .hora {
+
+      text-align: center;
+
+      color:
+        var(--texto-secundario);
+
+      font-size: 13px;
+
+    }
+
+
+    .estado-badge {
+
+      display: inline-flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      min-width: 105px;
+
+      padding:
+        7px
+        10px;
+
+      border-radius: 20px;
+
+      font-size: 12px;
+
+      font-weight: 800;
+
+    }
+
+
+    .estado-presente {
+
+      background:
+        var(--verde-fondo);
+
+      color:
+        var(--verde);
+
+    }
+
+
+    .estado-tardanza {
+
+      background:
+        var(--amarillo-fondo);
+
+      color:
+        var(--amarillo);
+
+    }
+
+
+    .estado-falta {
+
+      background:
+        var(--rojo-fondo);
+
+      color:
+        var(--rojo);
+
+    }
+
+
+    .estado-pendiente {
+
+      background:
+        var(--azul-fondo);
+
+      color:
+        var(--azul);
+
+    }
+
+
+    /* =====================================================
+       SIN REGISTROS
+    ===================================================== */
+
+    .sin-registros {
+
+      text-align: center;
+
+      padding:
+        35px
+        15px;
+
+      color:
+        #94a3b8;
+
+    }
+
+
+    /* =====================================================
+       PIE
+    ===================================================== */
+
+    footer {
+
+      text-align: center;
+
+      color:
+        #94a3b8;
+
+      font-size: 12px;
+
+      padding:
+        10px
+        20px
+        30px;
+
+    }
+
+
+    /* =====================================================
+       RESPONSIVE
+    ===================================================== */
+
+    @media (
+      max-width: 800px
+    ) {
+
+      .filtros {
+
+        grid-template-columns:
+          repeat(
+            2,
+            1fr
+          );
+
+      }
+
+
+      .resumen {
+
+        grid-template-columns:
+          repeat(
+            3,
+            1fr
+          );
+
+      }
+
+
+      .estudiante {
+
+        grid-template-columns:
+          40px
+          1fr
+          105px;
+
+      }
+
+
+      .hora {
+
+        display: none;
+
+      }
+
+    }
+
+
+    @media (
+      max-width: 560px
+    ) {
+
+      .header-content {
+
+        gap: 8px;
+
+      }
+
+
+      .insignia {
+
+        width: 48px;
+
+        height: 48px;
+
+      }
+
+
+      .titulo h1 {
+
+        font-size: 20px;
+
+      }
+
+
+      .titulo p {
+
+        font-size: 11px;
+
+      }
+
+
+      main {
+
+        width:
+          calc(
+            100% - 18px
+          );
+
+        margin-top: 15px;
+
+      }
+
+
+      .card {
+
+        padding: 16px;
+
+        border-radius: 16px;
+
+      }
+
+
+      .filtros {
+
+        grid-template-columns:
+          1fr;
+
+      }
+
+
+      .resumen {
+
+        grid-template-columns:
+          repeat(
+            2,
+            1fr
+          );
+
+      }
+
+
+      .resumen-card:last-child {
+
+        grid-column:
+          span 2;
+
+      }
+
+
+      .estudiante {
+
+        grid-template-columns:
+          38px
+          1fr
+          95px;
+
+      }
+
+
+      .estado-badge {
+
+        min-width: 85px;
+
+        font-size: 11px;
+
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- ===================================================
+       ENCABEZADO
+  ==================================================== -->
+
+  <header>
+
+    <div class="header-content">
+
+      <img
+        class="insignia"
+        src="insignia-izquierda.png"
+        alt="Insignia izquierda"
+      >
+
+
+      <div class="titulo">
+
+        <h1>
+          🏫 CET 34
+        </h1>
+
+        <p>
+          Sistema de Reportes de Asistencia
+        </p>
+
+      </div>
+
+
+      <img
+        class="insignia"
+        src="insignia-derecha.png"
+        alt="Insignia derecha"
+      >
+
+    </div>
+
+  </header>
+
+
+  <!-- ===================================================
+       CONTENIDO
+  ==================================================== -->
+
+  <main>
+
+
+    <a
+      class="volver"
+      href="index.html"
+    >
+      ← Volver al control de asistencia
+    </a>
+
+
+    <!-- =================================================
+         FILTROS
+    ================================================== -->
+
+    <section class="card">
+
+      <h2 class="card-title">
+        📊 Generar reporte
+      </h2>
+
+
+      <div class="filtros">
+
+
+        <div class="campo">
+
+          <label for="fechaInicio">
+            Fecha de inicio
+          </label>
+
+          <input
+            type="date"
+            id="fechaInicio"
+          >
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="fechaFin">
+            Fecha de fin
+          </label>
+
+          <input
+            type="date"
+            id="fechaFin"
+          >
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="grado">
+            Grado
+          </label>
+
+          <select id="grado">
+
+            <option value="">
+              Todos los grados
+            </option>
+
+            <option value="5°">
+              5°
+            </option>
+
+          </select>
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="seccion">
+            Sección
+          </label>
+
+          <select id="seccion">
+
+            <option value="">
+              Todas
+            </option>
+
+            <option value="J">
+              J
+            </option>
+
+            <option value="C">
+              C
+            </option>
+
+            <option value="G">
+              G
+            </option>
+
+          </select>
+
+        </div>
+
+
+      </div>
+
+
+      <div class="acciones">
+
+        <button
+          class="btn btn-generar"
+          id="btnGenerar"
+          onclick="generarReporte()"
+        >
+          📊 Generar reporte
+        </button>
+
+      </div>
+
+
+      <div
+        id="estado"
+        class="estado"
+      ></div>
+
+    </section>
+
+
+    <!-- =================================================
+         RESULTADO
+    ================================================== -->
+
+    <section
+      class="card"
+      id="resultado"
+    >
+
+
+      <div class="reporte-cabecera">
+
+        <div class="reporte-info">
+
+          <h2 id="tituloReporte">
+            Reporte de asistencia
+          </h2>
+
+          <p id="subtituloReporte">
+          </p>
+
+        </div>
+
+
+        <div
+          class="porcentaje"
+          id="porcentaje"
+        >
+          0%
+        </div>
+
+      </div>
+
+
+      <!-- RESUMEN -->
+
+      <div class="resumen">
+
+
+        <div class="resumen-card verde">
+
+          <div
+            class="resumen-numero"
+            id="totalPresentes"
+          >
+            0
+          </div>
+
+          <div class="resumen-label">
+            🟢 Presentes
+          </div>
+
+        </div>
+
+
+        <div class="resumen-card amarillo">
+
+          <div
+            class="resumen-numero"
+            id="totalTardanzas"
+          >
+            0
+          </div>
+
+          <div class="resumen-label">
+            🟡 Tardanzas
+          </div>
+
+        </div>
+
+
+        <div class="resumen-card rojo">
+
+          <div
+            class="resumen-numero"
+            id="totalFaltantes"
+          >
+            0
+          </div>
+
+          <div class="resumen-label">
+            🔴 Faltantes
+          </div>
+
+        </div>
+
+
+        <div class="resumen-card azul">
+
+          <div
+            class="resumen-numero"
+            id="totalPendientes"
+          >
+            0
+          </div>
+
+          <div class="resumen-label">
+            🔵 Pendientes
+          </div>
+
+        </div>
+
+
+        <div class="resumen-card vino">
+
+          <div
+            class="resumen-numero"
+            id="totalEstudiantes"
+          >
+            0
+          </div>
+
+          <div class="resumen-label">
+            👥 Estudiantes
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- BARRA -->
+
+      <div class="barra">
+
+        <div
+          class="barra-progreso"
+          id="barraProgreso"
+        ></div>
+
+      </div>
+
+
+      <!-- LISTA -->
+
+      <div class="lista">
+
+        <div class="lista-title">
+          👥 Detalle de estudiantes
+        </div>
+
+
+        <div id="listaEstudiantes">
+
+        </div>
+
+      </div>
+
+
+    </section>
+
+
+  </main>
+
+
+  <footer>
+
+    CET 34 · Sistema de Asistencia Digital
+
+  </footer>
+
+
+  <script>
+
+
+    /* ===================================================
+       URL DEL BACKEND
+    ==================================================== */
+
+    const API_URL =
+      "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
+
+
+    /* ===================================================
+       FECHA ACTUAL
+    ==================================================== */
+
+    function establecerFechaActual() {
+
+      const ahora =
+        new Date();
+
+      const año =
+        ahora.getFullYear();
+
+      const mes =
+        String(
+          ahora.getMonth() + 1
+        ).padStart(
+          2,
+          "0"
+        );
+
+      const dia =
+        String(
+          ahora.getDate()
+        ).padStart(
+          2,
+          "0"
+        );
+
+      const fecha =
+        `${año}-${mes}-${dia}`;
+
+
+      document
+        .getElementById(
+          "fechaInicio"
+        )
+        .value = fecha;
+
+
+      document
+        .getElementById(
+          "fechaFin"
+        )
+        .value = fecha;
+
+    }
+
+
+    /* ===================================================
+       GENERAR REPORTE
+    ==================================================== */
+
+    async function generarReporte() {
+
+
+      const fechaInicio =
+        document
+          .getElementById(
+            "fechaInicio"
+          )
+          .value;
+
+
+      const fechaFin =
+        document
+          .getElementById(
+            "fechaFin"
+          )
+          .value;
+
+
+      const grado =
+        document
+          .getElementById(
+            "grado"
+          )
+          .value;
+
+
+      const seccion =
+        document
+          .getElementById(
+            "seccion"
+          )
+          .value;
+
+
+      const estado =
+        document
+          .getElementById(
+            "estado"
+          );
+
+
+      const boton =
+        document
+          .getElementById(
+            "btnGenerar"
+          );
+
+
+      if (!fechaInicio) {
+
+        mostrarEstado(
+          "Selecciona una fecha de inicio.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (!fechaFin) {
+
+        mostrarEstado(
+          "Selecciona una fecha de fin.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      if (
+        fechaFin <
+        fechaInicio
+      ) {
+
+        mostrarEstado(
+          "La fecha final no puede ser anterior a la fecha inicial.",
+          "error"
+        );
+
+        return;
+
+      }
+
+
+      boton.disabled =
+        true;
+
+
+      mostrarEstado(
+        "⏳ Generando reporte...",
+        "cargando"
+      );
+
+
+      document
+        .getElementById(
+          "resultado"
+        )
+        .style.display =
+        "none";
+
+
+      try {
+
+
+        const parametros =
+          new URLSearchParams();
+
+
+        parametros.set(
+          "action",
+          "reporte"
+        );
+
+
+        parametros.set(
+          "fechaInicio",
+          fechaInicio
+        );
+
+
+        parametros.set(
+          "fechaFin",
+          fechaFin
+        );
+
+
+        if (grado) {
+
+          parametros.set(
+            "grado",
+            grado
+          );
+
+        }
+
+
+        if (seccion) {
+
+          parametros.set(
+            "seccion",
+            seccion
+          );
+
+        }
+
+
+        const url =
+          API_URL +
+          "?" +
+          parametros.toString();
+
+
+        console.log(
+          "Consultando:",
+          url
+        );
+
+
+        const respuesta =
+          await fetch(
+            url,
+            {
+              method: "GET",
+              redirect: "follow"
+            }
+          );
+
+
+        if (!respuesta.ok) {
+
+          throw new Error(
+            "El servidor respondió con el código " +
+            respuesta.status
+          );
+
+        }
+
+
+        const datos =
+          await respuesta.json();
+
+
+        console.log(
+          "Respuesta:",
+          datos
+        );
+
+
+        if (!datos.exito) {
+
+          throw new Error(
+            datos.mensaje ||
+            "No se pudo generar el reporte."
+          );
+
+        }
+
+
+        mostrarReporte(
+          datos
+        );
+
+
+        mostrarEstado(
+          "✓ Reporte generado correctamente.",
+          "exito"
+        );
+
+
+      }
+
+      catch(error) {
+
+        console.error(
+          error
+        );
+
+
+        mostrarEstado(
+
+          "No se pudo obtener el reporte. " +
+          "Si aparece un error de CORS en la consola del navegador, " +
+          "detendremos aquí la prueba y cambiaremos la forma de conexión.",
+
+          "error"
+
+        );
+
+      }
+
+      finally {
+
+        boton.disabled =
+          false;
+
+      }
+
+    }
+
+
+    /* ===================================================
+       MOSTRAR REPORTE
+    ==================================================== */
+
+    function mostrarReporte(
+      datos
+    ) {
+
+
+      const resultado =
+        document
+          .getElementById(
+            "resultado"
+          );
+
+
+      resultado.style.display =
+        "block";
+
+
+      /* ===============================================
+         ENCABEZADO
+      =============================================== */
+
+      let textoPeriodo =
+        datos.fechaInicio;
+
+
+      if (
+        datos.fechaFin &&
+        datos.fechaFin !==
+        datos.fechaInicio
+      ) {
+
+        textoPeriodo +=
+          " → " +
+          datos.fechaFin;
+
+      }
+
+
+      let titulo =
+        "Reporte de asistencia";
+
+
+      if (
+        datos.grado &&
+        datos.grado !== ""
+      ) {
+
+        titulo +=
+          " · " +
+          datos.grado;
+
+      }
+
+
+      if (
+        datos.seccion &&
+        datos.seccion !== ""
+      ) {
+
+        titulo +=
+          " · Sección " +
+          datos.seccion;
+
+      }
+
+
+      document
+        .getElementById(
+          "tituloReporte"
+        )
+        .textContent =
+        titulo;
+
+
+      document
+        .getElementById(
+          "subtituloReporte"
+        )
+        .textContent =
+        "Periodo: " +
+        textoPeriodo;
+
+
+      document
+        .getElementById(
+          "porcentaje"
+        )
+        .textContent =
+        (datos.porcentaje || 0) +
+        "%";
+
+
+      /* ===============================================
+         RESUMEN
+      =============================================== */
+
+      document
+        .getElementById(
+          "totalPresentes"
+        )
+        .textContent =
+        datos.presentes || 0;
+
+
+      document
+        .getElementById(
+          "totalTardanzas"
+        )
+        .textContent =
+        datos.tardanzas || 0;
+
+
+      document
+        .getElementById(
+          "totalFaltantes"
+        )
+        .textContent =
+        datos.faltantes || 0;
+
+
+      document
+        .getElementById(
+          "totalPendientes"
+        )
+        .textContent =
+        datos.pendientes || 0;
+
+
+      document
+        .getElementById(
+          "totalEstudiantes"
+        )
+        .textContent =
+        datos.totalEstudiantes || 0;
+
+
+      /* ===============================================
+         BARRA
+      =============================================== */
+
+      const porcentaje =
+        Number(
+          datos.porcentaje || 0
+        );
+
+
+      document
+        .getElementById(
+          "barraProgreso"
+        )
+        .style.width =
+        Math.min(
+          100,
+          Math.max(
+            0,
+            porcentaje
+          )
+        ) +
+        "%";
+
+
+      /* ===============================================
+         ESTUDIANTES
+      =============================================== */
+
+      mostrarEstudiantes(
+        datos.estudiantes || []
+      );
+
+
+      /* ===============================================
+         IR AL REPORTE
+      =============================================== */
+
+      resultado.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
+
+    }
+
+
+    /* ===================================================
+       MOSTRAR ESTUDIANTES
+    ==================================================== */
+
+    function mostrarEstudiantes(
+      estudiantes
+    ) {
+
+
+      const contenedor =
+        document
+          .getElementById(
+            "listaEstudiantes"
+          );
+
+
+      contenedor.innerHTML =
+        "";
+
+
+      if (
+        !estudiantes ||
+        estudiantes.length === 0
+      ) {
+
+        contenedor.innerHTML =
+
+          `
+          <div class="sin-registros">
+            No hay estudiantes para mostrar.
+          </div>
+          `;
+
+        return;
+
+      }
+
+
+      estudiantes.forEach(
+        (
+          estudiante,
+          indice
+        ) => {
+
+
+          let asistencia =
+            null;
+
+
+          if (
+            estudiante.asistencia &&
+            estudiante.asistencia.length > 0
+          ) {
+
+            asistencia =
+              estudiante.asistencia[
+                estudiante.asistencia.length - 1
+              ];
+
+          }
+
+
+          const estado =
+            asistencia &&
+            asistencia.estado
+              ? asistencia.estado
+              : "Sin registro";
+
+
+          const hora =
+            asistencia &&
+            asistencia.hora
+              ? asistencia.hora
+              : "—";
+
+
+          let claseEstado =
+            "estado-pendiente";
+
+
+          let textoEstado =
+            "Pendiente";
+
+
+          if (
+            estado ===
+            "Presente"
+          ) {
+
+            claseEstado =
+              "estado-presente";
+
+            textoEstado =
+              "Presente";
+
+          }
+
+          else if (
+            estado ===
+            "Tardanza"
+          ) {
+
+            claseEstado =
+              "estado-tardanza";
+
+            textoEstado =
+              "Tardanza";
+
+          }
+
+          else if (
+            estado ===
+            "Falta"
+          ) {
+
+            claseEstado =
+              "estado-falta";
+
+            textoEstado =
+              "Falta";
+
+          }
+
+          else if (
+            estado ===
+            "Pendiente"
+          ) {
+
+            claseEstado =
+              "estado-pendiente";
+
+            textoEstado =
+              "Pendiente";
+
+          }
+
+
+          const fila =
+            document.createElement(
+              "div"
+            );
+
+
+          fila.className =
+            "estudiante";
+
+
+          fila.innerHTML =
+
+            `
+            <div class="numero">
+              ${String(
+                indice + 1
+              ).padStart(
+                2,
+                "0"
+              )}
+            </div>
+
+            <div>
+
+              <div class="nombre">
+                ${escapeHTML(
+                  estudiante.estudiante ||
+                  "Sin nombre"
+                )}
+              </div>
+
+              <div class="codigo">
+                ${escapeHTML(
+                  estudiante.codigo ||
+                  ""
+                )}
+              </div>
+
+            </div>
+
+            <div class="hora">
+              ${escapeHTML(
+                hora
+              )}
+            </div>
+
+            <div>
+
+              <span
+                class="estado-badge ${claseEstado}"
+              >
+                ${textoEstado}
+              </span>
+
+            </div>
+            `;
+
+
+          contenedor.appendChild(
+            fila
+          );
+
+        }
+      );
+
+    }
+
+
+    /* ===================================================
+       SEGURIDAD BÁSICA PARA TEXTO HTML
+    ==================================================== */
+
+    function escapeHTML(
+      texto
+    ) {
+
+      return String(
+        texto
+      )
+        .replace(
+          /&/g,
+          "&amp;"
+        )
+        .replace(
+          /</g,
+          "&lt;"
+        )
+        .replace(
+          />/g,
+          "&gt;"
+        )
+        .replace(
+          /"/g,
+          "&quot;"
+        )
+        .replace(
+          /'/g,
+          "&#039;"
+        );
+
+    }
+
+
+    /* ===================================================
+       MENSAJES
+    ==================================================== */
+
+    function mostrarEstado(
+      mensaje,
+      tipo
+    ) {
+
+      const elemento =
+        document
+          .getElementById(
+            "estado"
+          );
+
+
+      elemento.textContent =
+        mensaje;
+
+
+      elemento.className =
+        "estado " +
+        tipo;
+
+    }
+
+
+    /* ===================================================
+       INICIO
+    ==================================================== */
+
+    establecerFechaActual();
+
+  </script>
+
+
+</body>
+
 </html>
