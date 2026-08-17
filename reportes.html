@@ -447,6 +447,11 @@
       font-weight: 800;
     }
 
+    .mini-presente {
+      background: var(--verde-suave);
+      color: var(--verde);
+    }
+
     .mini-tardanza {
       background: var(--amarillo-suave);
       color: var(--amarillo);
@@ -1117,7 +1122,8 @@
         </h2>
 
         <p>
-          Consulta la asistencia de un estudiante en un periodo determinado.
+          Busca por nombre, apellido o código. Luego selecciona al estudiante
+          y define su propio rango de fechas.
         </p>
 
       </div>
@@ -1487,6 +1493,73 @@
 
 
   /* =====================================================
+     COMUNICACIÓN CON LA API
+  ===================================================== */
+
+  async function consultarAPI(url) {
+
+    let respuesta;
+
+    try {
+
+      respuesta = await fetch(
+        url + (url.includes("?") ? "&" : "?") + "_ts=" + Date.now(),
+        {
+          method: "GET",
+          mode: "cors",
+          cache: "no-store",
+          redirect: "follow"
+        }
+      );
+
+    } catch (error) {
+
+      throw new Error(
+        "No se pudo conectar con Google Apps Script. " +
+        "Verifica que la Web App esté implementada como 'Cualquier persona' " +
+        "y que API_URL sea la URL /exec correcta."
+      );
+
+    }
+
+    const texto = await respuesta.text();
+
+    if (!respuesta.ok) {
+
+      throw new Error(
+        "El servidor respondió con HTTP " +
+        respuesta.status + "."
+      );
+
+    }
+
+    let datos;
+
+    try {
+
+      datos = JSON.parse(texto);
+
+    } catch (error) {
+
+      const muestra = texto
+        .replace(/\s+/g, " ")
+        .trim()
+        .slice(0, 160);
+
+      throw new Error(
+        "Google Apps Script no devolvió JSON. " +
+        "Respuesta recibida: " +
+        muestra
+      );
+
+    }
+
+    return datos;
+
+  }
+
+
+  /* =====================================================
      REPORTE POR AULA
   ===================================================== */
 
@@ -1571,19 +1644,8 @@
         encodeURIComponent(seccion);
 
 
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-        throw new Error(
-          "No fue posible conectar con el servidor."
-        );
-      }
-
-
       const resultado =
-        await respuesta.json();
+        await consultarAPI(url);
 
 
       if (!resultado.exito) {
@@ -1813,6 +1875,16 @@
             <span class="mini-estados">
 
               ${
+                presentes > 0
+                ? `
+                  <span class="mini mini-presente">
+                    🟢 ${presentes}
+                  </span>
+                `
+                : ""
+              }
+
+              ${
                 tardanzas > 0
                 ? `
                   <span class="mini mini-tardanza">
@@ -2005,14 +2077,6 @@
 
     try {
 
-      /*
-        Esta acción será implementada
-        en doGet():
-
-        action=buscarEstudiante
-      */
-
-
       const url =
         API_URL +
         "?action=buscarEstudiante" +
@@ -2020,21 +2084,8 @@
         encodeURIComponent(texto);
 
 
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-
-        throw new Error(
-          "No fue posible conectar con el servidor."
-        );
-
-      }
-
-
       const datos =
-        await respuesta.json();
+        await consultarAPI(url);
 
 
       if (!datos.exito) {
@@ -2335,14 +2386,6 @@
 
     try {
 
-      /*
-        Esta acción será implementada
-        en doGet():
-
-        action=reporteEstudiante
-      */
-
-
       const url =
         API_URL +
         "?action=reporteEstudiante" +
@@ -2360,21 +2403,8 @@
         );
 
 
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-
-        throw new Error(
-          "No fue posible conectar con el servidor."
-        );
-
-      }
-
-
       const datos =
-        await respuesta.json();
+        await consultarAPI(url);
 
 
       if (!datos.exito) {
@@ -2729,6 +2759,37 @@
     () => {
 
       configurarFechas();
+
+      const inicioAula =
+        document.getElementById("fechaInicioAula");
+
+      const finAula =
+        document.getElementById("fechaFinAula");
+
+      const inicioEstudiante =
+        document.getElementById("fechaInicioEstudiante");
+
+      const finEstudiante =
+        document.getElementById("fechaFinEstudiante");
+
+      function sincronizarMinimo(inicio, fin) {
+
+        inicio.addEventListener("change", () => {
+
+          fin.min = inicio.value;
+
+          if (fin.value && fin.value < inicio.value) {
+            fin.value = inicio.value;
+          }
+
+        });
+
+        fin.min = inicio.value;
+
+      }
+
+      sincronizarMinimo(inicioAula, finAula);
+      sincronizarMinimo(inicioEstudiante, finEstudiante);
 
     }
   );
