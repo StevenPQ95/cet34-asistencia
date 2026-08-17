@@ -447,6 +447,11 @@
       font-weight: 800;
     }
 
+    .mini-presente {
+      background: var(--verde-suave);
+      color: var(--verde);
+    }
+
     .mini-tardanza {
       background: var(--amarillo-suave);
       color: var(--amarillo);
@@ -469,13 +474,26 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      color: #94a3b8;
-      font-size: 18px;
-      transition: transform 0.25s ease;
+      color: transparent;
+      font-size: 0;
+      position: relative;
+      flex: 0 0 30px;
     }
 
-    .estudiante-aula.abierto .flecha {
-      transform: rotate(180deg);
+    .flecha::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-right: 2px solid #94a3b8;
+      border-bottom: 2px solid #94a3b8;
+      transform: rotate(45deg);
+      transform-origin: center center;
+      transition: transform 0.25s ease;
+      flex: 0 0 auto;
+    }
+
+    .estudiante-aula.abierto .flecha::before {
+      transform: rotate(225deg);
     }
 
     .detalle-estudiante {
@@ -511,6 +529,86 @@
     .resumen-item span {
       font-size: 12px;
       color: var(--texto-secundario);
+    }
+
+    .historial-aula {
+      margin-top: 16px;
+    }
+
+    .historial-aula-titulo {
+      margin: 0 0 10px;
+      color: var(--texto);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .dia-aula {
+      display: grid;
+      grid-template-columns: 115px 125px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 50px;
+      padding: 9px 12px;
+      margin-bottom: 7px;
+      border: 1px solid #e5ebf2;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .dia-aula-fecha {
+      font-size: 13px;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .dia-aula-nombre {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--texto-secundario);
+      text-transform: uppercase;
+    }
+
+    .dia-aula-hora {
+      font-size: 13px;
+      color: var(--texto-secundario);
+    }
+
+    .dia-aula-horario {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .estado-aula {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .estado-aula-presente {
+      background: var(--verde-suave);
+      color: var(--verde);
+    }
+
+    .estado-aula-tardanza {
+      background: var(--amarillo-suave);
+      color: var(--amarillo);
+    }
+
+    .estado-aula-falta {
+      background: var(--rojo-suave);
+      color: var(--rojo);
+    }
+
+    .estado-aula-pendiente {
+      background: var(--pendiente-suave);
+      color: var(--pendiente);
     }
 
     /* =====================================================
@@ -611,9 +709,25 @@
       font-size: 14px;
     }
 
+    .dia-semana {
+      display: block;
+      margin-top: 3px;
+      color: var(--texto-secundario);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
     .hora-dia {
       color: var(--texto-secundario);
       font-size: 14px;
+    }
+
+    .horario-dia {
+      display: block;
+      margin-top: 3px;
+      color: #94a3b8;
+      font-size: 11px;
     }
 
     .estado {
@@ -752,51 +866,6 @@
     }
 
     /* =====================================================
-       HISTORIAL DETALLADO POR DÍA
-    ===================================================== */
-
-    .historial-aula {
-      margin-top: 16px;
-      border-top: 1px solid #edf2f7;
-      padding-top: 15px;
-    }
-
-    .historial-aula h4 { margin: 0 0 12px; font-size: 16px; }
-
-    .registro-dia-aula {
-      display: grid;
-      grid-template-columns: 120px 105px minmax(120px, 1fr) minmax(150px, auto);
-      gap: 12px;
-      align-items: center;
-      padding: 11px 13px;
-      border: 1px solid #e2e8f0;
-      border-bottom: none;
-      background: #fbfdff;
-      font-size: 13px;
-    }
-
-    .registro-dia-aula:first-child { border-radius: 12px 12px 0 0; }
-    .registro-dia-aula:last-child { border-bottom: 1px solid #e2e8f0; border-radius: 0 0 12px 12px; }
-    .registro-fecha { font-weight: 800; }
-    .registro-dia-nombre { color: #475569; font-weight: 700; }
-    .registro-hora { color: #475569; }
-    .registro-horario { color: #64748b; font-size: 12px; margin-bottom: 5px; }
-    .registro-horario strong, .dia-horario strong { color: #334155; }
-
-    .historial-individual-mejorado { margin-top: 4px; }
-
-    .dia-registro {
-      grid-template-columns: 130px 105px minmax(100px, 1fr) minmax(130px, auto);
-      min-height: 64px;
-    }
-
-    .dia-nombre { color: #475569; font-size: 13px; font-weight: 700; }
-    .dia-horario { color: #64748b; font-size: 12px; line-height: 1.35; margin-top: 4px; }
-
-    .mini-presente { background: var(--verde-suave); color: var(--verde); }
-    .rango-resumen { margin-top: 10px; color: var(--texto-secundario); font-size: 13px; }
-
-    /* =====================================================
        RESPONSIVE
     ===================================================== */
 
@@ -866,6 +935,33 @@
       .nombre-estudiante {
         font-size: 14px;
       }
+
+      .dia-aula {
+        grid-template-columns: 1fr auto;
+        gap: 6px 10px;
+      }
+
+      .dia-aula-fecha {
+        grid-column: 1;
+      }
+
+      .dia-aula-nombre {
+        grid-column: 1;
+      }
+
+      .dia-aula-hora {
+        grid-column: 1;
+      }
+
+      .dia-aula-horario {
+        margin-top: 2px;
+      }
+
+      .dia-aula > .estado-aula {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: center;
+      }
     }
   </style>
 </head>
@@ -901,7 +997,7 @@
       <div>
         <h2>Reporte por aula</h2>
         <p>
-          Consulta la asistencia de todo un salón durante un periodo.
+          Consulta la asistencia de todo un salón durante un periodo y revisa el detalle día por día de cada estudiante.
         </p>
       </div>
 
@@ -1162,7 +1258,8 @@
         </h2>
 
         <p>
-          Consulta la asistencia de un estudiante en un periodo determinado.
+          Busca por nombre, apellido o código. Luego selecciona al estudiante
+          y define su propio rango de fechas.
         </p>
 
       </div>
@@ -1354,15 +1451,6 @@
      CONFIGURACIÓN
   ===================================================== */
 
-  /*
-    IMPORTANTE:
-
-    Coloca aquí la URL de implementación de tu Web App
-    de Google Apps Script.
-
-    No cambies el resto del código.
-  */
-
   const API_URL = "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
 
 
@@ -1388,21 +1476,251 @@
   }
 
 
+  /*
+     CONVERSIÓN DE HORAS DE GOOGLE SHEETS
+
+     Google Sheets puede entregar una hora como:
+
+     38860
+     46060
+
+     que realmente representan segundos desde
+     medianoche.
+
+     También puede entregar una fracción del día.
+
+     Esta función convierte ambos formatos a:
+
+     HH:MM:SS AM/PM
+  */
+
+  function formatearHoraReporte(valor) {
+
+    if (
+      valor === null ||
+      valor === undefined ||
+      valor === ""
+    ) {
+      return "";
+    }
+
+    let segundos = null;
+
+
+    /* ---------------------------------------------
+       NÚMERO
+    --------------------------------------------- */
+
+    if (typeof valor === "number") {
+
+      /*
+         Fracción del día.
+
+         Ejemplo:
+         0.5 = 12:00:00 PM
+      */
+
+      if (
+        valor >= 0 &&
+        valor < 1
+      ) {
+
+        segundos =
+          Math.round(
+            valor *
+            24 *
+            60 *
+            60
+          );
+
+      }
+
+      /*
+         Segundos desde medianoche.
+
+         Ejemplo:
+         38860
+      */
+
+      else if (
+        valor >= 0 &&
+        valor < 86400
+      ) {
+
+        segundos =
+          Math.round(valor);
+
+      }
+
+    }
+
+
+    /* ---------------------------------------------
+       TEXTO NUMÉRICO
+    --------------------------------------------- */
+
+    if (
+      segundos === null &&
+      typeof valor === "string"
+    ) {
+
+      const texto =
+        valor.trim();
+
+
+      if (
+        /^\d+(\.\d+)?$/.test(
+          texto
+        )
+      ) {
+
+        const numero =
+          Number(texto);
+
+
+        if (
+          numero >= 0 &&
+          numero < 1
+        ) {
+
+          segundos =
+            Math.round(
+              numero *
+              24 *
+              60 *
+              60
+            );
+
+        }
+
+        else if (
+          numero >= 0 &&
+          numero < 86400
+        ) {
+
+          segundos =
+            Math.round(numero);
+
+        }
+
+      }
+
+    }
+
+
+    /* ---------------------------------------------
+       CONVERTIR A 12 HORAS
+    --------------------------------------------- */
+
+    if (
+      segundos !== null
+    ) {
+
+      segundos =
+        segundos % 86400;
+
+
+      const horas =
+        Math.floor(
+          segundos / 3600
+        );
+
+
+      const minutos =
+        Math.floor(
+          (segundos % 3600) / 60
+        );
+
+
+      const segundosFinal =
+        segundos % 60;
+
+
+      const periodo =
+        horas >= 12
+          ? "PM"
+          : "AM";
+
+
+      let hora12 =
+        horas % 12;
+
+
+      if (
+        hora12 === 0
+      ) {
+
+        hora12 = 12;
+
+      }
+
+
+      return (
+        hora12 +
+        ":" +
+        String(
+          minutos
+        ).padStart(
+          2,
+          "0"
+        ) +
+        ":" +
+        String(
+          segundosFinal
+        ).padStart(
+          2,
+          "0"
+        ) +
+        " " +
+        periodo
+      );
+
+    }
+
+
+    /*
+       Si ya viene como:
+
+       12:35:00 PM
+
+       lo dejamos igual.
+    */
+
+    return String(valor);
+
+  }
+
+
   function fechaHoy() {
 
-    const ahora = new Date();
+    const ahora =
+      new Date();
 
-    const año = ahora.getFullYear();
 
-    const mes = String(
-      ahora.getMonth() + 1
-    ).padStart(2, "0");
+    const año =
+      ahora.getFullYear();
 
-    const dia = String(
-      ahora.getDate()
-    ).padStart(2, "0");
+
+    const mes =
+      String(
+        ahora.getMonth() + 1
+      ).padStart(
+        2,
+        "0"
+      );
+
+
+    const dia =
+      String(
+        ahora.getDate()
+      ).padStart(
+        2,
+        "0"
+      );
+
 
     return `${año}-${mes}-${dia}`;
+
   }
 
 
@@ -1412,104 +1730,106 @@
     tipo
   ) {
 
-    elemento.textContent = texto;
+    elemento.textContent =
+      texto;
+
 
     elemento.className =
-      "mensaje " + tipo;
+      "mensaje " +
+      tipo;
 
   }
 
 
-  function ocultarMensaje(elemento) {
+  function ocultarMensaje(
+    elemento
+  ) {
 
-    elemento.className = "mensaje";
+    elemento.className =
+      "mensaje";
 
-    elemento.textContent = "";
+
+    elemento.textContent =
+      "";
 
   }
 
 
-  function formatoFecha(fecha) {
+  function formatoFecha(
+    fecha
+  ) {
 
     if (!fecha) {
       return "";
     }
 
-    const partes = String(fecha).split("-");
 
-    if (partes.length !== 3) {
+    const partes =
+      String(fecha).split(
+        "-"
+      );
+
+
+    if (
+      partes.length !== 3
+    ) {
+
       return fecha;
+
     }
 
-    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+    return (
+      `${partes[2]}/${partes[1]}/${partes[0]}`
+    );
 
   }
 
 
-  function obtenerEstadoClase(estado) {
+  function obtenerEstadoClase(
+    estado
+  ) {
 
     const normalizado =
-      String(estado || "")
+      String(
+        estado || ""
+      )
         .toLowerCase()
         .trim();
 
-    if (normalizado === "presente") {
+
+    if (
+      normalizado ===
+      "presente"
+    ) {
+
       return "estado-presente";
+
     }
 
-    if (normalizado === "tardanza") {
+
+    if (
+      normalizado ===
+      "tardanza"
+    ) {
+
       return "estado-tardanza";
+
     }
+
 
     if (
       normalizado === "falta" ||
       normalizado === "faltante"
     ) {
+
       return "estado-falta";
+
     }
+
 
     return "estado-pendiente";
 
-  }
-
-
-  /* =====================================================
-     NORMALIZAR DATOS DEL REPORTE
-  ===================================================== */
-
-  function obtenerHistorial(datos) {
-    if (Array.isArray(datos?.historial)) return datos.historial;
-    if (Array.isArray(datos?.asistencia)) return datos.asistencia;
-    return [];
-  }
-
-  function textoHorario(registro) {
-    const entrada = registro?.horaEntrada || registro?.horaIngreso || "";
-    const salida = registro?.horaSalida || "";
-
-    if (!entrada && !salida) return "";
-    if (entrada && salida) return `${entrada} → ${salida}`;
-    if (entrada) return `Ingreso: ${entrada}`;
-    return `Salida: ${salida}`;
-  }
-
-  function textoHora(registro) {
-    return registro?.hora ? String(registro.hora) : "—";
-  }
-
-  function normalizarEstudianteIndividual(datos) {
-    const base = datos?.estudiante && typeof datos.estudiante === "object"
-      ? datos.estudiante
-      : {};
-
-    return {
-      codigo: datos?.codigo || base.codigo || estudianteSeleccionado?.codigo || "",
-      estudiante: typeof datos?.estudiante === "string"
-        ? datos.estudiante
-        : base.estudiante || estudianteSeleccionado?.estudiante || "",
-      grado: datos?.grado || base.grado || estudianteSeleccionado?.grado || "",
-      seccion: datos?.seccion || base.seccion || estudianteSeleccionado?.seccion || ""
-    };
   }
 
 
@@ -1519,23 +1839,32 @@
 
   function configurarFechas() {
 
-    const hoy = fechaHoy();
+    const hoy =
+      fechaHoy();
+
 
     document.getElementById(
       "fechaInicioAula"
-    ).value = hoy;
+    ).value =
+      hoy;
+
 
     document.getElementById(
       "fechaFinAula"
-    ).value = hoy;
+    ).value =
+      hoy;
+
 
     document.getElementById(
       "fechaInicioEstudiante"
-    ).value = hoy;
+    ).value =
+      hoy;
+
 
     document.getElementById(
       "fechaFinEstudiante"
-    ).value = hoy;
+    ).value =
+      hoy;
 
   }
 
@@ -1549,25 +1878,137 @@
     fin
   ) {
 
-    if (!inicio || !fin) {
+    if (
+      !inicio ||
+      !fin
+    ) {
 
       alert(
         "Selecciona la fecha de inicio y la fecha de fin."
       );
 
       return false;
+
     }
 
-    if (inicio > fin) {
+
+    if (
+      inicio > fin
+    ) {
 
       alert(
         "La fecha de inicio no puede ser posterior a la fecha de fin."
       );
 
       return false;
+
     }
 
+
     return true;
+
+  }
+
+
+  /* =====================================================
+     COMUNICACIÓN CON LA API
+  ===================================================== */
+
+  async function consultarAPI(
+    url
+  ) {
+
+    let respuesta;
+
+
+    try {
+
+      respuesta =
+        await fetch(
+          url +
+          (
+            url.includes("?")
+              ? "&"
+              : "?"
+          ) +
+          "_ts=" +
+          Date.now(),
+          {
+            method: "GET",
+            mode: "cors",
+            cache: "no-store",
+            redirect: "follow"
+          }
+        );
+
+    } catch (
+      error
+    ) {
+
+      throw new Error(
+        "No se pudo conectar con Google Apps Script. " +
+        "Verifica que la Web App esté implementada como 'Cualquier persona' " +
+        "y que API_URL sea la URL /exec correcta."
+      );
+
+    }
+
+
+    const texto =
+      await respuesta.text();
+
+
+    if (
+      !respuesta.ok
+    ) {
+
+      throw new Error(
+        "El servidor respondió con HTTP " +
+        respuesta.status +
+        "."
+      );
+
+    }
+
+
+    let datos;
+
+
+    try {
+
+      datos =
+        JSON.parse(
+          texto
+        );
+
+    } catch (
+      error
+    ) {
+
+      const muestra =
+        texto
+          .replace(
+            /\s+/g,
+            " "
+          )
+          .trim()
+          .slice(
+            0,
+            160
+          );
+
+
+      throw new Error(
+        "Google Apps Script no devolvió JSON. " +
+        "Respuesta recibida: " +
+        muestra
+      );
+
+    }
+
+
+    return datos;
+
   }
 
 
@@ -1582,15 +2023,18 @@
         "fechaInicioAula"
       ).value;
 
+
     const fechaFin =
       document.getElementById(
         "fechaFinAula"
       ).value;
 
+
     const grado =
       document.getElementById(
         "gradoAula"
       ).value;
+
 
     const seccion =
       document.getElementById(
@@ -1604,17 +2048,23 @@
         fechaFin
       )
     ) {
+
       return;
+
     }
 
 
-    if (!grado || !seccion) {
+    if (
+      !grado ||
+      !seccion
+    ) {
 
       alert(
         "Selecciona el grado y la sección."
       );
 
       return;
+
     }
 
 
@@ -1623,10 +2073,12 @@
         "btnGenerarAula"
       );
 
+
     const cargando =
       document.getElementById(
         "cargandoAula"
       );
+
 
     const mensaje =
       document.getElementById(
@@ -1634,11 +2086,18 @@
       );
 
 
-    boton.disabled = true;
+    boton.disabled =
+      true;
 
-    cargando.classList.add("visible");
 
-    ocultarMensaje(mensaje);
+    cargando.classList.add(
+      "visible"
+    );
+
+
+    ocultarMensaje(
+      mensaje
+    );
 
 
     try {
@@ -1647,31 +2106,32 @@
         API_URL +
         "?action=reporte" +
         "&fechaInicio=" +
-        encodeURIComponent(fechaInicio) +
+        encodeURIComponent(
+          fechaInicio
+        ) +
         "&fechaFin=" +
-        encodeURIComponent(fechaFin) +
+        encodeURIComponent(
+          fechaFin
+        ) +
         "&grado=" +
-        encodeURIComponent(grado) +
+        encodeURIComponent(
+          grado
+        ) +
         "&seccion=" +
-        encodeURIComponent(seccion);
-
-
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-        throw new Error(
-          "No fue posible conectar con el servidor."
+        encodeURIComponent(
+          seccion
         );
-      }
 
 
       const resultado =
-        await respuesta.json();
+        await consultarAPI(
+          url
+        );
 
 
-      if (!resultado.exito) {
+      if (
+        !resultado.exito
+      ) {
 
         throw new Error(
           resultado.mensaje ||
@@ -1693,17 +2153,23 @@
       );
 
 
-    } catch(error) {
+    } catch (
+      error
+    ) {
 
       mostrarMensaje(
         mensaje,
-        "✕ " + error.message,
+        "✕ " +
+        error.message,
         "error"
       );
 
+
     } finally {
 
-      boton.disabled = false;
+      boton.disabled =
+        false;
+
 
       cargando.classList.remove(
         "visible"
@@ -1722,101 +2188,528 @@
     datos
   ) {
 
-    const reporte = document.getElementById("reporteAula");
-    reporte.classList.add("visible");
+    const reporte =
+      document.getElementById(
+        "reporteAula"
+      );
 
-    document.getElementById("tituloReporteAula").textContent =
-      `Reporte de asistencia · ${datos.grado || ""} · Sección ${datos.seccion || ""}`;
 
-    document.getElementById("periodoReporteAula").textContent =
-      `Periodo: ${formatoFechaUniversal(datos.fechaInicio)} → ${formatoFechaUniversal(datos.fechaFin)}`;
+    reporte.classList.add(
+      "visible"
+    );
 
-    document.getElementById("porcentajeAula").textContent =
-      `${Number(datos.porcentaje || 0)}%`;
 
-    document.getElementById("aulaPresentes").textContent = Number(datos.presentes || 0);
-    document.getElementById("aulaTardanzas").textContent = Number(datos.tardanzas || 0);
-    document.getElementById("aulaFaltas").textContent = Number(datos.faltantes || 0);
-    document.getElementById("aulaPendientes").textContent = Number(datos.pendientes || 0);
-    document.getElementById("aulaEstudiantes").textContent = Number(datos.totalEstudiantes || 0);
+    document.getElementById(
+      "tituloReporteAula"
+    ).textContent =
+      `Reporte de asistencia · ${datos.grado} · Sección ${datos.seccion}`;
 
-    document.getElementById("barraAula").style.width =
-      Math.max(0, Math.min(100, Number(datos.porcentaje || 0))) + "%";
 
-    const lista = document.getElementById("listaEstudiantesAula");
-    lista.innerHTML = "";
+    document.getElementById(
+      "periodoReporteAula"
+    ).textContent =
+      `Periodo: ${formatoFecha(datos.fechaInicio)} → ${formatoFecha(datos.fechaFin)}`;
 
-    if (!Array.isArray(datos.estudiantes) || datos.estudiantes.length === 0) {
-      lista.innerHTML = `<div style="text-align:center;padding:35px;color:#64748b;">No hay estudiantes para mostrar.</div>`;
+
+    document.getElementById(
+      "porcentajeAula"
+    ).textContent =
+      `${datos.porcentaje || 0}%`;
+
+
+    document.getElementById(
+      "aulaPresentes"
+    ).textContent =
+      datos.presentes || 0;
+
+
+    document.getElementById(
+      "aulaTardanzas"
+    ).textContent =
+      datos.tardanzas || 0;
+
+
+    document.getElementById(
+      "aulaFaltas"
+    ).textContent =
+      datos.faltantes || 0;
+
+
+    document.getElementById(
+      "aulaPendientes"
+    ).textContent =
+      datos.pendientes || 0;
+
+
+    document.getElementById(
+      "aulaEstudiantes"
+    ).textContent =
+      datos.totalEstudiantes || 0;
+
+
+    document.getElementById(
+      "barraAula"
+    ).style.width =
+      Math.max(
+        0,
+        Math.min(
+          100,
+          Number(
+            datos.porcentaje || 0
+          )
+        )
+      ) +
+      "%";
+
+
+    const lista =
+      document.getElementById(
+        "listaEstudiantesAula"
+      );
+
+
+    lista.innerHTML =
+      "";
+
+
+    if (
+      !datos.estudiantes ||
+      datos.estudiantes.length === 0
+    ) {
+
+      lista.innerHTML = `
+        <div
+          style="
+            text-align:center;
+            padding:35px;
+            color:#64748b;
+          "
+        >
+          No hay estudiantes para mostrar.
+        </div>
+      `;
+
       return;
+
     }
 
-    datos.estudiantes.forEach((estudiante, indice) => {
-      const historial = obtenerHistorial(estudiante);
-      let presentes = 0, tardanzas = 0, faltas = 0, pendientes = 0;
 
-      historial.forEach(registro => {
-        const estado = String(registro.estado || "").toLowerCase().trim();
-        if (estado === "presente") presentes++;
-        else if (estado === "tardanza") tardanzas++;
-        else if (estado === "falta" || estado === "faltante") faltas++;
-        else pendientes++;
-      });
+    datos.estudiantes.forEach(
+      (
+        estudiante,
+        indice
+      ) => {
 
-      const articulo = document.createElement("div");
-      articulo.className = "estudiante-aula";
+        const asistencias =
+          estudiante.asistencia ||
+          [];
 
-      const filasHistorial = historial.length
-        ? historial.map(registro => {
-            const horario = textoHorario(registro);
-            return `
-              <div class="registro-dia-aula">
-                <div class="registro-fecha">📅 ${escapeHTML(formatoFechaUniversal(registro.fecha))}</div>
-                <div class="registro-dia-nombre">${escapeHTML(registro.dia || "")}</div>
-                <div class="registro-hora">🕐 ${escapeHTML(textoHora(registro))}</div>
-                <div>
-                  ${horario ? `<div class="registro-horario"><strong>Horario:</strong> ${escapeHTML(horario)}</div>` : ""}
-                  <span class="estado ${obtenerEstadoClase(registro.estado)}">${escapeHTML(registro.estado || "Pendiente")}</span>
-                </div>
-              </div>`;
-          }).join("")
-        : `<div style="padding:18px;text-align:center;color:#64748b;">No hay jornadas configuradas en este periodo.</div>`;
 
-      articulo.innerHTML = `
-        <button class="cabecera-estudiante" type="button" aria-expanded="false">
-          <span class="numero-estudiante">${String(indice + 1).padStart(2, "0")}</span>
-          <span class="nombre-estudiante">${escapeHTML(estudiante.estudiante)}</span>
-          <span class="mini-estados">
-            ${presentes > 0 ? `<span class="mini mini-presente">🟢 ${presentes}</span>` : ""}
-            ${tardanzas > 0 ? `<span class="mini mini-tardanza">🟡 ${tardanzas}</span>` : ""}
-            ${faltas > 0 ? `<span class="mini mini-falta">🔴 ${faltas}</span>` : ""}
-            ${pendientes > 0 ? `<span class="mini mini-pendiente">🔵 ${pendientes}</span>` : ""}
-          </span>
-          <span class="flecha" aria-hidden="true">⌄</span>
-        </button>
+        let presentes = 0;
 
-        <div class="detalle-estudiante">
-          <div class="resumen-individual">
-            <div class="resumen-item"><strong class="verde">${presentes}</strong><span>Presentes</span></div>
-            <div class="resumen-item"><strong class="amarillo">${tardanzas}</strong><span>Tardanzas</span></div>
-            <div class="resumen-item"><strong class="rojo">${faltas}</strong><span>Faltas</span></div>
-            <div class="resumen-item"><strong class="azul">${pendientes}</strong><span>Pendientes</span></div>
+        let tardanzas = 0;
+
+        let faltas = 0;
+
+        let pendientes = 0;
+
+
+        asistencias.forEach(
+          registro => {
+
+            const estado =
+              String(
+                registro.estado ||
+                ""
+              )
+                .toLowerCase();
+
+
+            if (
+              estado ===
+              "presente"
+            ) {
+
+              presentes++;
+
+            }
+
+            else if (
+              estado ===
+              "tardanza"
+            ) {
+
+              tardanzas++;
+
+            }
+
+            else if (
+              estado === "falta" ||
+              estado === "faltante"
+            ) {
+
+              faltas++;
+
+            }
+
+            else {
+
+              pendientes++;
+
+            }
+
+          }
+        );
+
+
+        const articulo =
+          document.createElement(
+            "div"
+          );
+
+
+        articulo.className =
+          "estudiante-aula";
+
+
+        articulo.innerHTML = `
+
+          <button
+            class="cabecera-estudiante"
+            type="button"
+          >
+
+            <span class="numero-estudiante">
+              ${String(
+                indice + 1
+              ).padStart(
+                2,
+                "0"
+              )}
+            </span>
+
+            <span class="nombre-estudiante">
+              ${escapeHTML(
+                estudiante.estudiante
+              )}
+            </span>
+
+            <span class="mini-estados">
+
+              ${
+                presentes > 0
+                  ? `
+                    <span class="mini mini-presente">
+                      🟢 ${presentes}
+                    </span>
+                  `
+                  : ""
+              }
+
+              ${
+                tardanzas > 0
+                  ? `
+                    <span class="mini mini-tardanza">
+                      🟡 ${tardanzas}
+                    </span>
+                  `
+                  : ""
+              }
+
+              ${
+                faltas > 0
+                  ? `
+                    <span class="mini mini-falta">
+                      🔴 ${faltas}
+                    </span>
+                  `
+                  : ""
+              }
+
+              ${
+                pendientes > 0
+                  ? `
+                    <span class="mini mini-pendiente">
+                      🔵 ${pendientes}
+                    </span>
+                  `
+                  : ""
+              }
+
+            </span>
+
+            <span
+              class="flecha"
+              aria-hidden="true"
+            ></span>
+
+          </button>
+
+
+          <div class="detalle-estudiante">
+
+            <div class="resumen-individual">
+
+              <div class="resumen-item">
+                <strong class="verde">
+                  ${presentes}
+                </strong>
+                <span>Presentes</span>
+              </div>
+
+              <div class="resumen-item">
+                <strong class="amarillo">
+                  ${tardanzas}
+                </strong>
+                <span>Tardanzas</span>
+              </div>
+
+              <div class="resumen-item">
+                <strong class="rojo">
+                  ${faltas}
+                </strong>
+                <span>Faltas</span>
+              </div>
+
+              <div class="resumen-item">
+                <strong class="azul">
+                  ${pendientes}
+                </strong>
+                <span>Pendientes</span>
+              </div>
+
+            </div>
+
+
+            <div class="historial-aula">
+
+              <div class="historial-aula-titulo">
+                📅 Historial día por día
+              </div>
+
+
+              ${
+                asistencias.length
+                  ? asistencias.map(
+                      registro => {
+
+                        const estado =
+                          String(
+                            registro.estado ||
+                            "Pendiente"
+                          )
+                            .toLowerCase()
+                            .trim();
+
+
+                        let clase =
+                          "estado-aula-pendiente";
+
+
+                        let icono =
+                          "🔵";
+
+
+                        let texto =
+                          "Pendiente";
+
+
+                        if (
+                          estado ===
+                          "presente"
+                        ) {
+
+                          clase =
+                            "estado-aula-presente";
+
+                          icono =
+                            "🟢";
+
+                          texto =
+                            "Presente";
+
+                        }
+
+                        else if (
+                          estado ===
+                          "tardanza"
+                        ) {
+
+                          clase =
+                            "estado-aula-tardanza";
+
+                          icono =
+                            "🟡";
+
+                          texto =
+                            "Tardanza";
+
+                        }
+
+                        else if (
+                          estado === "falta" ||
+                          estado === "faltante"
+                        ) {
+
+                          clase =
+                            "estado-aula-falta";
+
+                          icono =
+                            "🔴";
+
+                          texto =
+                            "Falta";
+
+                        }
+
+
+                        const fechaTexto =
+                          registro.fecha
+                            ? String(
+                                registro.fecha
+                              )
+                            : "—";
+
+
+                        const diaTexto =
+                          registro.dia ||
+                          "";
+
+
+                        const horaTexto =
+                          registro.hora
+                            ? formatearHoraReporte(
+                                registro.hora
+                              )
+                            : "—";
+
+
+                        const horaEntrada =
+                          registro.horaEntrada
+                            ? formatearHoraReporte(
+                                registro.horaEntrada
+                              )
+                            : "";
+
+
+                        const horaSalida =
+                          registro.horaSalida
+                            ? formatearHoraReporte(
+                                registro.horaSalida
+                              )
+                            : "";
+
+
+                        const horarioTexto =
+                          horaEntrada ||
+                          horaSalida
+                            ? `Horario: ${escapeHTML(
+                                horaEntrada ||
+                                "—"
+                              )} → ${escapeHTML(
+                                horaSalida ||
+                                "—"
+                              )}`
+                            : "";
+
+
+                        return `
+
+                          <div class="dia-aula">
+
+                            <div class="dia-aula-fecha">
+                              📅 ${escapeHTML(
+                                fechaTexto
+                              )}
+                            </div>
+
+
+                            <div class="dia-aula-nombre">
+                              ${escapeHTML(
+                                diaTexto
+                              )}
+                            </div>
+
+
+                            <div class="dia-aula-hora">
+
+                              🕐 ${escapeHTML(
+                                horaTexto
+                              )}
+
+                              ${
+                                horarioTexto
+                                  ? `
+                                    <span
+                                      class="dia-aula-horario"
+                                    >
+                                      ${horarioTexto}
+                                    </span>
+                                  `
+                                  : ""
+                              }
+
+                            </div>
+
+
+                            <span
+                              class="
+                                estado-aula
+                                ${clase}
+                              "
+                            >
+                              ${icono}
+                              ${texto}
+                            </span>
+
+                          </div>
+
+                        `;
+
+                      }
+                    ).join("")
+
+                  : `
+
+                    <div class="empty">
+                      No hay jornadas configuradas para este estudiante en el periodo seleccionado.
+                    </div>
+
+                  `
+              }
+
+            </div>
+
           </div>
 
-          <div class="historial-aula">
-            <h4>📅 Historial día por día</h4>
-            ${filasHistorial}
-          </div>
-        </div>`;
+        `;
 
-      const boton = articulo.querySelector(".cabecera-estudiante");
-      boton.addEventListener("click", () => {
-        const abierto = articulo.classList.toggle("abierto");
-        boton.setAttribute("aria-expanded", abierto ? "true" : "false");
-      });
 
-      lista.appendChild(articulo);
-    });
+        const boton =
+          articulo.querySelector(
+            ".cabecera-estudiante"
+          );
+
+
+        boton.addEventListener(
+          "click",
+          () => {
+
+            articulo.classList.toggle(
+              "abierto"
+            );
+
+          }
+        );
+
+
+        lista.appendChild(
+          articulo
+        );
+
+      }
+    );
+
   }
 
 
@@ -1829,7 +2722,8 @@
   ) {
 
     if (
-      evento.key === "Enter"
+      evento.key ===
+      "Enter"
     ) {
 
       buscarEstudiantes();
@@ -1847,7 +2741,9 @@
       ).value.trim();
 
 
-    if (texto.length < 2) {
+    if (
+      texto.length < 2
+    ) {
 
       mostrarMensaje(
         document.getElementById(
@@ -1858,6 +2754,7 @@
       );
 
       return;
+
     }
 
 
@@ -1866,10 +2763,12 @@
         "btnBuscarEstudiante"
       );
 
+
     const cargando =
       document.getElementById(
         "cargandoBusqueda"
       );
+
 
     const resultados =
       document.getElementById(
@@ -1877,17 +2776,22 @@
       );
 
 
-    boton.disabled = true;
+    boton.disabled =
+      true;
+
 
     cargando.classList.add(
       "visible"
     );
 
+
     resultados.classList.remove(
       "visible"
     );
 
-    resultados.innerHTML = "";
+
+    resultados.innerHTML =
+      "";
 
 
     ocultarMensaje(
@@ -1899,39 +2803,24 @@
 
     try {
 
-      /*
-        Esta acción será implementada
-        en doGet():
-
-        action=buscarEstudiante
-      */
-
-
       const url =
         API_URL +
         "?action=buscarEstudiante" +
         "&q=" +
-        encodeURIComponent(texto);
-
-
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-
-        throw new Error(
-          "No fue posible conectar con el servidor."
+        encodeURIComponent(
+          texto
         );
-
-      }
 
 
       const datos =
-        await respuesta.json();
+        await consultarAPI(
+          url
+        );
 
 
-      if (!datos.exito) {
+      if (
+        !datos.exito
+      ) {
 
         throw new Error(
           datos.mensaje ||
@@ -1942,23 +2831,30 @@
 
 
       mostrarResultadosBusqueda(
-        datos.estudiantes || []
+        datos.estudiantes ||
+        []
       );
 
 
-    } catch(error) {
+    } catch (
+      error
+    ) {
 
       mostrarMensaje(
         document.getElementById(
           "mensajeBusqueda"
         ),
-        "✕ " + error.message,
+        "✕ " +
+        error.message,
         "error"
       );
 
+
     } finally {
 
-      boton.disabled = false;
+      boton.disabled =
+        false;
+
 
       cargando.classList.remove(
         "visible"
@@ -1983,7 +2879,8 @@
       );
 
 
-    contenedor.innerHTML = "";
+    contenedor.innerHTML =
+      "";
 
 
     if (
@@ -1992,6 +2889,7 @@
     ) {
 
       contenedor.innerHTML = `
+
         <div
           style="
             padding:22px;
@@ -2004,13 +2902,17 @@
         >
           No se encontraron estudiantes.
         </div>
+
       `;
+
 
       contenedor.classList.add(
         "visible"
       );
 
+
       return;
+
     }
 
 
@@ -2019,14 +2921,15 @@
         "div"
       );
 
+
     titulo.className =
       "titulo-resultados";
 
 
     titulo.textContent =
       estudiantes.length === 1
-      ? "1 estudiante encontrado"
-      : `${estudiantes.length} estudiantes encontrados`;
+        ? "1 estudiante encontrado"
+        : `${estudiantes.length} estudiantes encontrados`;
 
 
     contenedor.appendChild(
@@ -2035,7 +2938,10 @@
 
 
     estudiantes.forEach(
-      (estudiante, indice) => {
+      (
+        estudiante,
+        indice
+      ) => {
 
         const boton =
           document.createElement(
@@ -2043,7 +2949,9 @@
           );
 
 
-        boton.type = "button";
+        boton.type =
+          "button";
+
 
         boton.className =
           "resultado-item";
@@ -2052,23 +2960,44 @@
         boton.innerHTML = `
 
           <span class="resultado-numero">
-            ${String(indice + 1).padStart(2, "0")}
+            ${String(
+              indice + 1
+            ).padStart(
+              2,
+              "0"
+            )}
           </span>
+
 
           <span class="resultado-info">
 
             <span class="resultado-nombre">
-              ${escapeHTML(estudiante.estudiante)}
+              ${escapeHTML(
+                estudiante.estudiante
+              )}
             </span>
 
+
             <span class="resultado-curso">
-              ${escapeHTML(estudiante.grado || "")}
+
+              ${escapeHTML(
+                estudiante.grado ||
+                ""
+              )}
+
               ·
+
               Sección
-              ${escapeHTML(estudiante.seccion || "")}
+
+              ${escapeHTML(
+                estudiante.seccion ||
+                ""
+              )}
+
             </span>
 
           </span>
+
 
           <span class="resultado-ver">
             Ver reporte →
@@ -2129,12 +3058,29 @@
 
 
     seleccionado.innerHTML = `
+
       👤 Estudiante seleccionado:
+
       <strong>
-        ${escapeHTML(estudiante.estudiante)}
+        ${escapeHTML(
+          estudiante.estudiante
+        )}
       </strong>
-      · ${escapeHTML(estudiante.grado || "")}
-      · Sección ${escapeHTML(estudiante.seccion || "")}
+
+      ·
+
+      ${escapeHTML(
+        estudiante.grado ||
+        ""
+      )}
+
+      · Sección
+
+      ${escapeHTML(
+        estudiante.seccion ||
+        ""
+      )}
+
     `;
 
 
@@ -2172,6 +3118,7 @@
       );
 
       return;
+
     }
 
 
@@ -2195,6 +3142,7 @@
     ) {
 
       return;
+
     }
 
 
@@ -2216,11 +3164,14 @@
       );
 
 
-    boton.disabled = true;
+    boton.disabled =
+      true;
+
 
     cargando.classList.add(
       "visible"
     );
+
 
     ocultarMensaje(
       mensaje
@@ -2228,14 +3179,6 @@
 
 
     try {
-
-      /*
-        Esta acción será implementada
-        en doGet():
-
-        action=reporteEstudiante
-      */
-
 
       const url =
         API_URL +
@@ -2254,24 +3197,15 @@
         );
 
 
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-
-        throw new Error(
-          "No fue posible conectar con el servidor."
+      const datos =
+        await consultarAPI(
+          url
         );
 
-      }
 
-
-      const datos =
-        await respuesta.json();
-
-
-      if (!datos.exito) {
+      if (
+        !datos.exito
+      ) {
 
         throw new Error(
           datos.mensaje ||
@@ -2293,17 +3227,23 @@
       );
 
 
-    } catch(error) {
+    } catch (
+      error
+    ) {
 
       mostrarMensaje(
         mensaje,
-        "✕ " + error.message,
+        "✕ " +
+        error.message,
         "error"
       );
 
+
     } finally {
 
-      boton.disabled = false;
+      boton.disabled =
+        false;
+
 
       cargando.classList.remove(
         "visible"
@@ -2322,70 +3262,372 @@
     datos
   ) {
 
-    const contenedor = document.getElementById("resultadoEstudiante");
-    const estudiante = normalizarEstudianteIndividual(datos);
-    const historial = obtenerHistorial(datos);
+    const contenedor =
+      document.getElementById(
+        "resultadoEstudiante"
+      );
 
-    const presentes = Number(datos.presentes || 0);
-    const tardanzas = Number(datos.tardanzas || 0);
-    const faltas = Number(datos.faltas ?? datos.faltantes ?? 0);
-    const pendientes = Number(datos.pendientes || 0);
-    const porcentaje = Number(datos.porcentaje || 0);
-    const totalJornadas = Number(datos.totalJornadas || historial.length || 0);
 
-    let historialHTML = "";
+    const estudiante =
+      datos.estudiante ||
+      estudianteSeleccionado;
 
-    if (historial.length === 0) {
-      historialHTML = `<div style="padding:30px;text-align:center;color:#64748b;">No existen jornadas configuradas para el periodo seleccionado.</div>`;
-    } else {
-      historialHTML = historial.map(registro => {
-        const horario = textoHorario(registro);
-        return `
-          <div class="dia-registro">
-            <div class="fecha-dia">📅 ${escapeHTML(formatoFechaUniversal(registro.fecha))}</div>
-            <div class="dia-nombre">${escapeHTML(registro.dia || "")}</div>
-            <div>
-              <div class="hora-dia">🕐 ${escapeHTML(textoHora(registro))}</div>
-              ${horario ? `<div class="dia-horario"><strong>Horario:</strong> ${escapeHTML(horario)}</div>` : ""}
-            </div>
-            <div class="estado ${obtenerEstadoClase(registro.estado)}">${escapeHTML(registro.estado || "Pendiente")}</div>
-          </div>`;
-      }).join("");
+
+    const asistencias =
+      datos.asistencia ||
+      [];
+
+
+    const presentes =
+      Number(
+        datos.presentes ||
+        0
+      );
+
+
+    const tardanzas =
+      Number(
+        datos.tardanzas ||
+        0
+      );
+
+
+    const faltas =
+      Number(
+        datos.faltantes ||
+        datos.faltas ||
+        0
+      );
+
+
+    const pendientes =
+      Number(
+        datos.pendientes ||
+        0
+      );
+
+
+    const porcentaje =
+      Number(
+        datos.porcentaje ||
+        0
+      );
+
+
+    let historialHTML =
+      "";
+
+
+    if (
+      asistencias.length === 0
+    ) {
+
+      historialHTML = `
+
+        <div
+          style="
+            padding:30px;
+            text-align:center;
+            color:#64748b;
+          "
+        >
+          No existen jornadas configuradas
+          para el periodo seleccionado.
+        </div>
+
+      `;
+
     }
 
-    contenedor.innerHTML = `
-      <div class="perfil-estudiante">
-        <div class="perfil-cabecera">
-          <div>
-            <h2>${escapeHTML(estudiante.estudiante)}</h2>
-            <p>
-              ${escapeHTML(estudiante.grado)}
-              · Sección ${escapeHTML(estudiante.seccion)}
-              · Periodo: ${escapeHTML(formatoFechaUniversal(datos.fechaInicio))}
-              → ${escapeHTML(formatoFechaUniversal(datos.fechaFin))}
-            </p>
-            <div class="rango-resumen">
-              ${totalJornadas} jornada${totalJornadas === 1 ? "" : "s"} configurada${totalJornadas === 1 ? "" : "s"}
+    else {
+
+      asistencias.forEach(
+        registro => {
+
+          const claseEstado =
+            obtenerEstadoClase(
+              registro.estado
+            );
+
+
+          const fecha =
+            registro.fecha
+              ? formatoFechaISO(
+                  registro.fecha
+                )
+              : "—";
+
+
+          const hora =
+            registro.hora ||
+            "—";
+
+
+          const horaEntrada =
+            registro.horaEntrada
+              ? formatearHoraReporte(
+                  registro.horaEntrada
+                )
+              : "";
+
+
+          const horaSalida =
+            registro.horaSalida
+              ? formatearHoraReporte(
+                  registro.horaSalida
+                )
+              : "";
+
+
+          const horario =
+            horaEntrada ||
+            horaSalida
+              ? `Horario: ${escapeHTML(
+                  horaEntrada ||
+                  "—"
+                )} → ${escapeHTML(
+                  horaSalida ||
+                  "—"
+                )}`
+              : "";
+
+
+          historialHTML += `
+
+            <div class="dia-registro">
+
+              <div class="fecha-dia">
+
+                ${escapeHTML(
+                  fecha
+                )}
+
+                <small
+                  class="dia-semana"
+                >
+                  ${escapeHTML(
+                    registro.dia ||
+                    ""
+                  )}
+                </small>
+
+              </div>
+
+
+              <div class="hora-dia">
+
+                🕐 ${escapeHTML(
+                  hora
+                )}
+
+                ${
+                  horario
+                    ? `
+                      <small
+                        class="horario-dia"
+                      >
+                        ${horario}
+                      </small>
+                    `
+                    : ""
+                }
+
+              </div>
+
+
+              <div
+                class="
+                  estado
+                  ${claseEstado}
+                "
+              >
+
+                ${escapeHTML(
+                  registro.estado ||
+                  "Pendiente"
+                )}
+
+              </div>
+
             </div>
+
+          `;
+
+        }
+      );
+
+    }
+
+
+    contenedor.innerHTML = `
+
+      <div class="perfil-estudiante">
+
+        <div class="perfil-cabecera">
+
+          <div>
+
+            <h2>
+              ${escapeHTML(
+                estudiante.estudiante
+              )}
+            </h2>
+
+
+            <p>
+
+              ${escapeHTML(
+                estudiante.grado ||
+                ""
+              )}
+
+              · Sección
+
+              ${escapeHTML(
+                estudiante.seccion ||
+                ""
+              )}
+
+              · Periodo:
+
+              ${formatoFecha(
+                datos.fechaInicio
+              )}
+
+              →
+
+              ${formatoFecha(
+                datos.fechaFin
+              )}
+
+            </p>
+
           </div>
-          <div class="porcentaje-individual">${porcentaje}%</div>
+
+
+          <div class="porcentaje-individual">
+
+            ${porcentaje}%
+
+          </div>
+
         </div>
+
 
         <div class="estadisticas-individual">
-          <div class="estadistica"><div class="numero verde">${presentes}</div><div class="etiqueta"><span class="punto punto-verde"></span>Presentes</div></div>
-          <div class="estadistica"><div class="numero amarillo">${tardanzas}</div><div class="etiqueta"><span class="punto punto-amarillo"></span>Tardanzas</div></div>
-          <div class="estadistica"><div class="numero rojo">${faltas}</div><div class="etiqueta"><span class="punto punto-rojo"></span>Faltas</div></div>
-          <div class="estadistica"><div class="numero azul">${pendientes}</div><div class="etiqueta"><span class="punto punto-azul"></span>Pendientes</div></div>
+
+          <div class="estadistica">
+
+            <div
+              class="numero verde"
+            >
+              ${presentes}
+            </div>
+
+            <div class="etiqueta">
+
+              <span
+                class="punto punto-verde"
+              ></span>
+
+              Presentes
+
+            </div>
+
+          </div>
+
+
+          <div class="estadistica">
+
+            <div
+              class="numero amarillo"
+            >
+              ${tardanzas}
+            </div>
+
+            <div class="etiqueta">
+
+              <span
+                class="punto punto-amarillo"
+              ></span>
+
+              Tardanzas
+
+            </div>
+
+          </div>
+
+
+          <div class="estadistica">
+
+            <div
+              class="numero rojo"
+            >
+              ${faltas}
+            </div>
+
+            <div class="etiqueta">
+
+              <span
+                class="punto punto-rojo"
+              ></span>
+
+              Faltas
+
+            </div>
+
+          </div>
+
+
+          <div class="estadistica">
+
+            <div
+              class="numero azul"
+            >
+              ${pendientes}
+            </div>
+
+            <div class="etiqueta">
+
+              <span
+                class="punto punto-azul"
+              ></span>
+
+              Pendientes
+
+            </div>
+
+          </div>
+
         </div>
 
-        <div class="historial historial-individual-mejorado">
-          <h3>📅 Historial día por día</h3>
+
+        <div class="historial">
+
+          <h3>
+            📅 Historial de asistencia
+          </h3>
+
+
           ${historialHTML}
-        </div>
-      </div>`;
 
-    contenedor.classList.add("visible");
-    contenedor.scrollIntoView({ behavior: "smooth", block: "start" });
+        </div>
+
+      </div>
+
+    `;
+
+
+    contenedor.classList.add(
+      "visible"
+    );
+
+
+    contenedor.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
   }
 
 
@@ -2393,27 +3635,40 @@
      FECHA ISO → DD/MM/YYYY
   ===================================================== */
 
-  function formatoFechaUniversal(fecha) {
-    if (!fecha) return "—";
+  function formatoFechaISO(
+    fecha
+  ) {
 
-    const texto = String(fecha).trim();
-
-    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
-      const partes = texto.split("-");
-      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    if (!fecha) {
+      return "—";
     }
 
-    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(texto)) {
-      const partes = texto.split("/");
-      return `${String(partes[0]).padStart(2, "0")}/${String(partes[1]).padStart(2, "0")}/${partes[2]}`;
+
+    const texto =
+      String(fecha);
+
+
+    if (
+      /^\d{4}-\d{2}-\d{2}$/.test(
+        texto
+      )
+    ) {
+
+      const partes =
+        texto.split(
+          "-"
+        );
+
+
+      return (
+        `${partes[2]}/${partes[1]}/${partes[0]}`
+      );
+
     }
+
 
     return texto;
-  }
 
-  // Compatibilidad con versiones anteriores.
-  function formatoFechaISO(fecha) {
-    return formatoFechaUniversal(fecha);
   }
 
 
@@ -2426,6 +3681,76 @@
     () => {
 
       configurarFechas();
+
+
+      const inicioAula =
+        document.getElementById(
+          "fechaInicioAula"
+        );
+
+
+      const finAula =
+        document.getElementById(
+          "fechaFinAula"
+        );
+
+
+      const inicioEstudiante =
+        document.getElementById(
+          "fechaInicioEstudiante"
+        );
+
+
+      const finEstudiante =
+        document.getElementById(
+          "fechaFinEstudiante"
+        );
+
+
+      function sincronizarMinimo(
+        inicio,
+        fin
+      ) {
+
+        inicio.addEventListener(
+          "change",
+          () => {
+
+            fin.min =
+              inicio.value;
+
+
+            if (
+              fin.value &&
+              fin.value <
+              inicio.value
+            ) {
+
+              fin.value =
+                inicio.value;
+
+            }
+
+          }
+        );
+
+
+        fin.min =
+          inicio.value;
+
+      }
+
+
+      sincronizarMinimo(
+        inicioAula,
+        finAula
+      );
+
+
+      sincronizarMinimo(
+        inicioEstudiante,
+        finEstudiante
+      );
 
     }
   );
