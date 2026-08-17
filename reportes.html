@@ -3268,14 +3268,30 @@
       );
 
 
-    const estudiante =
-      datos.estudiante ||
-      estudianteSeleccionado;
+    const estudiante = {
+  estudiante:
+    datos.estudiante ||
+    (estudianteSeleccionado
+      ? estudianteSeleccionado.estudiante
+      : ""),
 
+  grado:
+    datos.grado ||
+    (estudianteSeleccionado
+      ? estudianteSeleccionado.grado
+      : ""),
 
-    const asistencias =
-      datos.asistencia ||
-      [];
+  seccion:
+    datos.seccion ||
+    (estudianteSeleccionado
+      ? estudianteSeleccionado.seccion
+      : "")
+};
+
+const asistencias =
+  datos.historial ||
+  datos.asistencia ||
+  [];
 
 
     const presentes =
