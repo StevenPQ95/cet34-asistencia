@@ -684,7 +684,7 @@
       font-size: 20px;
     }
 
-        .dia-registro {
+    .dia-registro {
       display: grid;
       grid-template-columns: 140px 150px 1fr;
       align-items: center;
@@ -736,7 +736,6 @@
       border-radius: 999px;
       font-size: 13px;
       font-weight: 800;
-      white-space: nowrap;
     }
 
     .estado-presente {
@@ -759,105 +758,6 @@
       color: var(--pendiente);
     }
 
-
-    /* =========================================================
-       ADAPTACIÓN PARA CELULARES
-       ========================================================= */
-
-    @media (max-width: 700px) {
-
-      .dia-registro {
-        display: grid;
-
-        grid-template-columns: 1fr;
-        grid-template-rows: auto auto auto;
-
-        gap: 4px;
-
-        min-height: auto;
-
-        padding: 10px 12px;
-
-        align-items: start;
-
-        border: 1px solid #e2e8f0;
-        border-bottom: none;
-      }
-
-      .dia-registro:first-of-type {
-        border-radius: 13px 13px 0 0;
-      }
-
-      .dia-registro:last-of-type {
-        border-bottom: 1px solid #e2e8f0;
-        border-radius: 0 0 13px 13px;
-      }
-
-
-      /* FECHA */
-      .fecha-dia {
-        grid-column: 1;
-        grid-row: 1;
-
-        font-size: 13px;
-        line-height: 1.3;
-      }
-
-
-      /* DÍA DE LA SEMANA */
-      .dia-semana {
-        display: inline;
-        margin-top: 0;
-        margin-left: 6px;
-
-        font-size: 11px;
-      }
-
-
-      /* HORA DE INGRESO */
-      .hora-dia {
-        grid-column: 1;
-        grid-row: 2;
-
-        font-size: 12px;
-        line-height: 1.3;
-
-        min-width: 0;
-      }
-
-
-      /* HORARIO CONFIGURADO */
-      .horario-dia {
-        display: block;
-
-        margin-top: 2px;
-
-        font-size: 11px;
-        line-height: 1.3;
-
-        overflow-wrap: anywhere;
-      }
-
-
-      /* ESTADO */
-            .estado {
-        grid-column: 1;
-        grid-row: 3;
-
-        justify-self: end;
-
-        padding: 5px 11px;
-
-        font-size: 11px;
-        line-height: 1.2;
-
-        white-space: nowrap;
-
-        margin-top: 4px;
-      }
-
-    }
-    
     /* =====================================================
        RESULTADOS DE BÚSQUEDA
     ===================================================== */
@@ -983,441 +883,86 @@
       }
     }
 
-    /* =====================================================
-   DISEÑO RESPONSIVE PARA CELULAR
-   SOLO VISUAL — NO MODIFICA FUNCIONES
-===================================================== */
-
-@media (max-width: 700px) {
-
-  /* CONTENEDOR GENERAL */
-  .contenedor {
-    width: calc(100% - 16px);
-    margin-top: 10px;
-  }
-
-  /* TARJETAS PRINCIPALES */
-  .seccion,
-  .reporte {
-    padding: 14px;
-    border-radius: 16px;
-  }
-
-  /* TÍTULOS */
-  .titulo-seccion {
-    gap: 9px;
-    margin-bottom: 16px;
-  }
-
-  .titulo-seccion h2 {
-    font-size: 19px;
-    line-height: 1.15;
-  }
-
-  .titulo-seccion p {
-    font-size: 12px;
-    line-height: 1.3;
-    margin-top: 4px;
-  }
-
-  /* FORMULARIOS */
-  .form-grid {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
-
-  .campo label {
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
-
-  .campo input,
-  .campo select {
-    min-height: 42px;
-    font-size: 14px;
-  }
-
-  /* BOTONES */
-  .acciones {
-    margin-top: 12px;
-  }
-
-  .btn {
-    min-height: 42px;
-    padding: 10px 15px;
-    font-size: 13px;
-    border-radius: 11px;
-  }
-
-  /* =================================================
-     CABECERA DEL REPORTE POR AULA
-  ================================================= */
-
-  .cabecera-reporte {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 15px;
-  }
-
-  .cabecera-reporte h2 {
-    font-size: 20px;
-    line-height: 1.15;
-  }
-
-  .cabecera-reporte p {
-    font-size: 12px;
-    line-height: 1.35;
-  }
-
-  .porcentaje {
-    min-width: 68px;
-    height: 48px;
-    border-radius: 13px;
-    font-size: 21px;
-    align-self: flex-start;
-  }
-
-  /* =================================================
-     ESTADÍSTICAS DEL AULA
-  ================================================= */
-
-  .estadisticas {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 16px;
-  }
-
-  .estadistica {
-    min-height: 78px;
-    border-radius: 13px;
-  }
-
-  .estadistica .numero {
-    font-size: 26px;
-    margin-bottom: 5px;
-  }
-
-  .estadistica .etiqueta {
-    font-size: 11px;
-    gap: 5px;
-  }
-
-  .punto {
-    width: 9px;
-    height: 9px;
-  }
-
-  /* BARRA DE ASISTENCIA */
-  .barra {
-    height: 10px;
-    margin-bottom: 20px;
-  }
-
-  /* =================================================
-     LISTA DE ESTUDIANTES
-  ================================================= */
-
-  .titulo-lista {
-    gap: 7px;
-    margin-bottom: 11px;
-  }
-
-  .titulo-lista h3 {
-    font-size: 18px;
-  }
-
-  .estudiante-aula {
-    border-radius: 13px;
-    margin-bottom: 7px;
-  }
-
-  /* CABECERA DEL ESTUDIANTE */
-  .cabecera-estudiante {
-    min-height: 58px;
-    padding: 8px 10px;
-    gap: 8px;
-  }
-
-  .numero-estudiante {
-    width: 28px;
-    flex: 0 0 28px;
-    font-size: 13px;
-  }
-
-  .nombre-estudiante {
-    font-size: 13px;
-    line-height: 1.15;
-    min-width: 0;
-    overflow-wrap: anywhere;
-  }
-
-  /* ESTADOS PEQUEÑOS */
-  .mini-estados {
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .mini {
-    padding: 5px 7px;
-    font-size: 11px;
-  }
-
-  /* FLECHA */
-  .flecha {
-    width: 24px;
-    height: 24px;
-    flex: 0 0 24px;
-    font-size: 15px;
-    transition: transform 0.25s ease;
-  }
-
-  /*
-     IMPORTANTE:
-     La flecha sigue usando la misma función existente.
-     Solo ajustamos su tamaño visual.
-  */
-  .estudiante-aula.abierto .flecha {
-    transform: rotate(180deg);
-  }
-
-  /* =================================================
-     DETALLE DEL ESTUDIANTE
-  ================================================= */
-
-  .detalle-estudiante {
-    padding: 0 10px 12px;
-  }
-
-  .resumen-individual {
-    grid-template-columns: 1fr 1fr;
-    gap: 7px;
-    padding-top: 10px;
-  }
-
-  .resumen-item {
-    border-radius: 11px;
-    padding: 9px 6px;
-  }
-
-  .resumen-item strong {
-    font-size: 19px;
-    margin-bottom: 3px;
-  }
-
-  .resumen-item span {
-    font-size: 10px;
-  }
-
-  /* =================================================
-     HISTORIAL DÍA POR DÍA DEL AULA
-  ================================================= */
-
-  .detalle-estudiante .historial {
-    padding: 0 0 8px;
-  }
-
-  .detalle-estudiante .historial h3 {
-    font-size: 16px;
-    margin: 14px 0 9px;
-  }
-
-  /* =================================================
-     REPORTE INDIVIDUAL
-  ================================================= */
-
-  .resultado-estudiante {
-    margin-top: 15px;
-  }
-
-  .perfil-cabecera {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-    padding: 18px;
-  }
-
-  .perfil-cabecera h2 {
-    font-size: 20px;
-    line-height: 1.15;
-    overflow-wrap: anywhere;
-  }
-
-  .perfil-cabecera p {
-    font-size: 12px;
-    line-height: 1.35;
-  }
-
-  .porcentaje-individual {
-    min-width: 68px;
-    height: 48px;
-    border-radius: 13px;
-    font-size: 21px;
-  }
-
-  /* ESTADÍSTICAS INDIVIDUALES */
-  .estadisticas-individual {
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    padding: 12px;
-  }
-
-  .estadisticas-individual .estadistica {
-    min-height: 78px;
-  }
-
-  .estadisticas-individual .estadistica .numero {
-    font-size: 26px;
-  }
-
-  /* HISTORIAL INDIVIDUAL */
-  .historial {
-    padding: 0 12px 15px;
-  }
-
-  .historial h3 {
-    font-size: 18px;
-    margin-bottom: 9px;
-  }
-
-  /*
-     En celular mantenemos el historial compacto:
-     fecha + hora + estado.
-  */
-  .dia-registro {
-    display: grid;
-    grid-template-columns: minmax(85px, 1fr) minmax(105px, 1.25fr) auto;
-    align-items: center;
-    gap: 7px;
-    min-height: 52px;
-    padding: 8px 9px;
-  }
-
-  .fecha-dia {
-    font-size: 12px;
-    line-height: 1.15;
-  }
-
-  .hora-dia {
-    font-size: 11px;
-    line-height: 1.2;
-  }
-
-  .estado {
-    justify-self: end;
-    padding: 6px 9px;
-    font-size: 10px;
-    white-space: nowrap;
-  }
-
-  /* =================================================
-     RESULTADOS DE BÚSQUEDA
-  ================================================= */
-
-  .resultados-busqueda {
-    margin-top: 14px;
-  }
-
-  .titulo-resultados {
-    font-size: 15px;
-    margin-bottom: 9px;
-  }
-
-  .resultado-item {
-    padding: 11px 10px;
-    margin-bottom: 6px;
-    gap: 8px;
-    border-radius: 12px;
-  }
-
-  .resultado-numero {
-    width: 30px;
-    height: 30px;
-    flex: 0 0 30px;
-    border-radius: 9px;
-    font-size: 11px;
-  }
-
-  /* Nombres largos en resultados */
-  .resultado-item strong,
-  .resultado-item .nombre {
-    font-size: 12px;
-    line-height: 1.15;
-    overflow-wrap: anywhere;
-  }
-
-  /* =================================================
-     BÚSQUEDA / PERIODO INDIVIDUAL
-  ================================================= */
-
-  .periodo-individual {
-    margin-top: 14px;
-  }
-
-  /* Evita que los datos seleccionados sean demasiado altos */
-  .estudiante-seleccionado {
-    font-size: 12px;
-    line-height: 1.25;
-    padding: 11px;
-  }
-
-  /* =================================================
-     AJUSTES PARA PANTALLAS MUY PEQUEÑAS
-  ================================================= */
-
-  @media (max-width: 380px) {
-
-    .seccion,
-    .reporte {
-      padding: 11px;
+    @media (max-width: 700px) {
+      .contenedor {
+        width: min(100% - 20px, 1300px);
+        margin-top: 15px;
+      }
+
+      .seccion,
+      .reporte {
+        padding: 18px;
+        border-radius: 17px;
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .estadisticas {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .cabecera-reporte,
+      .perfil-cabecera {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .estadisticas-individual {
+        grid-template-columns: 1fr 1fr;
+        padding: 15px;
+      }
+
+      .resumen-individual {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .dia-registro {
+        grid-template-columns: 1fr;
+        gap: 5px;
+        padding: 12px;
+      }
+
+      .estado {
+        justify-self: start;
+      }
+
+      .mini-estados {
+        display: none;
+      }
+
+      .nombre-estudiante {
+        font-size: 14px;
+      }
+
+      .dia-aula {
+        grid-template-columns: 1fr auto;
+        gap: 6px 10px;
+      }
+
+      .dia-aula-fecha {
+        grid-column: 1;
+      }
+
+      .dia-aula-nombre {
+        grid-column: 1;
+      }
+
+      .dia-aula-hora {
+        grid-column: 1;
+      }
+
+      .dia-aula-horario {
+        margin-top: 2px;
+      }
+
+      .dia-aula > .estado-aula {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: center;
+      }
     }
-
-    .cabecera-estudiante {
-      padding: 7px 8px;
-      gap: 6px;
-    }
-
-    .numero-estudiante {
-      width: 25px;
-      flex-basis: 25px;
-      font-size: 12px;
-    }
-
-    .nombre-estudiante {
-      font-size: 12px;
-    }
-
-    .mini {
-      padding: 4px 5px;
-      font-size: 10px;
-    }
-
-    .flecha {
-      width: 21px;
-      height: 21px;
-      flex-basis: 21px;
-      font-size: 13px;
-    }
-
-    .dia-registro {
-      grid-template-columns: 82px 1fr auto;
-      gap: 5px;
-    }
-
-    .fecha-dia {
-      font-size: 11px;
-    }
-
-    .hora-dia {
-      font-size: 10px;
-    }
-
-    .estado {
-      padding: 5px 7px;
-      font-size: 9px;
-    }
-  }
-}
   </style>
 </head>
 
