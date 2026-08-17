@@ -490,12 +490,11 @@
       transform: rotate(45deg);
       transform-origin: center center;
       transition: transform 0.25s ease;
-      margin-top: -4px;
+      flex: 0 0 auto;
     }
 
     .estudiante-aula.abierto .flecha::before {
       transform: rotate(225deg);
-      margin-top: 4px;
     }
 
     .detalle-estudiante {
@@ -531,6 +530,86 @@
     .resumen-item span {
       font-size: 12px;
       color: var(--texto-secundario);
+    }
+
+    .historial-aula {
+      margin-top: 16px;
+    }
+
+    .historial-aula-titulo {
+      margin: 0 0 10px;
+      color: var(--texto);
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .dia-aula {
+      display: grid;
+      grid-template-columns: 115px 125px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-height: 50px;
+      padding: 9px 12px;
+      margin-bottom: 7px;
+      border: 1px solid #e5ebf2;
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .dia-aula-fecha {
+      font-size: 13px;
+      font-weight: 800;
+      color: #475569;
+    }
+
+    .dia-aula-nombre {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--texto-secundario);
+      text-transform: uppercase;
+    }
+
+    .dia-aula-hora {
+      font-size: 13px;
+      color: var(--texto-secundario);
+    }
+
+    .dia-aula-horario {
+      display: block;
+      margin-top: 3px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    .estado-aula {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .estado-aula-presente {
+      background: var(--verde-suave);
+      color: var(--verde);
+    }
+
+    .estado-aula-tardanza {
+      background: var(--amarillo-suave);
+      color: var(--amarillo);
+    }
+
+    .estado-aula-falta {
+      background: var(--rojo-suave);
+      color: var(--rojo);
+    }
+
+    .estado-aula-pendiente {
+      background: var(--pendiente-suave);
+      color: var(--pendiente);
     }
 
     /* =====================================================
@@ -631,9 +710,25 @@
       font-size: 14px;
     }
 
+    .dia-semana {
+      display: block;
+      margin-top: 3px;
+      color: var(--texto-secundario);
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
     .hora-dia {
       color: var(--texto-secundario);
       font-size: 14px;
+    }
+
+    .horario-dia {
+      display: block;
+      margin-top: 3px;
+      color: #94a3b8;
+      font-size: 11px;
     }
 
     .estado {
@@ -841,6 +936,33 @@
       .nombre-estudiante {
         font-size: 14px;
       }
+
+      .dia-aula {
+        grid-template-columns: 1fr auto;
+        gap: 6px 10px;
+      }
+
+      .dia-aula-fecha {
+        grid-column: 1;
+      }
+
+      .dia-aula-nombre {
+        grid-column: 1;
+      }
+
+      .dia-aula-hora {
+        grid-column: 1;
+      }
+
+      .dia-aula-horario {
+        margin-top: 2px;
+      }
+
+      .dia-aula > .estado-aula {
+        grid-column: 2;
+        grid-row: 1 / span 3;
+        align-self: center;
+      }
     }
   </style>
 </head>
@@ -876,7 +998,7 @@
       <div>
         <h2>Reporte por aula</h2>
         <p>
-          Consulta la asistencia de todo un salón durante un periodo.
+          Consulta la asistencia de todo un salón durante un periodo y revisa el detalle día por día de cada estudiante.
         </p>
       </div>
 
@@ -1944,38 +2066,80 @@
                 <strong class="verde">
                   ${presentes}
                 </strong>
-                <span>
-                  Presentes
-                </span>
+                <span>Presentes</span>
               </div>
 
               <div class="resumen-item">
                 <strong class="amarillo">
                   ${tardanzas}
                 </strong>
-                <span>
-                  Tardanzas
-                </span>
+                <span>Tardanzas</span>
               </div>
 
               <div class="resumen-item">
                 <strong class="rojo">
                   ${faltas}
                 </strong>
-                <span>
-                  Faltas
-                </span>
+                <span>Faltas</span>
               </div>
 
               <div class="resumen-item">
                 <strong class="azul">
                   ${pendientes}
                 </strong>
-                <span>
-                  Pendientes
-                </span>
+                <span>Pendientes</span>
               </div>
 
+            </div>
+
+            <div class="historial-aula">
+              <div class="historial-aula-titulo">
+                📅 Historial día por día
+              </div>
+
+              ${asistencias.length ? asistencias.map(registro => {
+                const estado = String(registro.estado || "Pendiente").toLowerCase().trim();
+                let clase = "estado-aula-pendiente";
+                let icono = "🔵";
+                let texto = "Pendiente";
+
+                if (estado === "presente") {
+                  clase = "estado-aula-presente";
+                  icono = "🟢";
+                  texto = "Presente";
+                } else if (estado === "tardanza") {
+                  clase = "estado-aula-tardanza";
+                  icono = "🟡";
+                  texto = "Tardanza";
+                } else if (estado === "falta" || estado === "faltante") {
+                  clase = "estado-aula-falta";
+                  icono = "🔴";
+                  texto = "Falta";
+                }
+
+                const fechaTexto = registro.fecha ? String(registro.fecha) : "—";
+                const diaTexto = registro.dia || "";
+                const horaTexto = registro.hora || "—";
+                const horaEntrada = registro.horaEntrada || "";
+                const horaSalida = registro.horaSalida || "";
+                const horarioTexto = horaEntrada || horaSalida
+                  ? `Horario: ${escapeHTML(horaEntrada || "—")} → ${escapeHTML(horaSalida || "—")}`
+                  : "";
+
+                return `
+                  <div class="dia-aula">
+                    <div class="dia-aula-fecha">📅 ${escapeHTML(fechaTexto)}</div>
+                    <div class="dia-aula-nombre">${escapeHTML(diaTexto)}</div>
+                    <div class="dia-aula-hora">
+                      🕐 ${escapeHTML(horaTexto)}
+                      ${horarioTexto ? `<span class="dia-aula-horario">${horarioTexto}</span>` : ""}
+                    </div>
+                    <span class="estado-aula ${clase}">${icono} ${texto}</span>
+                  </div>
+                `;
+              }).join("") : `
+                <div class="empty">No hay jornadas configuradas para este estudiante en el periodo seleccionado.</div>
+              `}
             </div>
 
           </div>
@@ -2569,10 +2733,12 @@
 
               <div class="fecha-dia">
                 ${escapeHTML(fecha)}
+                <small class="dia-semana">${escapeHTML(registro.dia || "")}</small>
               </div>
 
               <div class="hora-dia">
-                ${escapeHTML(hora)}
+                🕐 ${escapeHTML(hora)}
+                ${(registro.horaEntrada || registro.horaSalida) ? `<small class="horario-dia">Horario: ${escapeHTML(registro.horaEntrada || "—")} → ${escapeHTML(registro.horaSalida || "—")}</small>` : ""}
               </div>
 
               <div
