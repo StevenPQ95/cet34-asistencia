@@ -15,1454 +15,934 @@
 
 
 <style>
-
 /* =====================================================
-   CONFIGURACIÓN GENERAL
+   CET 34 · DISEÑO GENERAL
+   Interfaz optimizada para uso diario en PC/tablet
    ===================================================== */
+
+:root {
+  --vino-900: #4a001d;
+  --vino-800: #620026;
+  --vino-700: #78002f;
+  --vino-100: #f9edf2;
+
+  --fondo: #f4f6f8;
+  --blanco: #ffffff;
+  --texto: #172033;
+  --texto-sec: #64748b;
+  --borde: #e2e8f0;
+
+  --verde: #15803d;
+  --verde-bg: #ecfdf3;
+  --amarillo: #b45309;
+  --amarillo-bg: #fffbeb;
+  --rojo: #b91c1c;
+  --rojo-bg: #fef2f2;
+  --azul: #2563eb;
+  --azul-bg: #eff6ff;
+
+  --sombra: 0 12px 30px rgba(15, 23, 42, .07);
+  --sombra-fuerte: 0 18px 45px rgba(15, 23, 42, .12);
+  --radio: 20px;
+}
 
 * {
   box-sizing: border-box;
 }
 
-body {
-  margin: 0;
-  font-family: Arial, Helvetica, sans-serif;
-  background: #f1f5f9;
-  color: #0f172a;
+html {
+  scroll-behavior: smooth;
 }
 
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 50% -10%, rgba(120, 0, 47, .08), transparent 34%),
+    var(--fondo);
+  color: var(--texto);
+  font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
 
 /* =====================================================
    ENCABEZADO
    ===================================================== */
 
 .header {
-
-  background:
-    linear-gradient(
-      135deg,
-      #5b001f,
-      #72002b,
-      #4d001b
-    );
-
-  color: white;
-
-  min-height: 105px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  padding: 12px 18px;
-
+  min-height: 108px;
   position: relative;
-
-  box-shadow:
-    0 3px 12px
-    rgba(0,0,0,.18);
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px 110px;
+  color: #fff;
+  background:
+    linear-gradient(135deg, var(--vino-900), var(--vino-700) 55%, var(--vino-800));
+  box-shadow: 0 5px 18px rgba(74, 0, 29, .22);
 }
 
+.header::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 3px;
+  background: rgba(255,255,255,.18);
+}
 
 .header-centro {
-
   text-align: center;
-
-  padding: 0 90px;
-
+  max-width: 620px;
 }
-
 
 .header-centro h1 {
-
   margin: 0;
-
-  font-size: 28px;
-
-  font-weight: 800;
-
+  font-size: clamp(24px, 3vw, 31px);
+  font-weight: 900;
+  letter-spacing: -.5px;
 }
-
 
 .header-centro p {
-
-  margin: 5px 0 0;
-
-  font-size: 13px;
-
+  margin: 6px 0 0;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  opacity: .9;
 }
-
-
-/* =====================================================
-   INSIGNIAS
-   ===================================================== */
 
 .header-insignia {
-
-  width: 65px;
-
-  height: 65px;
-
-  border-radius: 50%;
-
-  background:
-    rgba(255,255,255,.12);
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  overflow: hidden;
-
   position: absolute;
-
   top: 50%;
-
+  width: 64px;
+  height: 64px;
   transform: translateY(-50%);
-
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 50%;
+  background: rgba(255,255,255,.10);
+  box-shadow: 0 8px 20px rgba(0,0,0,.12);
 }
-
 
 .header-insignia img {
-
   width: 100%;
-
   height: 100%;
-
   object-fit: contain;
-
 }
-
 
 .header-insignia.izquierda {
-
-  left: 18px;
-
+  left: 24px;
 }
-
 
 .header-insignia.derecha {
-
-  right: 18px;
-
+  right: 24px;
 }
 
-
 /* =====================================================
-   CONTENEDOR
+   CONTENEDOR PRINCIPAL
    ===================================================== */
 
 .container {
-
-  width: 100%;
-
-  max-width: 760px;
-
-  margin: auto;
-
-  padding: 14px;
-
+  width: min(1180px, calc(100% - 32px));
+  margin: 24px auto 48px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(320px, .75fr);
+  grid-template-areas:
+    "scanner jornada"
+    "scanner resumen"
+    "ultimo ultimo"
+    "grupos grupos"
+    "footer footer";
+  gap: 18px;
 }
 
+/* Las tarjetas conservan sus clases originales. */
+.container > .card:nth-of-type(1) { grid-area: scanner; }
+.container > .card:nth-of-type(2) { grid-area: jornada; }
+.container > .card:nth-of-type(3) { grid-area: resumen; }
+.container > .card:nth-of-type(4) { grid-area: ultimo; }
+.container > .card:nth-of-type(5) { grid-area: grupos; }
+.container > .footer { grid-area: footer; }
 
 /* =====================================================
    TARJETAS
    ===================================================== */
 
 .card {
-
-  background: white;
-
-  border-radius: 20px;
-
-  padding: 16px;
-
-  margin-bottom: 14px;
-
-  box-shadow:
-    0 4px 15px
-    rgba(15,23,42,.07);
-
+  min-width: 0;
+  background: var(--blanco);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio);
+  padding: 22px;
+  box-shadow: var(--sombra);
 }
 
+.card:hover {
+  box-shadow: 0 15px 36px rgba(15, 23, 42, .09);
+}
+
+.card:nth-of-type(1) {
+  min-height: 575px;
+  display: flex;
+  flex-direction: column;
+}
+
+.titulo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 18px;
+  color: var(--texto);
+  font-size: 17px;
+  font-weight: 900;
+  letter-spacing: .1px;
+}
+
+.titulo::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  margin-left: 4px;
+  background: var(--borde);
+}
 
 /* =====================================================
    ESCÁNER
    ===================================================== */
 
 .scanner-titulo {
-
-  text-align: center;
-
-  font-size: 20px;
-
-  font-weight: 800;
-
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  color: var(--vino-800);
+  font-size: 21px;
+  font-weight: 900;
 }
-
 
 .scanner-instruccion {
-
-  text-align: center;
-
-  color: #64748b;
-
+  margin-bottom: 16px;
+  color: var(--texto-sec);
   font-size: 13px;
-
-  margin: 5px 0 12px;
-
+  line-height: 1.5;
 }
-
 
 #reader {
-
   width: 100%;
-
-  max-width: 560px;
-
-  margin: auto;
-
+  flex: 1;
+  min-height: 410px;
   overflow: hidden;
-
+  border: 1px solid #d9e0e8;
   border-radius: 17px;
-
+  background: #0b1220;
 }
-
 
 #reader video {
-
-  width: 100%;
-
-  border-radius: 17px;
-
+  width: 100% !important;
+  max-height: 490px;
+  object-fit: cover;
+  border-radius: 16px;
 }
 
+#reader__scan_region {
+  min-height: 300px;
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+#reader__scan_region img {
+  display: none !important;
+}
+
+#reader__dashboard_section {
+  padding: 10px 8px 8px !important;
+  background: #fff;
+}
+
+#reader__dashboard_section_csr button,
+#reader__dashboard_section_swaplink {
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 10px !important;
+  padding: 8px 12px !important;
+  background: #fff !important;
+  color: #334155 !important;
+  font-weight: 700 !important;
+}
+
+#reader__dashboard_section_csr span {
+  color: #64748b !important;
+  font-size: 12px !important;
+}
+
+.audio-indicador {
+  margin-top: 12px;
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 11px;
+  background: #f8fafc;
+  color: var(--texto-sec);
+  font-size: 11px;
+  text-align: center;
+}
 
 /* =====================================================
-   RESULTADO DEL ESCANEO
+   RESULTADOS DEL ESCÁNER
    ===================================================== */
 
 #resultado {
-
   display: none;
-
   margin-top: 12px;
-
-  padding: 15px;
-
+  padding: 18px;
+  border: 1px solid transparent;
   border-radius: 16px;
-
   text-align: center;
-
+  animation: resultadoEntrada .22s ease-out;
 }
 
+@keyframes resultadoEntrada {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
 .resultado-presente {
-
-  display: block !important;
-
-  background: #dcfce7;
-
+  background: var(--verde-bg);
+  border-color: #bbf7d0 !important;
   color: #166534;
-
 }
-
 
 .resultado-tardanza {
-
-  display: block !important;
-
-  background: #fef3c7;
-
+  background: var(--amarillo-bg);
+  border-color: #fde68a !important;
   color: #92400e;
-
 }
-
 
 .resultado-duplicado {
-
-  display: block !important;
-
-  background: #fef3c7;
-
-  color: #92400e;
-
+  background: #fff7ed;
+  border-color: #fed7aa !important;
+  color: #9a3412;
 }
-
 
 .resultado-error {
-
-  display: block !important;
-
-  background: #fee2e2;
-
+  background: var(--rojo-bg);
+  border-color: #fecaca !important;
   color: #991b1b;
-
 }
-
 
 .resultado-procesando {
-
-  display: block !important;
-
-  background: #e0f2fe;
-
-  color: #075985;
-
+  background: var(--azul-bg);
+  border-color: #bfdbfe !important;
+  color: #1d4ed8;
 }
-
 
 .resultado-icono {
-
-  font-size: 30px;
-
+  margin-bottom: 4px;
+  font-size: 28px;
+  line-height: 1;
 }
-
 
 .resultado-titulo {
-
-  font-size: 17px;
-
-  font-weight: 800;
-
+  font-size: 14px;
+  font-weight: 900;
+  letter-spacing: .4px;
 }
-
 
 .resultado-estudiante {
-
-  font-size: 16px;
-
-  font-weight: 800;
-
   margin-top: 7px;
-
-  line-height: 1.2;
-
+  font-size: 16px;
+  font-weight: 900;
 }
-
 
 .resultado-grupo {
-
-  margin-top: 4px;
-
-  font-size: 13px;
-
+  margin-top: 3px;
+  font-size: 12px;
+  opacity: .82;
 }
-
 
 .resultado-hora {
-
-  font-size: 24px;
-
-  font-weight: 800;
-
-  margin-top: 7px;
-
+  margin-top: 9px;
+  font-size: 19px;
+  font-weight: 900;
 }
-
 
 .resultado-estado {
-
-  font-size: 15px;
-
-  font-weight: 800;
-
-  margin-top: 3px;
-
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 900;
 }
-
-
-/* =====================================================
-   AUDIO
-   ===================================================== */
-
-.audio-indicador {
-
-  text-align: center;
-
-  font-size: 11px;
-
-  color: #94a3b8;
-
-  margin-top: 7px;
-
-}
-
 
 /* =====================================================
    FECHA / JORNADA
    ===================================================== */
 
 .fecha-jornada {
-
+  min-height: 100%;
   display: flex;
-
-  align-items: center;
-
-  justify-content: space-between;
-
-  gap: 10px;
-
+  flex-direction: column;
+  justify-content: center;
+  gap: 13px;
 }
-
 
 .fecha {
-
-  color: #64748b;
-
-  font-size: 14px;
-
-  font-weight: 700;
-
+  color: var(--texto);
+  font-size: 18px;
+  font-weight: 900;
 }
-
 
 .jornada {
-
-  display: inline-flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  padding: 8px 11px;
-
-  border-radius: 12px;
-
-  background: #f0fdf4;
-
+  width: fit-content;
+  max-width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 999px;
+  background: var(--verde-bg);
   color: #166534;
-
   font-size: 12px;
-
-  font-weight: 800;
-
+  font-weight: 900;
 }
-
 
 .jornada.pausa {
-
+  border-color: #cbd5e1;
   background: #f8fafc;
-
   color: #64748b;
-
 }
 
-
 /* =====================================================
-   TÍTULOS
-   ===================================================== */
-
-.titulo {
-
-  text-align: center;
-
-  font-size: 19px;
-
-  font-weight: 800;
-
-  margin-bottom: 13px;
-
-}
-
-
-/* =====================================================
-   RESUMEN GENERAL
+   ESTADÍSTICAS GENERALES
    ===================================================== */
 
 .estadisticas {
-
   display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 8px;
-
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
 }
-
 
 .estadistica {
-
+  min-width: 0;
+  padding: 13px 8px;
+  border: 1px solid var(--borde);
+  border-radius: 15px;
   background: #f8fafc;
-
-  border-radius: 14px;
-
-  padding: 11px 4px;
-
   text-align: center;
-
 }
 
-
-.estadistica .numero {
-
-  font-size: 27px;
-
-  font-weight: 800;
-
+.numero {
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
 }
-
-
-.estadistica .etiqueta {
-
-  font-size: 11px;
-
-  color: #64748b;
-
-}
-
 
 .numero-presente {
-
-  color: #16a34a;
-
+  color: var(--verde);
 }
-
 
 .numero-tardanza {
-
-  color: #d97706;
-
+  color: var(--amarillo);
 }
-
 
 .numero-faltante {
-
-  color: #dc2626;
-
+  color: var(--rojo);
 }
 
-
-/* =====================================================
-   TOTAL GENERAL
-   ===================================================== */
+.etiqueta {
+  margin-top: 6px;
+  color: var(--texto-sec);
+  font-size: 10px;
+  font-weight: 800;
+}
 
 .total-general {
-
-  margin-top: 11px;
-
-  padding: 10px;
-
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 12px;
   background: #f8fafc;
-
-  border-radius: 13px;
-
-  text-align: center;
-
-  color: #64748b;
-
-  font-size: 13px;
-
+  color: var(--texto-sec);
+  font-size: 12px;
+  font-weight: 700;
 }
-
 
 .total-general strong {
-
-  display: block;
-
-  color: #0f172a;
-
-  font-size: 26px;
-
+  color: var(--texto);
+  font-size: 17px;
 }
-
-
-/* =====================================================
-   BARRAS
-   ===================================================== */
 
 .barra-contenedor {
-
   margin-top: 13px;
-
 }
-
 
 .barra-fondo {
-
   width: 100%;
-
-  height: 10px;
-
-  background: #e2e8f0;
-
-  border-radius: 20px;
-
+  height: 9px;
   overflow: hidden;
-
+  border-radius: 999px;
+  background: #e2e8f0;
 }
-
 
 .barra {
-
   height: 100%;
-
-  width: 0%;
-
-  background: #16a34a;
-
-  border-radius: 20px;
-
-  transition:
-    width .5s ease;
-
+  width: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #15803d, #22c55e);
+  transition: width .45s ease;
 }
-
 
 .porcentaje {
-
-  text-align: center;
-
   margin-top: 6px;
-
-  font-size: 15px;
-
+  color: var(--texto-sec);
+  font-size: 11px;
   font-weight: 800;
-
+  text-align: right;
 }
-
 
 /* =====================================================
    ÚLTIMO REGISTRO
    ===================================================== */
 
 .ultimo-registro {
-
-  background: #f8fafc;
-
+  min-height: 105px;
+  padding: 17px;
   border: 1px solid #e2e8f0;
-
   border-radius: 16px;
-
-  padding: 13px;
-
+  background: linear-gradient(135deg, #fbfdff, #f8fafc);
 }
-
 
 .ultimo-titulo {
-
-  color: #64748b;
-
-  font-size: 11px;
-
-  font-weight: 800;
-
+  color: var(--texto-sec);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .7px;
+  text-transform: uppercase;
 }
-
 
 .ultimo-estudiante {
-
-  font-size: 17px;
-
-  font-weight: 800;
-
-  line-height: 1.2;
-
+  margin-top: 5px;
+  font-size: 19px;
+  font-weight: 900;
 }
-
 
 .ultimo-grupo {
-
-  color: #64748b;
-
-  font-size: 13px;
-
-  margin-top: 4px;
-
+  margin-top: 3px;
+  color: var(--texto-sec);
+  font-size: 12px;
 }
-
 
 .ultimo-detalles {
-
   display: flex;
-
-  justify-content: space-between;
-
   align-items: center;
-
-  margin-top: 8px;
-
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 11px;
 }
-
 
 .ultimo-hora {
-
-  font-size: 21px;
-
-  font-weight: 800;
-
+  color: var(--texto);
+  font-size: 14px;
+  font-weight: 900;
 }
-
 
 .ultimo-estado {
-
-  padding: 6px 9px;
-
-  border-radius: 10px;
-
+  padding: 6px 10px;
+  border-radius: 999px;
   font-size: 10px;
-
-  font-weight: 800;
-
+  font-weight: 900;
 }
-
 
 .ultimo-estado.presente {
-
-  background: #dcfce7;
-
+  background: var(--verde-bg);
   color: #166534;
-
 }
-
 
 .ultimo-estado.tardanza {
-
-  background: #fef3c7;
-
+  background: var(--amarillo-bg);
   color: #92400e;
-
 }
-
 
 /* =====================================================
-   DETAILS
-   ===================================================== */
-
-.grupo,
-.lista-panel {
-
-  position: relative;
-
-}
-
-
-.grupo summary,
-.lista-panel summary {
-
-  list-style: none;
-
-  cursor: pointer;
-
-}
-
-
-.grupo summary::-webkit-details-marker,
-.lista-panel summary::-webkit-details-marker {
-
-  display: none;
-
-}
-
-
-.grupo summary::marker,
-.lista-panel summary::marker {
-
-  content: "";
-
-}
-
-
-/* =====================================================
-   FLECHA PROFESIONAL SVG
-
-   IMPORTANTE:
-   NO se utiliza ::before ni ::after.
-   NO se utilizan caracteres ▲ ▼ ^ v.
-
-   Cada flecha es un SVG independiente.
-   ===================================================== */
-
-.chevron {
-
-  width: 24px;
-
-  height: 24px;
-
-  min-width: 24px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  margin-left: 8px;
-
-}
-
-
-.chevron svg {
-
-  width: 19px;
-
-  height: 19px;
-
-  display: block;
-
-  fill: none;
-
-  stroke: #94a3b8;
-
-  stroke-width: 2.5;
-
-  stroke-linecap: round;
-
-  stroke-linejoin: round;
-
-  transition:
-    transform .25s ease,
-    stroke .25s ease;
-
-}
-
-
-/*
-   GRUPO ABIERTO
-
-   IMPORTANTE:
-   > significa que solo afecta
-   al summary DIRECTO del grupo.
-*/
-
-details.grupo[open] > summary .chevron svg {
-
-  transform:
-    rotate(180deg);
-
-  stroke: #64748b;
-
-}
-
-
-/*
-   LISTA ABIERTA
-
-   Solo afecta a la lista
-   que realmente se abrió.
-*/
-
-details.lista-panel[open] > summary .chevron svg {
-
-  transform:
-    rotate(180deg);
-
-  stroke: #64748b;
-
-}
-
-
-/* =====================================================
-   CABECERA DEL GRUPO
+   GRUPOS / SECCIONES
    ===================================================== */
 
 .grupo {
-
-  border: 1px solid #dbe3ec;
-
-  border-radius: 17px;
-
-  margin-bottom: 12px;
-
   overflow: hidden;
-
+  margin-top: 12px;
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  background: #fff;
 }
 
+.grupo:first-child {
+  margin-top: 0;
+}
 
-.grupo summary {
+.grupo > summary,
+.lista-panel > summary {
+  list-style: none;
+  cursor: pointer;
+}
 
-  background: white;
+.grupo > summary::-webkit-details-marker,
+.lista-panel > summary::-webkit-details-marker {
+  display: none;
+}
 
-  padding: 14px;
-
-  min-height: 78px;
-
+.grupo > summary {
   display: flex;
-
   align-items: center;
-
+  justify-content: space-between;
+  gap: 15px;
+  min-height: 76px;
+  padding: 13px 16px;
+  background: #fbfcfe;
 }
 
+.grupo > summary:hover {
+  background: #f8fafc;
+}
 
 .grupo-cabecera {
-
+  min-width: 0;
+  flex: 1;
   display: flex;
-
-  justify-content: space-between;
-
   align-items: center;
-
-  gap: 10px;
-
-  width: 100%;
-
+  justify-content: space-between;
+  gap: 15px;
 }
-
 
 .grupo-titulo {
-
-  font-size: 18px;
-
-  font-weight: 800;
-
+  font-size: 15px;
+  font-weight: 900;
 }
-
 
 .grupo-hora {
-
-  color: #64748b;
-
-  font-size: 13px;
-
-  margin-top: 5px;
-
+  margin-top: 4px;
+  color: var(--texto-sec);
+  font-size: 11px;
 }
-
 
 .grupo-badge {
-
-  background: #eff6ff;
-
-  color: #1d4ed8;
-
-  border-radius: 11px;
-
-  padding: 6px 9px;
-
-  font-size: 11px;
-
-  font-weight: 800;
-
+  flex: 0 0 auto;
+  min-width: 58px;
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--vino-100);
+  color: var(--vino-800);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
 }
-
-
-/* =====================================================
-   CONTENIDO GRUPO
-   ===================================================== */
 
 .grupo-contenido {
-
-  padding: 0 14px 14px;
-
-  border-top: 1px solid #f1f5f9;
-
+  padding: 0 15px 15px;
+  border-top: 1px solid var(--borde);
 }
 
+.chevron {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  transition: transform .22s ease, background .22s ease;
+}
+
+.chevron svg {
+  width: 17px;
+  height: 17px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+details[open] > summary .chevron {
+  transform: rotate(180deg);
+  background: var(--vino-100);
+  color: var(--vino-800);
+}
 
 /* =====================================================
    ESTADÍSTICAS DEL GRUPO
    ===================================================== */
 
 .grupo-estadisticas {
-
   display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  gap: 7px;
-
-  margin-top: 13px;
-
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  padding-top: 14px;
 }
-
 
 .grupo-estado {
-
+  padding: 11px 7px;
+  border-radius: 13px;
   background: #f8fafc;
-
-  border-radius: 12px;
-
-  padding: 9px 4px;
-
   text-align: center;
-
 }
-
-
-.grupo-estado .numero {
-
-  font-size: 23px;
-
-  font-weight: 800;
-
-}
-
-
-.grupo-estado .etiqueta {
-
-  font-size: 10px;
-
-  color: #64748b;
-
-}
-
-
-/* =====================================================
-   INFORMACIÓN DEL GRUPO
-   ===================================================== */
 
 .grupo-info {
-
   display: grid;
-
-  grid-template-columns:
-    1fr 1fr;
-
-  gap: 8px;
-
-  margin-top: 9px;
-
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-top: 10px;
 }
-
 
 .info-item {
-
+  padding: 10px;
+  border-radius: 12px;
   background: #f8fafc;
-
-  border-radius: 10px;
-
-  padding: 8px;
-
-  text-align: center;
-
+  color: var(--texto-sec);
   font-size: 11px;
-
-  color: #64748b;
-
+  text-align: center;
 }
-
 
 .info-item strong {
-
   display: block;
-
-  color: #0f172a;
-
-  margin-top: 2px;
-
+  margin-top: 3px;
+  color: var(--texto);
   font-size: 12px;
-
 }
-
 
 /* =====================================================
    LISTAS
    ===================================================== */
 
 .lista-panel {
-
-  margin-top: 11px;
-
-  border-radius: 13px;
-
+  margin-top: 10px;
   overflow: hidden;
-
-  border: 1px solid #dbe3ec;
-
+  border: 1px solid var(--borde);
+  border-radius: 13px;
 }
 
-
-.lista-panel summary {
-
+.lista-panel > summary {
   min-height: 48px;
-
-  padding: 11px 13px;
-
+  padding: 10px 13px;
   display: flex;
-
   align-items: center;
-
   justify-content: space-between;
-
   gap: 10px;
-
-  font-weight: 800;
-
-  font-size: 13px;
-
+  font-size: 12px;
+  font-weight: 900;
 }
-
 
 .lista-titulo {
-
   display: flex;
-
   align-items: center;
-
   gap: 7px;
-
   line-height: 1;
-
 }
 
-
-/* =====================================================
-   COLORES
-   ===================================================== */
-
-.lista-panel.presente summary {
-
-  background: #f0fdf4;
-
+.lista-panel.presente > summary {
+  background: var(--verde-bg);
   color: #166534;
-
 }
 
-
-.lista-panel.tardanza summary {
-
-  background: #fffbeb;
-
+.lista-panel.tardanza > summary {
+  background: var(--amarillo-bg);
   color: #92400e;
-
 }
 
-
-.lista-panel.faltante summary {
-
-  background: #fef2f2;
-
+.lista-panel.faltante > summary {
+  background: var(--rojo-bg);
   color: #991b1b;
-
 }
-
-
-/* =====================================================
-   CONTENIDO LISTA
-   ===================================================== */
 
 .lista-estudiantes {
-
-  background: white;
-
-  padding: 2px 12px 8px;
-
+  padding: 2px 12px 7px;
+  background: #fff;
 }
-
 
 .estudiante-item {
-
   display: grid;
-
-  grid-template-columns:
-    38px 1fr;
-
+  grid-template-columns: 38px 1fr;
   align-items: center;
-
   min-height: 43px;
-
   padding: 7px 3px;
-
-  border-bottom:
-    1px solid #edf2f7;
-
-  font-size: 13px;
-
+  border-bottom: 1px solid #edf2f7;
+  font-size: 12px;
 }
-
 
 .estudiante-item:last-child {
-
   border-bottom: none;
-
 }
-
 
 .estudiante-numero {
-
   display: flex;
-
   align-items: center;
-
-  justify-content: flex-start;
-
   height: 100%;
-
   color: #94a3b8;
-
-  font-weight: 800;
-
-  line-height: 1;
-
+  font-weight: 900;
 }
-
 
 .estudiante-nombre {
-
   display: flex;
-
   align-items: center;
-
   min-height: 29px;
-
-  line-height: 1.25;
-
+  line-height: 1.3;
 }
 
-
-/* =====================================================
-   LISTA VACÍA
-   ===================================================== */
-
-.lista-vacia {
-
-  padding: 11px;
-
-  text-align: center;
-
-  color: #94a3b8;
-
-  font-size: 12px;
-
-}
-
-
-/* =====================================================
-   SIN REGISTROS
-   ===================================================== */
-
+.lista-vacia,
 .sin-registros {
-
-  text-align: center;
-
+  padding: 22px 12px;
   color: #94a3b8;
-
-  padding: 12px 5px;
-
-  font-size: 13px;
-
+  font-size: 12px;
+  text-align: center;
 }
 
-
 /* =====================================================
-   FOOTER
+   PIE
    ===================================================== */
 
 .footer {
-
-  text-align: center;
-
+  padding: 8px 0 0;
   color: #94a3b8;
-
-  font-size: 11px;
-
-  padding: 5px 5px 20px;
-
+  font-size: 10px;
+  text-align: center;
 }
-
 
 /* =====================================================
-   MÓVILES
+   RESPONSIVE
    ===================================================== */
 
-@media (max-width: 430px) {
-
+@media (max-width: 850px) {
   .header {
-
-    min-height: 92px;
-
-    padding: 10px 12px;
-
+    min-height: 96px;
+    padding: 14px 82px;
   }
-
 
   .header-insignia {
-
-    width: 52px;
-
-    height: 52px;
-
+    width: 55px;
+    height: 55px;
   }
-
 
   .header-insignia.izquierda {
-
-    left: 10px;
-
+    left: 14px;
   }
-
 
   .header-insignia.derecha {
-
-    right: 10px;
-
+    right: 14px;
   }
-
-
-  .header-centro {
-
-    padding: 0 58px;
-
-  }
-
-
-  .header-centro h1 {
-
-    font-size: 23px;
-
-  }
-
-
-  .header-centro p {
-
-    font-size: 10px;
-
-  }
-
 
   .container {
-
-    padding: 10px;
-
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "scanner"
+      "jornada"
+      "resumen"
+      "ultimo"
+      "grupos"
+      "footer";
   }
 
-
-  .card {
-
-    border-radius: 18px;
-
-    padding: 13px;
-
-    margin-bottom: 10px;
-
+  .card:nth-of-type(1) {
+    min-height: auto;
   }
 
-
-  .scanner-titulo {
-
-    font-size: 18px;
-
+  #reader {
+    min-height: 430px;
   }
-
-
-  .scanner-instruccion {
-
-    font-size: 11px;
-
-  }
-
-
-  .resultado-estudiante {
-
-    font-size: 16px;
-
-  }
-
-
-  .resultado-hora {
-
-    font-size: 23px;
-
-  }
-
-
-  .fecha-jornada {
-
-    flex-direction: column;
-
-    align-items: stretch;
-
-    text-align: center;
-
-  }
-
-
-  .jornada {
-
-    justify-content: center;
-
-  }
-
-
-  .titulo {
-
-    font-size: 17px;
-
-  }
-
-
-  .estadistica .numero {
-
-    font-size: 24px;
-
-  }
-
-
-  .estadistica .etiqueta {
-
-    font-size: 10px;
-
-  }
-
-
-  .grupo summary {
-
-    padding: 13px 12px;
-
-  }
-
-
-  .grupo-titulo {
-
-    font-size: 16px;
-
-  }
-
-
-  .grupo-hora {
-
-    font-size: 12px;
-
-  }
-
-
-  .grupo-badge {
-
-    font-size: 10px;
-
-    padding: 6px 8px;
-
-  }
-
-
-  .estudiante-item {
-
-    grid-template-columns:
-      35px 1fr;
-
-    font-size: 12px;
-
-  }
-
-
-  .chevron {
-
-    width: 22px;
-
-    height: 22px;
-
-    min-width: 22px;
-
-  }
-
-
-  .chevron svg {
-
-    width: 18px;
-
-    height: 18px;
-
-  }
-
 }
 
+@media (max-width: 560px) {
+  .header {
+    min-height: 88px;
+    padding: 12px 68px;
+  }
+
+  .header-centro h1 {
+    font-size: 22px;
+  }
+
+  .header-centro p {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+
+  .header-insignia {
+    width: 48px;
+    height: 48px;
+  }
+
+  .header-insignia.izquierda {
+    left: 10px;
+  }
+
+  .header-insignia.derecha {
+    right: 10px;
+  }
+
+  .container {
+    width: min(100% - 20px, 1180px);
+    margin-top: 12px;
+    gap: 12px;
+  }
+
+  .card {
+    padding: 16px;
+    border-radius: 17px;
+  }
+
+  .scanner-titulo {
+    font-size: 18px;
+  }
+
+  #reader {
+    min-height: 360px;
+  }
+
+  #reader video {
+    max-height: 390px;
+  }
+
+  .estadisticas,
+  .grupo-estadisticas {
+    gap: 7px;
+  }
+
+  .numero {
+    font-size: 24px;
+  }
+
+  .etiqueta {
+    font-size: 9px;
+  }
+
+  .grupo > summary {
+    padding: 11px 12px;
+  }
+
+  .grupo-cabecera {
+    gap: 8px;
+  }
+
+  .grupo-titulo {
+    font-size: 13px;
+  }
+
+  .grupo-badge {
+    min-width: 50px;
+    padding: 6px 7px;
+    font-size: 11px;
+  }
+
+  .ultimo-detalles {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
 </style>
 
 </head>
@@ -3285,6 +2765,33 @@ function procesarRespuesta(
 
   if (
 
+    data.tipo === "clase_terminada" ||
+
+    data.estado === "Clase terminada"
+
+  ) {
+
+    sonidoError();
+
+
+    mostrarClaseTerminada(
+      data
+    );
+
+
+    setTimeout(
+      iniciarScanner,
+      3000
+    );
+
+
+    return;
+
+  }
+
+
+  if (
+
     data.tipo === "sin_horario" ||
 
     data.estado === "Sin horario"
@@ -3643,6 +3150,102 @@ function mostrarSinHorario(
         horario configurado para hoy.
 
       </div>
+
+    `
+
+  );
+
+}
+
+
+/* =====================================================
+   CLASE TERMINADA
+   ===================================================== */
+
+function mostrarClaseTerminada(
+  data
+) {
+
+  mostrarResultadoTemporal(
+
+    "resultado-error",
+
+    `
+
+      <div
+        class="resultado-icono">
+
+        ⏰
+
+      </div>
+
+
+      <div
+        class="resultado-titulo">
+
+        JORNADA FINALIZADA
+
+      </div>
+
+
+      <div
+        class="resultado-estudiante">
+
+        ${escaparHTML(
+          data.estudiante || ""
+        )}
+
+      </div>
+
+
+      <div
+        class="resultado-grupo">
+
+        ${
+          data.grado
+            ? escaparHTML(
+                data.grado
+              )
+            : ""
+        }
+
+        ${
+          data.seccion
+            ? " · Sección " +
+              escaparHTML(
+                data.seccion
+              )
+            : ""
+        }
+
+      </div>
+
+
+      <div
+        style="margin-top:8px;">
+
+        La hora de salida configurada para
+        esta jornada ya ha terminado.
+
+      </div>
+
+
+      ${
+        data.horaSalida
+          ? `
+            <div
+              class="resultado-hora"
+              style="font-size:15px;">
+
+              Hora de salida:
+              ${escaparHTML(
+                formatearHora(data.horaSalida)
+              )}
+
+            </div>
+          `
+          : ""
+      }
 
     `
 
