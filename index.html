@@ -420,7 +420,7 @@ body {
 
 .estadisticas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -457,6 +457,51 @@ body {
   font-size: 10px;
   font-weight: 800;
 }
+
+.estado-punto {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 3px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.punto-presente { background: #22c55e; }
+.punto-tardanza { background: #f59e0b; }
+.punto-pendiente { background: #3b82f6; }
+.punto-faltante { background: #ef4444; }
+
+.numero-pendiente { color: var(--azul); }
+
+.btn-reportes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 2px;
+  padding: 11px 14px;
+  border: 1px solid #dbe4f0;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: var(--texto);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 900;
+  transition: background .2s ease, border-color .2s ease, transform .2s ease;
+}
+
+.btn-reportes:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.btn-reportes:active { transform: scale(.985); }
+.btn-reportes-icono { font-size: 17px; line-height: 1; }
+.btn-reportes-texto { flex: 1; text-align: left; }
+.btn-reportes-flecha { color: var(--vino-800); font-size: 19px; line-height: 1; }
 
 .total-general {
   display: flex;
@@ -681,7 +726,7 @@ details[open] > summary .chevron {
 
 .grupo-estadisticas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   padding-top: 14px;
 }
@@ -899,6 +944,11 @@ details[open] > summary .chevron {
     font-size: 18px;
   }
 
+  .fecha-jornada { gap: 11px; }
+  .fecha { font-size: 17px; }
+  .jornada { font-size: 11px; }
+  .btn-reportes { min-height: 44px; font-size: 12px; }
+
   #reader {
     min-height: 360px;
   }
@@ -909,7 +959,8 @@ details[open] > summary .chevron {
 
   .estadisticas,
   .grupo-estadisticas {
-    gap: 7px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .numero {
@@ -939,8 +990,18 @@ details[open] > summary .chevron {
   }
 
   .ultimo-detalles {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .ultimo-hora {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .ultimo-estado {
+    flex: 0 0 auto;
   }
 }
 </style>
@@ -1063,6 +1124,16 @@ details[open] > summary .chevron {
 
     </div>
 
+    <a href="reportes.html" class="btn-reportes" aria-label="Abrir reportes de asistencia">
+      <span class="btn-reportes-icono">📊</span>
+      <span class="btn-reportes-texto">Ver reportes de asistencia</span>
+      <span class="btn-reportes-flecha" aria-hidden="true">→</span>
+    </a>
+
+  </div>
+
+</div>
+
   </div>
 
 </div>
@@ -1085,63 +1156,25 @@ details[open] > summary .chevron {
 
   <div class="estadisticas">
 
-
     <div class="estadistica">
-
-      <div
-        id="presentesGeneral"
-        class="numero numero-presente">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🟢 Presentes
-
-      </div>
-
+      <div id="presentesGeneral" class="numero numero-presente">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-presente"></span> Presentes</div>
     </div>
 
-
     <div class="estadistica">
-
-      <div
-        id="tardanzasGeneral"
-        class="numero numero-tardanza">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🟡 Tardanzas
-
-      </div>
-
+      <div id="tardanzasGeneral" class="numero numero-tardanza">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-tardanza"></span> Tardanzas</div>
     </div>
 
-
     <div class="estadistica">
-
-      <div
-        id="faltantesGeneral"
-        class="numero numero-faltante">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🔴 Faltantes
-
-      </div>
-
+      <div id="pendientesGeneral" class="numero numero-pendiente">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
     </div>
 
+    <div class="estadistica">
+      <div id="faltantesGeneral" class="numero numero-faltante">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-faltante"></span> Faltas</div>
+    </div>
 
   </div>
 
@@ -1852,6 +1885,13 @@ function mostrarEstadisticas(
     data.tardanzasGeneral;
 
 
+  // Compatible con el backend actual y preparado para pendientesGeneral.
+  document.getElementById(
+    "pendientesGeneral"
+  ).textContent =
+    Number(data.pendientesGeneral || 0);
+
+
   document.getElementById(
     "faltantesGeneral"
   ).textContent =
@@ -2362,6 +2402,13 @@ function mostrarGrupos(
 
             </div>
 
+            <div class="grupo-estado">
+              <div class="numero numero-pendiente">
+                ${Number(grupo.pendientes || 0)}
+              </div>
+              <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
+            </div>
+
 
             <div
               class="grupo-estado">
@@ -2376,7 +2423,7 @@ function mostrarGrupos(
 
               <div class="etiqueta">
 
-                🔴 Faltantes
+                <span class="estado-punto punto-faltante"></span> Faltas
 
               </div>
 
