@@ -1545,6 +1545,13 @@ function llamarServidor(action, parametros) {
 
       try {
 
+      console.log(
+  "CET34: enviando solicitud al puente",
+  {
+    id: id,
+    action: action
+  }
+);
         enviarMensajeAlPuente({
 
           canal: "CET34",
