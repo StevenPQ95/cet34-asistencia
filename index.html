@@ -420,7 +420,7 @@ body {
 
 .estadisticas {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
 }
 
@@ -457,51 +457,6 @@ body {
   font-size: 10px;
   font-weight: 800;
 }
-
-.estado-punto {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin-right: 3px;
-  border-radius: 50%;
-  vertical-align: middle;
-}
-
-.punto-presente { background: #22c55e; }
-.punto-tardanza { background: #f59e0b; }
-.punto-pendiente { background: #3b82f6; }
-.punto-faltante { background: #ef4444; }
-
-.numero-pendiente { color: var(--azul); }
-
-.btn-reportes {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  width: 100%;
-  min-height: 46px;
-  margin-top: 2px;
-  padding: 11px 14px;
-  border: 1px solid #dbe4f0;
-  border-radius: 14px;
-  background: #f8fafc;
-  color: var(--texto);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 900;
-  transition: background .2s ease, border-color .2s ease, transform .2s ease;
-}
-
-.btn-reportes:hover {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-}
-
-.btn-reportes:active { transform: scale(.985); }
-.btn-reportes-icono { font-size: 17px; line-height: 1; }
-.btn-reportes-texto { flex: 1; text-align: left; }
-.btn-reportes-flecha { color: var(--vino-800); font-size: 19px; line-height: 1; }
 
 .total-general {
   display: flex;
@@ -726,7 +681,7 @@ details[open] > summary .chevron {
 
 .grupo-estadisticas {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, 1fr);
   gap: 10px;
   padding-top: 14px;
 }
@@ -944,11 +899,6 @@ details[open] > summary .chevron {
     font-size: 18px;
   }
 
-  .fecha-jornada { gap: 11px; }
-  .fecha { font-size: 17px; }
-  .jornada { font-size: 11px; }
-  .btn-reportes { min-height: 44px; font-size: 12px; }
-
   #reader {
     min-height: 360px;
   }
@@ -959,8 +909,7 @@ details[open] > summary .chevron {
 
   .estadisticas,
   .grupo-estadisticas {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 8px;
+    gap: 7px;
   }
 
   .numero {
@@ -990,30 +939,16 @@ details[open] > summary .chevron {
   }
 
   .ultimo-detalles {
-    align-items: center;
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-
-  .ultimo-hora {
-    flex: 1 1 auto;
-    min-width: 0;
-  }
-
-  .ultimo-estado {
-    flex: 0 0 auto;
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
+
 
 /* =====================================================
-   SEGURIDAD · ACCESO CON CUENTA GOOGLE
+   ACCESO GOOGLE
    ===================================================== */
-body.auth-pending .header,
-body.auth-pending .container {
-  visibility: hidden;
-}
-
-#authGate {
+.pantalla-acceso {
   position: fixed;
   inset: 0;
   z-index: 99999;
@@ -1021,162 +956,37 @@ body.auth-pending .container {
   align-items: center;
   justify-content: center;
   padding: 20px;
-  background:
-    radial-gradient(circle at 50% 0%, rgba(120, 0, 47, .12), transparent 35%),
-    rgba(244, 246, 248, .98);
-  backdrop-filter: blur(5px);
+  background: rgba(15, 23, 42, .96);
+  backdrop-filter: blur(8px);
 }
-
-.auth-box {
-  width: min(430px, 100%);
-  padding: 30px 24px 24px;
-  border: 1px solid var(--borde);
+.acceso-caja {
+  width: min(420px, 100%);
+  box-sizing: border-box;
+  padding: 28px 22px;
   border-radius: 24px;
   background: #fff;
-  box-shadow: var(--sombra-fuerte);
   text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.25);
 }
-
-.auth-icono {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 18px;
-  background: var(--vino-100);
-  font-size: 31px;
-}
-
-.auth-titulo {
-  margin: 0;
-  color: var(--texto);
-  font-size: 23px;
-  font-weight: 900;
-}
-
-.auth-subtitulo {
-  margin: 8px 0 0;
-  color: var(--texto-sec);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-.auth-cargando {
-  margin-top: 20px;
-  padding: 12px;
-  border-radius: 13px;
-  background: #f8fafc;
-  color: var(--texto-sec);
-  font-size: 12px;
-  font-weight: 800;
-}
-
-.auth-spinner {
-  width: 22px;
-  height: 22px;
-  margin: 0 auto 9px;
-  border: 3px solid #e2e8f0;
-  border-top-color: var(--vino-800);
-  border-radius: 50%;
-  animation: authGiro .8s linear infinite;
-}
-
-@keyframes authGiro {
-  to { transform: rotate(360deg); }
-}
-
-.auth-error {
-  display: none;
-  margin-top: 18px;
-  padding: 15px;
-  border: 1px solid #fecaca;
-  border-radius: 15px;
-  background: var(--rojo-bg);
-  color: #991b1b;
-  font-size: 12px;
-  line-height: 1.5;
-}
-
-.auth-correo {
-  display: block;
-  margin-top: 7px;
-  color: #7f1d1d;
-  font-weight: 900;
-  word-break: break-word;
-}
-
-.auth-boton {
-  display: none;
-  width: 100%;
-  min-height: 46px;
-  margin-top: 14px;
-  padding: 11px 16px;
+.acceso-icono { font-size: 42px; margin-bottom: 10px; }
+.acceso-titulo { font-size: 22px; font-weight: 800; color: #0f172a; }
+.acceso-mensaje { margin-top: 10px; color: #64748b; font-size: 14px; line-height: 1.5; }
+.acceso-usuario { margin-top: 10px; color: #334155; font-size: 13px; font-weight: 700; word-break: break-word; }
+.acceso-acciones { margin-top: 18px; display: grid; gap: 9px; }
+.btn-acceso {
   border: 0;
-  border-radius: 13px;
-  background: var(--vino-800);
-  color: #fff;
-  font-size: 13px;
-  font-weight: 900;
-  cursor: pointer;
-}
-
-.auth-boton:hover {
-  background: var(--vino-900);
-}
-
-.auth-boton.secundario {
-  background: #f8fafc;
-  color: var(--texto);
-  border: 1px solid var(--borde);
-}
-
-.auth-boton.secundario:hover {
-  background: #f1f5f9;
-}
-
-.auth-usuario {
-  display: none;
-  position: fixed;
-  top: 12px;
-  right: 14px;
-  z-index: 1000;
-  max-width: 270px;
-  padding: 7px 10px;
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 999px;
-  background: rgba(15, 23, 42, .88);
-  color: #fff;
-  font-size: 10px;
+  border-radius: 14px;
+  padding: 12px 16px;
+  font-size: 14px;
   font-weight: 800;
-  box-shadow: 0 5px 15px rgba(0,0,0,.15);
+  cursor: pointer;
+  background: #0f172a;
+  color: #fff;
 }
-
-.auth-usuario strong {
-  font-weight: 900;
-}
-
-@media (max-width: 560px) {
-  #authGate {
-    padding: 14px;
-  }
-
-  .auth-box {
-    padding: 25px 18px 19px;
-    border-radius: 20px;
-  }
-
-  .auth-titulo {
-    font-size: 21px;
-  }
-
-  .auth-usuario {
-    top: 8px;
-    right: 8px;
-    max-width: 205px;
-    font-size: 9px;
-  }
+.btn-acceso.secundario { background: #e2e8f0; color: #334155; }
+@media (max-width: 480px) {
+  .acceso-caja { padding: 24px 18px; border-radius: 20px; }
+  .acceso-titulo { font-size: 20px; }
 }
 
 </style>
@@ -1185,34 +995,28 @@ body.auth-pending .container {
 </head>
 
 
-<body class="auth-pending">
+<body>
 
-<div id="authGate">
-  <div class="auth-box">
-    <div class="auth-icono">🔐</div>
-    <h2 class="auth-titulo">Acceso al sistema</h2>
-    <p class="auth-subtitulo">
-      Verificando tu cuenta de Google...
-    </p>
-
-    <div id="authCargando" class="auth-cargando">
-      <div class="auth-spinner"></div>
-      Comprobando autorización
+<!-- =====================================================
+     CONTROL DE ACCESO
+     ===================================================== -->
+<div id="pantallaAcceso" class="pantalla-acceso">
+  <div class="acceso-caja">
+    <div class="acceso-icono">🔐</div>
+    <div class="acceso-titulo">Acceso al sistema</div>
+    <div id="accesoMensaje" class="acceso-mensaje">Verificando tu cuenta de Google...</div>
+    <div id="accesoUsuario" class="acceso-usuario"></div>
+    <div id="accesoAcciones" class="acceso-acciones" style="display:none;">
+      <button type="button" class="btn-acceso" onclick="iniciarGoogleLogin(true)">
+        🔄 Cambiar cuenta de Google
+      </button>
+      <button type="button" class="btn-acceso secundario" onclick="iniciarGoogleLogin(true)">
+        ↻ Reintentar
+      </button>
     </div>
-
-    <div id="authError" class="auth-error"></div>
-
-    <button id="btnCambiarCuenta" class="auth-boton" type="button">
-      🔄 Cambiar cuenta de Google
-    </button>
-
-    <button id="btnReintentar" class="auth-boton secundario" type="button">
-      ↻ Reintentar
-    </button>
   </div>
 </div>
 
-<div id="authUsuario" class="auth-usuario"></div>
 
 
 
@@ -1328,12 +1132,6 @@ body.auth-pending .container {
 
     </div>
 
-    <a href="reportes.html" class="btn-reportes" aria-label="Abrir reportes de asistencia">
-      <span class="btn-reportes-icono">📊</span>
-      <span class="btn-reportes-texto">Ver reportes de asistencia</span>
-      <span class="btn-reportes-flecha" aria-hidden="true">→</span>
-    </a>
-
   </div>
 
 </div>
@@ -1356,25 +1154,63 @@ body.auth-pending .container {
 
   <div class="estadisticas">
 
-    <div class="estadistica">
-      <div id="presentesGeneral" class="numero numero-presente">0</div>
-      <div class="etiqueta"><span class="estado-punto punto-presente"></span> Presentes</div>
-    </div>
 
     <div class="estadistica">
-      <div id="tardanzasGeneral" class="numero numero-tardanza">0</div>
-      <div class="etiqueta"><span class="estado-punto punto-tardanza"></span> Tardanzas</div>
+
+      <div
+        id="presentesGeneral"
+        class="numero numero-presente">
+
+        0
+
+      </div>
+
+      <div class="etiqueta">
+
+        🟢 Presentes
+
+      </div>
+
     </div>
 
-    <div class="estadistica">
-      <div id="pendientesGeneral" class="numero numero-pendiente">0</div>
-      <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
-    </div>
 
     <div class="estadistica">
-      <div id="faltantesGeneral" class="numero numero-faltante">0</div>
-      <div class="etiqueta"><span class="estado-punto punto-faltante"></span> Faltas</div>
+
+      <div
+        id="tardanzasGeneral"
+        class="numero numero-tardanza">
+
+        0
+
+      </div>
+
+      <div class="etiqueta">
+
+        🟡 Tardanzas
+
+      </div>
+
     </div>
+
+
+    <div class="estadistica">
+
+      <div
+        id="faltantesGeneral"
+        class="numero numero-faltante">
+
+        0
+
+      </div>
+
+      <div class="etiqueta">
+
+        🔴 Faltantes
+
+      </div>
+
+    </div>
+
 
   </div>
 
@@ -1507,353 +1343,8 @@ const GOOGLE_CLIENT_ID =
   "1014449940080-f87gjj53j23f9or14hn4ddmaop2vl2ks.apps.googleusercontent.com";
 
 let googleIdToken = null;
-
-function iniciarGoogleLogin() {
-
-  if (
-    typeof google === "undefined" ||
-    !google.accounts ||
-    !google.accounts.id
-  ) {
-    console.error(
-      "Google Identity Services todavía no está disponible."
-    );
-
-    return;
-  }
-
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-
-    callback: recibirRespuestaGoogle,
-
-    auto_select: false,
-
-    cancel_on_tap_outside: false
-  });
-
-  google.accounts.id.prompt();
-}
-
-
-function recibirRespuestaGoogle(respuesta) {
-
-  console.log(
-    "Respuesta de Google recibida."
-  );
-
-  if (
-    !respuesta ||
-    !respuesta.credential
-  ) {
-
-    console.error(
-      "Google no devolvió el ID Token."
-    );
-
-    mostrarPantallaAcceso(
-      "No se pudo obtener la identificación de Google."
-    );
-
-    return;
-  }
-
-  googleIdToken =
-    respuesta.credential;
-
-  console.log(
-    "ID Token recibido correctamente."
-  );
-
-  enviarTokenAlServidor();
-}
-
-
-async function enviarTokenAlServidor() {
-
-  if (!googleIdToken) {
-
-    mostrarPantallaAcceso(
-      "No se recibió el token de Google."
-    );
-
-    return;
-  }
-
-  try {
-
-    console.log(
-      "Verificando identidad con el servidor..."
-    );
-
-    const respuesta =
-  await fetch(
-    URL_APPS_SCRIPT +
-    "?action=verificarGoogleToken" +
-    "&token=" +
-    encodeURIComponent(
-      googleIdToken
-    )
-  );
-
-    if (!respuesta.ok) {
-
-      throw new Error(
-        "El servidor no respondió correctamente."
-      );
-
-    }
-
-    const datos =
-      await respuesta.json();
-
-    console.log(
-      "Respuesta del servidor:",
-      datos
-    );
-
-
-    if (
-      datos.exito === true &&
-      datos.autorizado === true
-    ) {
-
-      console.log(
-        "Usuario autorizado:",
-        datos.correo
-      );
-
-      ocultarPantallaAcceso();
-
-      // Continuamos con la carga normal
-      // del sistema.
-      iniciarSistema();
-
-      return;
-    }
-
-
-    mostrarPantallaAcceso(
-      datos.mensaje ||
-      "Tu cuenta no está autorizada."
-    );
-
-
-  } catch(error) {
-
-    console.error(
-      "Error verificando Google:",
-      error
-    );
-
-    mostrarPantallaAcceso(
-      "No se pudo verificar tu cuenta. Inténtalo nuevamente."
-    );
-
-  }
-
-}
-
-/* =====================================================
-   SEGURIDAD · VERIFICAR USUARIO ANTES DE INICIAR
-   ===================================================== */
-
-let accesoAutorizado = false;
-
-function mostrarAuthError(mensaje, correo) {
-
-  const cargando = document.getElementById("authCargando");
-  const error = document.getElementById("authError");
-  const btnCambiar = document.getElementById("btnCambiarCuenta");
-  const btnReintentar = document.getElementById("btnReintentar");
-
-  if (cargando) {
-    cargando.style.display = "none";
-  }
-
-  if (error) {
-    error.style.display = "block";
-    error.innerHTML =
-      escaparHTML(
-        mensaje ||
-        "No tienes autorización para utilizar este sistema."
-      ) +
-      (
-        correo
-          ? '<span class="auth-correo">' +
-            escaparHTML(correo) +
-            '</span>'
-          : ""
-      );
-  }
-
-  if (btnCambiar) {
-    btnCambiar.style.display = "block";
-  }
-
-  if (btnReintentar) {
-    btnReintentar.style.display = "block";
-  }
-}
-
-function cambiarCuentaGoogle() {
-
-  // No construimos una URL AccountChooser con "continue".
-  // Ese endpoint puede devolver error 400.
-  // Abrimos el selector de cuentas de Google directamente.
-  window.location.href =
-    "https://accounts.google.com/AccountChooser";
-}
-
-function verificarAccesoFrontend() {
-
-  const url =
-    URL_APPS_SCRIPT +
-    "?action=verificaracceso";
-
-  fetch(url + "&_=" + Date.now(), {
-    method: "GET",
-    mode: "cors",
-    credentials: "include",
-    cache: "no-store",
-    redirect: "follow"
-  })
-  .then(function(response) {
-
-    if (!response.ok) {
-      throw new Error(
-        "Error HTTP: " + response.status
-      );
-    }
-
-    return response.text().then(function(texto) {
-      try {
-        return JSON.parse(texto);
-      } catch (e) {
-        throw new Error(
-          "La respuesta del servidor no es JSON válido."
-        );
-      }
-    });
-
-  })
-  .then(function(data) {
-
-    const autorizado =
-      data &&
-      data.exito === true &&
-      data.autorizado === true;
-
-    const rol =
-      String(
-        data && data.rol || ""
-      )
-      .trim()
-      .toUpperCase();
-
-    const rolPermitido =
-      rol === "ADMINISTRADOR" ||
-      rol === "DOCENTE";
-
-    if (!autorizado || !rolPermitido) {
-
-      mostrarAuthError(
-        data && data.mensaje
-          ? data.mensaje
-          : "Tu cuenta no está autorizada para utilizar el sistema.",
-        data && data.correo
-          ? data.correo
-          : ""
-      );
-
-      return;
-    }
-
-    accesoAutorizado = true;
-
-    const gate =
-      document.getElementById("authGate");
-
-    const usuario =
-      document.getElementById("authUsuario");
-
-    if (gate) {
-      gate.style.display = "none";
-    }
-
-    document.body.classList.remove(
-      "auth-pending"
-    );
-
-    if (usuario) {
-
-      usuario.innerHTML =
-        "👤 " +
-        escaparHTML(
-          data.nombre ||
-          data.correo ||
-          "Usuario"
-        ) +
-        " · " +
-        escaparHTML(rol);
-
-      usuario.style.display = "block";
-    }
-
-    // Solo después de confirmar acceso
-    // se inicia la cámara y se solicitan datos.
-    cargarEstadisticas();
-    iniciarScanner();
-    activarAudio();
-
-  })
-  .catch(function(error) {
-
-    console.error(
-      "Error verificando acceso:",
-      error
-    );
-
-    mostrarAuthError(
-      "No se pudo verificar tu cuenta. Si ya tienes iniciada sesión en Google, pulsa Reintentar. Si estás usando otra cuenta, cambia de cuenta de Google y vuelve a abrir el sistema.",
-      ""
-    );
-
-  });
-}
-
-document.addEventListener(
-  "DOMContentLoaded",
-  function() {
-
-    const btnCambiar =
-      document.getElementById(
-        "btnCambiarCuenta"
-      );
-
-    const btnReintentar =
-      document.getElementById(
-        "btnReintentar"
-      );
-
-    if (btnCambiar) {
-      btnCambiar.addEventListener(
-        "click",
-        cambiarCuentaGoogle
-      );
-    }
-
-    if (btnReintentar) {
-      btnReintentar.addEventListener(
-        "click",
-        function() {
-          window.location.reload();
-        }
-      );
-    }
-
-  }
-);
+let usuarioAutorizado = null;
+let autenticacionIniciada = false;
 
 
 /* =====================================================
@@ -1868,6 +1359,192 @@ let audioContext = null;
 
 let resultadoTimer = null;
 
+
+/* =====================================================
+   AUTENTICACIÓN GOOGLE
+   ===================================================== */
+
+function mostrarPantallaAcceso(mensaje, mostrarBotones) {
+
+  const pantalla = document.getElementById("pantallaAcceso");
+  const mensajeEl = document.getElementById("accesoMensaje");
+  const acciones = document.getElementById("accesoAcciones");
+
+  if (!pantalla) return;
+
+  pantalla.style.display = "flex";
+
+  if (mensajeEl) {
+    mensajeEl.textContent = mensaje || "Verificando tu cuenta de Google...";
+  }
+
+  if (acciones) {
+    acciones.style.display = mostrarBotones ? "grid" : "none";
+  }
+}
+
+function ocultarPantallaAcceso() {
+
+  const pantalla = document.getElementById("pantallaAcceso");
+
+  if (pantalla) {
+    pantalla.style.display = "none";
+  }
+}
+
+function iniciarGoogleLogin(forzarSeleccion) {
+
+  if (
+    typeof google === "undefined" ||
+    !google.accounts ||
+    !google.accounts.id
+  ) {
+    mostrarPantallaAcceso(
+      "Google Identity Services todavía está cargando. Intenta nuevamente en unos segundos.",
+      true
+    );
+    return;
+  }
+
+  if (forzarSeleccion) {
+    try {
+      google.accounts.id.disableAutoSelect();
+    } catch (error) {
+      console.warn("No se pudo desactivar la selección automática:", error);
+    }
+  }
+
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: recibirRespuestaGoogle,
+    auto_select: false,
+    cancel_on_tap_outside: false
+  });
+
+  autenticacionIniciada = true;
+
+  mostrarPantallaAcceso(
+    "Selecciona la cuenta de Google autorizada para utilizar el sistema.",
+    false
+  );
+
+  google.accounts.id.prompt(function(notification) {
+    if (notification.isNotDisplayed && notification.isNotDisplayed()) {
+      mostrarPantallaAcceso(
+        "Google no mostró el selector automáticamente. Pulsa el botón para intentarlo nuevamente.",
+        true
+      );
+    }
+  });
+}
+
+function recibirRespuestaGoogle(respuesta) {
+
+  if (!respuesta || !respuesta.credential) {
+    mostrarPantallaAcceso(
+      "Google no devolvió una credencial válida.",
+      true
+    );
+    return;
+  }
+
+  googleIdToken = respuesta.credential;
+
+  enviarTokenAlServidor();
+}
+
+async function enviarTokenAlServidor() {
+
+  if (!googleIdToken) {
+    mostrarPantallaAcceso(
+      "No se recibió el ID Token de Google.",
+      true
+    );
+    return;
+  }
+
+  mostrarPantallaAcceso(
+    "Verificando tu cuenta con el sistema CET 34...",
+    false
+  );
+
+  try {
+
+    const url =
+      URL_APPS_SCRIPT +
+      "?action=verificargoogletoken" +
+      "&token=" +
+      encodeURIComponent(googleIdToken);
+
+    const response = await fetch(url, {
+      method: "GET",
+      cache: "no-store"
+    });
+
+    if (!response.ok) {
+      throw new Error("HTTP " + response.status);
+    }
+
+    const datos = await response.json();
+
+    if (
+      datos.exito === true &&
+      datos.autorizado === true
+    ) {
+
+      usuarioAutorizado = datos;
+
+      const usuarioEl = document.getElementById("accesoUsuario");
+
+      if (usuarioEl) {
+        usuarioEl.textContent =
+          (datos.nombre || datos.correo || "") +
+          (datos.rol ? " · " + datos.rol : "");
+      }
+
+      ocultarPantallaAcceso();
+
+      // Ya autorizado: recién ahora se inicia el sistema.
+      cargarEstadisticas();
+      iniciarScanner();
+      activarAudio();
+
+      return;
+    }
+
+    const usuarioEl = document.getElementById("accesoUsuario");
+
+    if (usuarioEl) {
+      usuarioEl.textContent = datos.correo || "";
+    }
+
+    mostrarPantallaAcceso(
+      datos.mensaje || "Tu cuenta no está autorizada para utilizar el sistema.",
+      true
+    );
+
+  } catch (error) {
+
+    console.error("Error verificando Google:", error);
+
+    mostrarPantallaAcceso(
+      "No se pudo verificar tu cuenta con el servidor. Inténtalo nuevamente.",
+      true
+    );
+  }
+}
+
+function urlConToken(url) {
+
+  if (!googleIdToken) {
+    throw new Error("No existe un ID Token de Google válido.");
+  }
+
+  return url +
+    (url.indexOf("?") >= 0 ? "&" : "?") +
+    "token=" +
+    encodeURIComponent(googleIdToken);
+}
 
 /* =====================================================
    ESCAPAR HTML
@@ -2330,13 +2007,16 @@ document.addEventListener(
 
 function cargarEstadisticas() {
 
-  if (!accesoAutorizado) {
-    return;
-  }
-
-  const url =
+  let url =
     URL_APPS_SCRIPT +
     "?action=estadisticas";
+
+  try {
+    url = urlConToken(url);
+  } catch (error) {
+    console.error(error);
+    return;
+  }
 
 
   fetch(url)
@@ -2439,13 +2119,6 @@ function mostrarEstadisticas(
     "tardanzasGeneral"
   ).textContent =
     data.tardanzasGeneral;
-
-
-  // Compatible con el backend actual y preparado para pendientesGeneral.
-  document.getElementById(
-    "pendientesGeneral"
-  ).textContent =
-    Number(data.pendientesGeneral || 0);
 
 
   document.getElementById(
@@ -2958,13 +2631,6 @@ function mostrarGrupos(
 
             </div>
 
-            <div class="grupo-estado">
-              <div class="numero numero-pendiente">
-                ${Number(grupo.pendientes || 0)}
-              </div>
-              <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
-            </div>
-
 
             <div
               class="grupo-estado">
@@ -2979,7 +2645,7 @@ function mostrarGrupos(
 
               <div class="etiqueta">
 
-                <span class="estado-punto punto-faltante"></span> Faltas
+                🔴 Faltantes
 
               </div>
 
@@ -3172,19 +2838,30 @@ function registrarAsistencia(
   codigo
 ) {
 
-  if (!accesoAutorizado) {
-    return;
-  }
-
   mostrarProcesando();
 
 
-  const url =
+  let url =
     URL_APPS_SCRIPT +
     "?codigo=" +
     encodeURIComponent(
       codigo
     );
+
+  try {
+    url = urlConToken(url);
+  } catch (error) {
+    ocultarProcesando();
+    mostrarResultadoTemporal(
+      "resultado-error",
+      `
+        <div class="resultado-icono">🔐</div>
+        <div class="resultado-titulo">ACCESO NO AUTORIZADO</div>
+        <div style="margin-top:8px;">Debes iniciar sesión con una cuenta autorizada.</div>
+      `
+    );
+    return;
+  }
 
 
   fetch(url)
@@ -4017,24 +3694,35 @@ function iniciarScanner() {
 window.addEventListener(
   "load",
   function() {
-    verificarAccesoFrontend();
-  }
-);
 
-</script>
-<script>
-window.addEventListener(
-  "load",
-  function() {
-
-    setTimeout(
-      iniciarGoogleLogin,
-      500
+    mostrarPantallaAcceso(
+      "Verificando tu cuenta de Google...",
+      false
     );
 
+    // Esperamos a que Google Identity Services esté disponible.
+    const intentar = function() {
+
+      if (
+        typeof google !== "undefined" &&
+        google.accounts &&
+        google.accounts.id
+      ) {
+
+        iniciarGoogleLogin(false);
+        return;
+      }
+
+      setTimeout(intentar, 300);
+    };
+
+    intentar();
+
   }
 );
+
 </script>
+
 </body>
 
 </html>
