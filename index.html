@@ -1587,14 +1587,14 @@ async function enviarTokenAlServidor() {
     );
 
     const respuesta =
-      await fetch(
-        API_URL +
-        "?action=verificarGoogleToken" +
-        "&token=" +
-        encodeURIComponent(
-          googleIdToken
-        )
-      );
+  await fetch(
+    URL_APPS_SCRIPT +
+    "?action=verificarGoogleToken" +
+    "&token=" +
+    encodeURIComponent(
+      googleIdToken
+    )
+  );
 
     if (!respuesta.ok) {
 
