@@ -1579,10 +1579,19 @@ window.addEventListener("message", function(event) {
 
   const frame = obtenerPuente();
 
-  if (
-    !frame ||
-    event.source !== frame.contentWindow
-  ) {
+  /*
+     Apps Script HTMLService usa un iframe de sandbox y puede añadir
+     otra capa de navegación. Por eso event.source NO siempre es
+     exactamente frame.contentWindow. La validación correcta aquí es
+     el origen de Google Apps Script + nuestro canal.
+  */
+  const origenGoogle =
+    /^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/i.test(
+      String(event.origin || "")
+    ) ||
+    event.origin === "https://script.google.com";
+
+  if (!origenGoogle) {
     return;
   }
 
