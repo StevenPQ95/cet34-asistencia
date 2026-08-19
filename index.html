@@ -1414,70 +1414,175 @@ function ocultarPantallaAcceso() {
 }
 
 /* =====================================================
-   PUENTE DE COMUNICACIÓN
+   PUENTE DE COMUNICACIÓN GITHUB ↔ APPS SCRIPT
+   =====================================================
+
+   IMPORTANTE:
+   - No usamos fetch() contra Apps Script desde GitHub.
+   - Esperamos a que el iframe confirme "puente_listo".
+   - Las llamadas que ocurran antes de que el puente esté listo
+     esperan automáticamente en lugar de perderse.
+   - El servidor vuelve a validar el ID Token de Google.
    ===================================================== */
+
 let puenteFrame = null;
 let puenteListo = false;
 let puenteContador = 0;
+
 const puentePendientes = new Map();
-const PUENTE_TIMEOUT = 15000;
+
+const PUENTE_TIMEOUT = 20000;
+const PUENTE_INICIO_TIMEOUT = 12000;
+
+let resolverPuenteListo = null;
+let rechazarPuenteListo = null;
+
+const promesaPuenteListo = new Promise(function(resolve, reject) {
+  resolverPuenteListo = resolve;
+  rechazarPuenteListo = reject;
+});
 
 function obtenerPuente() {
   return document.getElementById("puenteAppsScript");
 }
 
 function enviarMensajeAlPuente(mensaje) {
+
   const frame = obtenerPuente();
 
   if (!frame || !frame.contentWindow) {
-    throw new Error("El puente con el servidor todavía no está disponible.");
+    throw new Error(
+      "El puente con Apps Script todavía no está disponible."
+    );
   }
 
-  frame.contentWindow.postMessage(mensaje, "*");
+  /*
+     El destino "*" es intencional porque Apps Script puede
+     redirigir el iframe entre script.google.com y un dominio
+     googleusercontent.com dinámico. La seguridad real se hace
+     en el receptor mediante event.origin y event.source.
+  */
+
+  frame.contentWindow.postMessage(
+    mensaje,
+    "*"
+  );
+}
+
+function esperarPuente() {
+
+  if (puenteListo) {
+    return Promise.resolve();
+  }
+
+  return Promise.race([
+
+    promesaPuenteListo,
+
+    new Promise(function(_, reject) {
+
+      setTimeout(function() {
+
+        reject(
+          new Error(
+            "El puente de Apps Script no confirmó su conexión."
+          )
+        );
+
+      }, PUENTE_INICIO_TIMEOUT);
+
+    })
+
+  ]);
 }
 
 function llamarServidor(action, parametros) {
-  return new Promise(function(resolve, reject) {
-    const frame = obtenerPuente();
 
-    if (!frame || !frame.contentWindow) {
-      reject(new Error("Puente no disponible."));
-      return;
-    }
+  return esperarPuente().then(function() {
 
-    const id = "req_" + Date.now() + "_" + (++puenteContador);
+    return new Promise(function(resolve, reject) {
 
-    const temporizador = setTimeout(function() {
-      puentePendientes.delete(id);
-      reject(new Error("El servidor tardó demasiado en responder."));
-    }, PUENTE_TIMEOUT);
+      const frame = obtenerPuente();
 
-    puentePendientes.set(id, {
-      resolve: resolve,
-      reject: reject,
-      temporizador: temporizador
+      if (!frame || !frame.contentWindow) {
+
+        reject(
+          new Error(
+            "El puente con Apps Script no está disponible."
+          )
+        );
+
+        return;
+      }
+
+      const id =
+        "req_" +
+        Date.now() +
+        "_" +
+        (++puenteContador);
+
+      const temporizador = setTimeout(function() {
+
+        puentePendientes.delete(id);
+
+        reject(
+          new Error(
+            "El servidor tardó demasiado en responder."
+          )
+        );
+
+      }, PUENTE_TIMEOUT);
+
+      puentePendientes.set(id, {
+
+        resolve: resolve,
+
+        reject: reject,
+
+        temporizador: temporizador
+
+      });
+
+      try {
+
+        enviarMensajeAlPuente({
+
+          canal: "CET34",
+
+          tipo: "llamada",
+
+          id: id,
+
+          action: String(action || ""),
+
+          parametros: parametros || {}
+
+        });
+
+      } catch (error) {
+
+        clearTimeout(temporizador);
+
+        puentePendientes.delete(id);
+
+        reject(error);
+
+      }
+
     });
 
-    try {
-      enviarMensajeAlPuente({
-        canal: "CET34",
-        tipo: "llamada",
-        id: id,
-        action: action,
-        parametros: parametros || {}
-      });
-    } catch (error) {
-      clearTimeout(temporizador);
-      puentePendientes.delete(id);
-      reject(error);
-    }
   });
+
 }
 
 window.addEventListener("message", function(event) {
+
   const frame = obtenerPuente();
 
-  if (!frame || event.source !== frame.contentWindow) {
+  if (
+    !frame ||
+    event.source !== frame.contentWindow
+  ) {
     return;
   }
 
@@ -1488,31 +1593,75 @@ window.addEventListener("message", function(event) {
   }
 
   if (datos.tipo === "puente_listo") {
+
     puenteListo = true;
+
     puenteFrame = frame;
-    console.info("Puente CET 34 conectado.");
+
+    console.info(
+      "CET34: puente Apps Script conectado."
+    );
+
+    if (resolverPuenteListo) {
+      resolverPuenteListo();
+      resolverPuenteListo = null;
+      rechazarPuenteListo = null;
+    }
+
     return;
   }
 
-  if (datos.tipo !== "respuesta" || !datos.id) {
+  if (datos.tipo === "pong") {
+
+    console.info(
+      "CET34: respuesta PONG recibida del puente.",
+      datos
+    );
+
     return;
   }
 
-  const pendiente = puentePendientes.get(datos.id);
+  if (
+    datos.tipo !== "respuesta" ||
+    !datos.id
+  ) {
+    return;
+  }
+
+  const pendiente =
+    puentePendientes.get(datos.id);
 
   if (!pendiente) {
     return;
   }
 
-  clearTimeout(pendiente.temporizador);
-  puentePendientes.delete(datos.id);
+  clearTimeout(
+    pendiente.temporizador
+  );
+
+  puentePendientes.delete(
+    datos.id
+  );
 
   if (datos.ok === true) {
-    pendiente.resolve(datos.datos);
+
+    pendiente.resolve(
+      datos.datos
+    );
+
   } else {
-    pendiente.reject(new Error(datos.mensaje || "Error del servidor."));
+
+    pendiente.reject(
+      new Error(
+        datos.mensaje ||
+        "Error del servidor."
+      )
+    );
+
   }
+
 });
+
 
 /* =====================================================
    AUTENTICACIÓN GOOGLE
@@ -1578,14 +1727,12 @@ function iniciarGoogleLogin(forzarSeleccion) {
     false
   );
 
-  google.accounts.id.prompt(function(notification) {
-    if (notification.isNotDisplayed && notification.isNotDisplayed()) {
-      mostrarPantallaAcceso(
-        "Google no mostró el selector automáticamente. Pulsa el botón para intentarlo nuevamente.",
-        true
-      );
-    }
-  });
+  /*
+     No usamos isNotDisplayed()/isSkippedMoment()/isDismissedMoment().
+     Esos métodos de estado de One Tap generan advertencias de
+     migración a FedCM y no son necesarios para el flujo de acceso.
+  */
+  google.accounts.id.prompt();
 }
 
 function recibirRespuestaGoogle(respuesta) {
@@ -3694,27 +3841,60 @@ window.addEventListener(
   function() {
 
     mostrarPantallaAcceso(
-      "Verificando tu cuenta de Google...",
+      "Conectando con el servidor...",
       false
     );
 
-    // Esperamos a que Google Identity Services esté disponible.
-    const intentar = function() {
+    /*
+       PRIMERO esperamos al puente.
+       Esto evita que el ID Token llegue antes de que el iframe
+       tenga listo su receptor postMessage().
+    */
+    esperarPuente()
 
-      if (
-        typeof google !== "undefined" &&
-        google.accounts &&
-        google.accounts.id
-      ) {
+      .then(function() {
 
-        iniciarGoogleLogin(false);
-        return;
-      }
+        console.info(
+          "CET34: puente listo. Iniciando Google Identity Services."
+        );
 
-      setTimeout(intentar, 300);
-    };
+        mostrarPantallaAcceso(
+          "Verificando tu cuenta de Google...",
+          false
+        );
 
-    intentar();
+        const intentar = function() {
+
+          if (
+            typeof google !== "undefined" &&
+            google.accounts &&
+            google.accounts.id
+          ) {
+
+            iniciarGoogleLogin(false);
+            return;
+          }
+
+          setTimeout(intentar, 300);
+        };
+
+        intentar();
+
+      })
+
+      .catch(function(error) {
+
+        console.error(
+          "CET34: error inicializando el puente:",
+          error
+        );
+
+        mostrarPantallaAcceso(
+          "No se pudo conectar con el servidor. Recarga la página e inténtalo nuevamente.",
+          true
+        );
+
+      });
 
   }
 );
