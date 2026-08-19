@@ -989,6 +989,21 @@ details[open] > summary .chevron {
   .acceso-titulo { font-size: 20px; }
 }
 
+/* =====================================================
+   PUENTE GITHUB ↔ APPS SCRIPT
+   Evita fetch() directo y el problema CORS.
+   ===================================================== */
+#puenteAppsScript {
+  position: fixed;
+  width: 1px;
+  height: 1px;
+  left: -9999px;
+  top: -9999px;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
 </style>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -1017,7 +1032,13 @@ details[open] > summary .chevron {
   </div>
 </div>
 
-
+<!-- Puente invisible de comunicación con Apps Script -->
+<iframe
+  id="puenteAppsScript"
+  title="Comunicación segura con el servidor"
+  aria-hidden="true"
+  src="https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec?action=puente">
+</iframe>
 
 
 <!-- =====================================================
@@ -1392,13 +1413,139 @@ function ocultarPantallaAcceso() {
   }
 }
 
-function iniciarGoogleLogin(forzarSeleccion) {
+/* =====================================================
+   PUENTE DE COMUNICACIÓN
+   ===================================================== */
+let puenteFrame = null;
+let puenteListo = false;
+let puenteContador = 0;
+const puentePendientes = new Map();
+const PUENTE_TIMEOUT = 15000;
 
-  if (
-    typeof google === "undefined" ||
-    !google.accounts ||
-    !google.accounts.id
-  ) {
+function obtenerPuente() {
+  return document.getElementById("puenteAppsScript");
+}
+
+function enviarMensajeAlPuente(mensaje) {
+  const frame = obtenerPuente();
+
+  if (!frame || !frame.contentWindow) {
+    throw new Error("El puente con el servidor todavía no está disponible.");
+  }
+
+  frame.contentWindow.postMessage(mensaje, "*");
+}
+
+function llamarServidor(action, parametros) {
+  return new Promise(function(resolve, reject) {
+    const frame = obtenerPuente();
+
+    if (!frame || !frame.contentWindow) {
+      reject(new Error("Puente no disponible."));
+      return;
+    }
+
+    const id = "req_" + Date.now() + "_" + (++puenteContador);
+
+    const temporizador = setTimeout(function() {
+      puentePendientes.delete(id);
+      reject(new Error("El servidor tardó demasiado en responder."));
+    }, PUENTE_TIMEOUT);
+
+    puentePendientes.set(id, {
+      resolve: resolve,
+      reject: reject,
+      temporizador: temporizador
+    });
+
+    try {
+      enviarMensajeAlPuente({
+        canal: "CET34",
+        tipo: "llamada",
+        id: id,
+        action: action,
+        parametros: parametros || {}
+      });
+    } catch (error) {
+      clearTimeout(temporizador);
+      puentePendientes.delete(id);
+      reject(error);
+    }
+  });
+}
+
+window.addEventListener("message", function(event) {
+  const frame = obtenerPuente();
+
+  if (!frame || event.source !== frame.contentWindow) {
+    return;
+  }
+
+  const datos = event.data || {};
+
+  if (datos.canal !== "CET34") {
+    return;
+  }
+
+  if (datos.tipo === "puente_listo") {
+    puenteListo = true;
+    puenteFrame = frame;
+    console.info("Puente CET 34 conectado.");
+    return;
+  }
+
+  if (datos.tipo !== "respuesta" || !datos.id) {
+    return;
+  }
+
+  const pendiente = puentePendientes.get(datos.id);
+
+  if (!pendiente) {
+    return;
+  }
+
+  clearTimeout(pendiente.temporizador);
+  puentePendientes.delete(datos.id);
+
+  if (datos.ok === true) {
+    pendiente.resolve(datos.datos);
+  } else {
+    pendiente.reject(new Error(datos.mensaje || "Error del servidor."));
+  }
+});
+
+/* =====================================================
+   AUTENTICACIÓN GOOGLE
+   ===================================================== */
+
+function mostrarPantallaAcceso(mensaje, mostrarBotones) {
+  const pantalla = document.getElementById("pantallaAcceso");
+  const mensajeEl = document.getElementById("accesoMensaje");
+  const acciones = document.getElementById("accesoAcciones");
+
+  if (!pantalla) return;
+
+  pantalla.style.display = "flex";
+
+  if (mensajeEl) {
+    mensajeEl.textContent = mensaje || "Verificando tu cuenta de Google...";
+  }
+
+  if (acciones) {
+    acciones.style.display = mostrarBotones ? "grid" : "none";
+  }
+}
+
+function ocultarPantallaAcceso() {
+  const pantalla = document.getElementById("pantallaAcceso");
+
+  if (pantalla) {
+    pantalla.style.display = "none";
+  }
+}
+
+function iniciarGoogleLogin(forzarSeleccion) {
+  if (typeof google === "undefined" || !google.accounts || !google.accounts.id) {
     mostrarPantallaAcceso(
       "Google Identity Services todavía está cargando. Intenta nuevamente en unos segundos.",
       true
@@ -1414,14 +1561,17 @@ function iniciarGoogleLogin(forzarSeleccion) {
     }
   }
 
-  google.accounts.id.initialize({
-    client_id: GOOGLE_CLIENT_ID,
-    callback: recibirRespuestaGoogle,
-    auto_select: false,
-    cancel_on_tap_outside: false
-  });
+  // Google Identity Services se inicializa una sola vez.
+  if (!autenticacionIniciada) {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: recibirRespuestaGoogle,
+      auto_select: false,
+      cancel_on_tap_outside: false
+    });
 
-  autenticacionIniciada = true;
+    autenticacionIniciada = true;
+  }
 
   mostrarPantallaAcceso(
     "Selecciona la cuenta de Google autorizada para utilizar el sistema.",
@@ -1439,7 +1589,6 @@ function iniciarGoogleLogin(forzarSeleccion) {
 }
 
 function recibirRespuestaGoogle(respuesta) {
-
   if (!respuesta || !respuesta.credential) {
     mostrarPantallaAcceso(
       "Google no devolvió una credencial válida.",
@@ -1449,12 +1598,10 @@ function recibirRespuestaGoogle(respuesta) {
   }
 
   googleIdToken = respuesta.credential;
-
   enviarTokenAlServidor();
 }
 
 async function enviarTokenAlServidor() {
-
   if (!googleIdToken) {
     mostrarPantallaAcceso(
       "No se recibió el ID Token de Google.",
@@ -1469,29 +1616,11 @@ async function enviarTokenAlServidor() {
   );
 
   try {
-
-    const url =
-      URL_APPS_SCRIPT +
-      "?action=verificargoogletoken" +
-      "&token=" +
-      encodeURIComponent(googleIdToken);
-
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store"
+    const datos = await llamarServidor("verificargoogletoken", {
+      token: googleIdToken
     });
 
-    if (!response.ok) {
-      throw new Error("HTTP " + response.status);
-    }
-
-    const datos = await response.json();
-
-    if (
-      datos.exito === true &&
-      datos.autorizado === true
-    ) {
-
+    if (datos && datos.exito === true && datos.autorizado === true) {
       usuarioAutorizado = datos;
 
       const usuarioEl = document.getElementById("accesoUsuario");
@@ -1504,27 +1633,25 @@ async function enviarTokenAlServidor() {
 
       ocultarPantallaAcceso();
 
-      // Ya autorizado: recién ahora se inicia el sistema.
       cargarEstadisticas();
       iniciarScanner();
       activarAudio();
-
       return;
     }
 
     const usuarioEl = document.getElementById("accesoUsuario");
 
     if (usuarioEl) {
-      usuarioEl.textContent = datos.correo || "";
+      usuarioEl.textContent = datos && datos.correo ? datos.correo : "";
     }
 
     mostrarPantallaAcceso(
-      datos.mensaje || "Tu cuenta no está autorizada para utilizar el sistema.",
+      (datos && datos.mensaje) ||
+      "Tu cuenta no está autorizada para utilizar el sistema.",
       true
     );
 
   } catch (error) {
-
     console.error("Error verificando Google:", error);
 
     mostrarPantallaAcceso(
@@ -1535,7 +1662,6 @@ async function enviarTokenAlServidor() {
 }
 
 function urlConToken(url) {
-
   if (!googleIdToken) {
     throw new Error("No existe un ID Token de Google válido.");
   }
@@ -2007,84 +2133,30 @@ document.addEventListener(
 
 function cargarEstadisticas() {
 
-  let url =
-    URL_APPS_SCRIPT +
-    "?action=estadisticas";
+  llamarServidor("estadisticas", {
+    token: googleIdToken
+  })
+  .then(function(data) {
 
-  try {
-    url = urlConToken(url);
-  } catch (error) {
+    if (!data || data.exito !== true) {
+      throw new Error(
+        (data && data.mensaje) ||
+        "Error estadísticas"
+      );
+    }
+
+    mostrarEstadisticas(data);
+  })
+  .catch(function(error) {
+
     console.error(error);
-    return;
-  }
 
-
-  fetch(url)
-
-    .then(
-      function(response) {
-
-        if (!response.ok) {
-
-          throw new Error(
-            "Error HTTP: " +
-            response.status
-          );
-
-        }
-
-
-        return response.json();
-
-      }
-    )
-
-    .then(
-      function(data) {
-
-        if (
-          data.exito !== true
-        ) {
-
-          throw new Error(
-            data.mensaje ||
-            "Error estadísticas"
-          );
-
-        }
-
-
-        mostrarEstadisticas(
-          data
-        );
-
-      }
-    )
-
-    .catch(
-      function(error) {
-
-        console.error(
-          error
-        );
-
-
-        document.getElementById(
-          "grupos"
-        ).innerHTML = `
-
-          <div class="sin-registros">
-
-            ⚠️ No se pudieron cargar
-            las estadísticas.
-
-          </div>
-
-        `;
-
-      }
-    );
-
+    document.getElementById("grupos").innerHTML = `
+      <div class="sin-registros">
+        ⚠️ No se pudieron cargar las estadísticas.
+      </div>
+    `;
+  });
 }
 
 
@@ -2840,18 +2912,8 @@ function registrarAsistencia(
 
   mostrarProcesando();
 
-
-  let url =
-    URL_APPS_SCRIPT +
-    "?codigo=" +
-    encodeURIComponent(
-      codigo
-    );
-
-  try {
-    url = urlConToken(url);
-  } catch (error) {
-    ocultarProcesando();
+  if (!googleIdToken) {
+    procesando = false;
     mostrarResultadoTemporal(
       "resultado-error",
       `
@@ -2863,95 +2925,31 @@ function registrarAsistencia(
     return;
   }
 
+  llamarServidor("registrarasistencia", {
+    token: googleIdToken,
+    codigo: codigo
+  })
+  .then(function(data) {
+    procesarRespuesta(data);
+  })
+  .catch(function(error) {
 
-  fetch(url)
+    console.error(error);
 
-    .then(
-      function(response) {
+    procesando = false;
+    sonidoError();
 
-        if (!response.ok) {
-
-          throw new Error(
-            "Error HTTP: " +
-            response.status
-          );
-
-        }
-
-
-        return response.json();
-
-      }
-    )
-
-    .then(
-      function(data) {
-
-        procesarRespuesta(
-          data
-        );
-
-      }
-    )
-
-    .catch(
-      function(error) {
-
-        console.error(
-          error
-        );
-
-
-        procesando =
-          false;
-
-
-        sonidoError();
-
-
-        mostrarResultadoTemporal(
-
-          "resultado-error",
-
-          `
-
-            <div
-              class="resultado-icono">
-
-              ❌
-
-            </div>
-
-
-            <div
-              class="resultado-titulo">
-
-              ERROR
-
-            </div>
-
-
-            <div
-              style="margin-top:8px;">
-
-              No se pudo conectar
-              con el servidor.
-
-            </div>
-
-          `
-
-        );
-
-
-        setTimeout(
-          iniciarScanner,
-          2500
-        );
-
-      }
+    mostrarResultadoTemporal(
+      "resultado-error",
+      `
+        <div class="resultado-icono">❌</div>
+        <div class="resultado-titulo">ERROR</div>
+        <div style="margin-top:8px;">No se pudo conectar con el servidor.</div>
+      `
     );
 
+    setTimeout(iniciarScanner, 2500);
+  });
 }
 
 
