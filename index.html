@@ -1004,12 +1004,215 @@ details[open] > summary .chevron {
     flex: 0 0 auto;
   }
 }
+
+/* =====================================================
+   SEGURIDAD · ACCESO CON CUENTA GOOGLE
+   ===================================================== */
+body.auth-pending .header,
+body.auth-pending .container {
+  visibility: hidden;
+}
+
+#authGate {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(120, 0, 47, .12), transparent 35%),
+    rgba(244, 246, 248, .98);
+  backdrop-filter: blur(5px);
+}
+
+.auth-box {
+  width: min(430px, 100%);
+  padding: 30px 24px 24px;
+  border: 1px solid var(--borde);
+  border-radius: 24px;
+  background: #fff;
+  box-shadow: var(--sombra-fuerte);
+  text-align: center;
+}
+
+.auth-icono {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18px;
+  background: var(--vino-100);
+  font-size: 31px;
+}
+
+.auth-titulo {
+  margin: 0;
+  color: var(--texto);
+  font-size: 23px;
+  font-weight: 900;
+}
+
+.auth-subtitulo {
+  margin: 8px 0 0;
+  color: var(--texto-sec);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.auth-cargando {
+  margin-top: 20px;
+  padding: 12px;
+  border-radius: 13px;
+  background: #f8fafc;
+  color: var(--texto-sec);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.auth-spinner {
+  width: 22px;
+  height: 22px;
+  margin: 0 auto 9px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--vino-800);
+  border-radius: 50%;
+  animation: authGiro .8s linear infinite;
+}
+
+@keyframes authGiro {
+  to { transform: rotate(360deg); }
+}
+
+.auth-error {
+  display: none;
+  margin-top: 18px;
+  padding: 15px;
+  border: 1px solid #fecaca;
+  border-radius: 15px;
+  background: var(--rojo-bg);
+  color: #991b1b;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.auth-correo {
+  display: block;
+  margin-top: 7px;
+  color: #7f1d1d;
+  font-weight: 900;
+  word-break: break-word;
+}
+
+.auth-boton {
+  display: none;
+  width: 100%;
+  min-height: 46px;
+  margin-top: 14px;
+  padding: 11px 16px;
+  border: 0;
+  border-radius: 13px;
+  background: var(--vino-800);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.auth-boton:hover {
+  background: var(--vino-900);
+}
+
+.auth-boton.secundario {
+  background: #f8fafc;
+  color: var(--texto);
+  border: 1px solid var(--borde);
+}
+
+.auth-boton.secundario:hover {
+  background: #f1f5f9;
+}
+
+.auth-usuario {
+  display: none;
+  position: fixed;
+  top: 12px;
+  right: 14px;
+  z-index: 1000;
+  max-width: 270px;
+  padding: 7px 10px;
+  border: 1px solid rgba(255,255,255,.18);
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .88);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 800;
+  box-shadow: 0 5px 15px rgba(0,0,0,.15);
+}
+
+.auth-usuario strong {
+  font-weight: 900;
+}
+
+@media (max-width: 560px) {
+  #authGate {
+    padding: 14px;
+  }
+
+  .auth-box {
+    padding: 25px 18px 19px;
+    border-radius: 20px;
+  }
+
+  .auth-titulo {
+    font-size: 21px;
+  }
+
+  .auth-usuario {
+    top: 8px;
+    right: 8px;
+    max-width: 205px;
+    font-size: 9px;
+  }
+}
+
 </style>
 
 </head>
 
 
-<body>
+<body class="auth-pending">
+
+<div id="authGate">
+  <div class="auth-box">
+    <div class="auth-icono">🔐</div>
+    <h2 class="auth-titulo">Acceso al sistema</h2>
+    <p class="auth-subtitulo">
+      Verificando tu cuenta de Google...
+    </p>
+
+    <div id="authCargando" class="auth-cargando">
+      <div class="auth-spinner"></div>
+      Comprobando autorización
+    </div>
+
+    <div id="authError" class="auth-error"></div>
+
+    <button id="btnCambiarCuenta" class="auth-boton" type="button">
+      🔄 Cambiar cuenta de Google
+    </button>
+
+    <button id="btnReintentar" class="auth-boton secundario" type="button">
+      ↻ Reintentar
+    </button>
+  </div>
+</div>
+
+<div id="authUsuario" class="auth-usuario"></div>
+
 
 
 <!-- =====================================================
@@ -1298,6 +1501,199 @@ details[open] > summary .chevron {
 
 const URL_APPS_SCRIPT =
   "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
+
+/* =====================================================
+   SEGURIDAD · VERIFICAR USUARIO ANTES DE INICIAR
+   ===================================================== */
+
+let accesoAutorizado = false;
+
+function mostrarAuthError(mensaje, correo) {
+
+  const cargando = document.getElementById("authCargando");
+  const error = document.getElementById("authError");
+  const btnCambiar = document.getElementById("btnCambiarCuenta");
+  const btnReintentar = document.getElementById("btnReintentar");
+
+  if (cargando) {
+    cargando.style.display = "none";
+  }
+
+  if (error) {
+    error.style.display = "block";
+    error.innerHTML =
+      escaparHTML(
+        mensaje ||
+        "No tienes autorización para utilizar este sistema."
+      ) +
+      (
+        correo
+          ? '<span class="auth-correo">' +
+            escaparHTML(correo) +
+            '</span>'
+          : ""
+      );
+  }
+
+  if (btnCambiar) {
+    btnCambiar.style.display = "block";
+  }
+
+  if (btnReintentar) {
+    btnReintentar.style.display = "block";
+  }
+}
+
+function cambiarCuentaGoogle() {
+
+  const destino =
+    window.location.href.split("#")[0];
+
+  const url =
+    "https://accounts.google.com/AccountChooser?continue=" +
+    encodeURIComponent(destino);
+
+  window.location.href = url;
+}
+
+function verificarAccesoFrontend() {
+
+  const url =
+    URL_APPS_SCRIPT +
+    "?action=verificaracceso";
+
+  fetch(url, {
+    method: "GET",
+    cache: "no-store"
+  })
+  .then(function(response) {
+
+    if (!response.ok) {
+      throw new Error(
+        "Error HTTP: " + response.status
+      );
+    }
+
+    return response.json();
+
+  })
+  .then(function(data) {
+
+    const autorizado =
+      data &&
+      data.exito === true &&
+      data.autorizado === true;
+
+    const rol =
+      String(
+        data && data.rol || ""
+      )
+      .trim()
+      .toUpperCase();
+
+    const rolPermitido =
+      rol === "ADMINISTRADOR" ||
+      rol === "DOCENTE";
+
+    if (!autorizado || !rolPermitido) {
+
+      mostrarAuthError(
+        data && data.mensaje
+          ? data.mensaje
+          : "Tu cuenta no está autorizada para utilizar el sistema.",
+        data && data.correo
+          ? data.correo
+          : ""
+      );
+
+      return;
+    }
+
+    accesoAutorizado = true;
+
+    const gate =
+      document.getElementById("authGate");
+
+    const usuario =
+      document.getElementById("authUsuario");
+
+    if (gate) {
+      gate.style.display = "none";
+    }
+
+    document.body.classList.remove(
+      "auth-pending"
+    );
+
+    if (usuario) {
+
+      usuario.innerHTML =
+        "👤 " +
+        escaparHTML(
+          data.nombre ||
+          data.correo ||
+          "Usuario"
+        ) +
+        " · " +
+        escaparHTML(rol);
+
+      usuario.style.display = "block";
+    }
+
+    // Solo después de confirmar acceso
+    // se inicia la cámara y se solicitan datos.
+    cargarEstadisticas();
+    iniciarScanner();
+    activarAudio();
+
+  })
+  .catch(function(error) {
+
+    console.error(
+      "Error verificando acceso:",
+      error
+    );
+
+    mostrarAuthError(
+      "No se pudo verificar tu cuenta. Comprueba tu conexión e inténtalo nuevamente.",
+      ""
+    );
+
+  });
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  function() {
+
+    const btnCambiar =
+      document.getElementById(
+        "btnCambiarCuenta"
+      );
+
+    const btnReintentar =
+      document.getElementById(
+        "btnReintentar"
+      );
+
+    if (btnCambiar) {
+      btnCambiar.addEventListener(
+        "click",
+        cambiarCuentaGoogle
+      );
+    }
+
+    if (btnReintentar) {
+      btnReintentar.addEventListener(
+        "click",
+        function() {
+          window.location.reload();
+        }
+      );
+    }
+
+  }
+);
 
 
 /* =====================================================
@@ -1773,6 +2169,10 @@ document.addEventListener(
    ===================================================== */
 
 function cargarEstadisticas() {
+
+  if (!accesoAutorizado) {
+    return;
+  }
 
   const url =
     URL_APPS_SCRIPT +
@@ -2611,6 +3011,10 @@ function qrDetectado(
 function registrarAsistencia(
   codigo
 ) {
+
+  if (!accesoAutorizado) {
+    return;
+  }
 
   mostrarProcesando();
 
@@ -3453,13 +3857,7 @@ function iniciarScanner() {
 window.addEventListener(
   "load",
   function() {
-
-    cargarEstadisticas();
-
-    iniciarScanner();
-
-    activarAudio();
-
+    verificarAccesoFrontend();
   }
 );
 
