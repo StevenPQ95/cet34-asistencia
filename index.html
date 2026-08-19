@@ -1505,7 +1505,155 @@ const URL_APPS_SCRIPT =
 
 const GOOGLE_CLIENT_ID =
   "1014449940080-f87gjj53j23f9or14hn4ddmaop2vl2ks.apps.googleusercontent.com";
-      
+
+let googleIdToken = null;
+
+function iniciarGoogleLogin() {
+
+  if (
+    typeof google === "undefined" ||
+    !google.accounts ||
+    !google.accounts.id
+  ) {
+    console.error(
+      "Google Identity Services todavía no está disponible."
+    );
+
+    return;
+  }
+
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+
+    callback: recibirRespuestaGoogle,
+
+    auto_select: false,
+
+    cancel_on_tap_outside: false
+  });
+
+  google.accounts.id.prompt();
+}
+
+
+function recibirRespuestaGoogle(respuesta) {
+
+  console.log(
+    "Respuesta de Google recibida."
+  );
+
+  if (
+    !respuesta ||
+    !respuesta.credential
+  ) {
+
+    console.error(
+      "Google no devolvió el ID Token."
+    );
+
+    mostrarPantallaAcceso(
+      "No se pudo obtener la identificación de Google."
+    );
+
+    return;
+  }
+
+  googleIdToken =
+    respuesta.credential;
+
+  console.log(
+    "ID Token recibido correctamente."
+  );
+
+  enviarTokenAlServidor();
+}
+
+
+async function enviarTokenAlServidor() {
+
+  if (!googleIdToken) {
+
+    mostrarPantallaAcceso(
+      "No se recibió el token de Google."
+    );
+
+    return;
+  }
+
+  try {
+
+    console.log(
+      "Verificando identidad con el servidor..."
+    );
+
+    const respuesta =
+      await fetch(
+        API_URL +
+        "?action=verificarGoogleToken" +
+        "&token=" +
+        encodeURIComponent(
+          googleIdToken
+        )
+      );
+
+    if (!respuesta.ok) {
+
+      throw new Error(
+        "El servidor no respondió correctamente."
+      );
+
+    }
+
+    const datos =
+      await respuesta.json();
+
+    console.log(
+      "Respuesta del servidor:",
+      datos
+    );
+
+
+    if (
+      datos.exito === true &&
+      datos.autorizado === true
+    ) {
+
+      console.log(
+        "Usuario autorizado:",
+        datos.correo
+      );
+
+      ocultarPantallaAcceso();
+
+      // Continuamos con la carga normal
+      // del sistema.
+      iniciarSistema();
+
+      return;
+    }
+
+
+    mostrarPantallaAcceso(
+      datos.mensaje ||
+      "Tu cuenta no está autorizada."
+    );
+
+
+  } catch(error) {
+
+    console.error(
+      "Error verificando Google:",
+      error
+    );
+
+    mostrarPantallaAcceso(
+      "No se pudo verificar tu cuenta. Inténtalo nuevamente."
+    );
+
+  }
+
+}
+
 /* =====================================================
    SEGURIDAD · VERIFICAR USUARIO ANTES DE INICIAR
    ===================================================== */
