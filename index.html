@@ -1546,14 +1546,11 @@ function mostrarAuthError(mensaje, correo) {
 
 function cambiarCuentaGoogle() {
 
-  const destino =
-    window.location.href.split("#")[0];
-
-  const url =
-    "https://accounts.google.com/AccountChooser?continue=" +
-    encodeURIComponent(destino);
-
-  window.location.href = url;
+  // No construimos una URL AccountChooser con "continue".
+  // Ese endpoint puede devolver error 400.
+  // Abrimos el selector de cuentas de Google directamente.
+  window.location.href =
+    "https://accounts.google.com/AccountChooser";
 }
 
 function verificarAccesoFrontend() {
@@ -1562,9 +1559,12 @@ function verificarAccesoFrontend() {
     URL_APPS_SCRIPT +
     "?action=verificaracceso";
 
-  fetch(url, {
+  fetch(url + "&_=" + Date.now(), {
     method: "GET",
-    cache: "no-store"
+    mode: "cors",
+    credentials: "include",
+    cache: "no-store",
+    redirect: "follow"
   })
   .then(function(response) {
 
@@ -1574,7 +1574,15 @@ function verificarAccesoFrontend() {
       );
     }
 
-    return response.json();
+    return response.text().then(function(texto) {
+      try {
+        return JSON.parse(texto);
+      } catch (e) {
+        throw new Error(
+          "La respuesta del servidor no es JSON válido."
+        );
+      }
+    });
 
   })
   .then(function(data) {
@@ -1655,7 +1663,7 @@ function verificarAccesoFrontend() {
     );
 
     mostrarAuthError(
-      "No se pudo verificar tu cuenta. Comprueba tu conexión e inténtalo nuevamente.",
+      "No se pudo verificar tu cuenta. Si ya tienes iniciada sesión en Google, pulsa Reintentar. Si estás usando otra cuenta, cambia de cuenta de Google y vuelve a abrir el sistema.",
       ""
     );
 
