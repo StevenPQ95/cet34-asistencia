@@ -1032,13 +1032,13 @@ details[open] > summary .chevron {
   </div>
 </div>
 
-<!-- Puente invisible de comunicación con Apps Script -->
-<iframe
-  id="puenteAppsScript"
-  title="Comunicación segura con el servidor"
-  aria-hidden="true"
-  src="https://script.google.com/macros/s/AKfycbwKwnUGpCtVSqCPMkFgaq3ho3e1Z12-xVjzKwl_bwfzOwV7SYHmB9tuSBuOnGJglb7x/exec?action=puente">
-</iframe>
+<!--
+  Comunicación segura GitHub → Apps Script:
+  cada solicitud se envía mediante un formulario POST a un
+  iframe temporal. No se usa fetch() ni postMessage() para
+  enviar solicitudes al servidor.
+-->
+<div id="postBridgeContainer" aria-hidden="true"></div>
 
 
 <!-- =====================================================
@@ -1414,316 +1414,309 @@ function ocultarPantallaAcceso() {
 }
 
 /* =====================================================
-   PUENTE DE COMUNICACIÓN GITHUB ↔ APPS SCRIPT
+   COMUNICACIÓN SEGURA GITHUB → APPS SCRIPT
    =====================================================
 
    IMPORTANTE:
-   - No usamos fetch() contra Apps Script desde GitHub.
-   - Esperamos a que el iframe confirme "puente_listo".
-   - Las llamadas que ocurran antes de que el puente esté listo
-     esperan automáticamente en lugar de perderse.
-   - El servidor vuelve a validar el ID Token de Google.
+   - NO usamos fetch() contra Apps Script.
+   - NO dependemos de postMessage() para enviar solicitudes.
+   - Cada llamada utiliza un formulario POST HTML normal.
+   - El formulario apunta a un iframe temporal y oculto.
+   - Apps Script responde dentro de ese iframe y usa
+     postMessage() únicamente para devolver el resultado a GitHub.
+   - Las operaciones privadas llevan el ID Token de Google.
+   - El servidor vuelve a validar el token y consulta USUARIOS.
    ===================================================== */
 
-let puenteFrame = null;
-let puenteListo = false;
-let puenteContador = 0;
+const POST_TIMEOUT = 30000;
+let solicitudContador = 0;
+const solicitudesPendientes = new Map();
 
-const puentePendientes = new Map();
+/*
+   Apps Script puede responder desde script.google.com o desde
+   un subdominio dinámico googleusercontent.com.
+*/
+function esOrigenAppsScript(origen) {
 
-const PUENTE_TIMEOUT = 20000;
-const PUENTE_INICIO_TIMEOUT = 12000;
+  const texto = String(origen || "");
 
-let resolverPuenteListo = null;
-let rechazarPuenteListo = null;
-
-const promesaPuenteListo = new Promise(function(resolve, reject) {
-  resolverPuenteListo = resolve;
-  rechazarPuenteListo = reject;
-});
-
-function obtenerPuente() {
-  return document.getElementById("puenteAppsScript");
-}
-
-function enviarMensajeAlPuente(mensaje) {
-
-  const frame = obtenerPuente();
-
-  if (!frame || !frame.contentWindow) {
-    throw new Error(
-      "El puente con Apps Script todavía no está disponible."
-    );
-  }
-
-  /*
-     Apps Script HTML Service puede usar una capa contenedora
-     externa y dentro de ella el documento sandbox real.
-
-     Desde GitHub:
-       iframe.contentWindow
-            ↓
-       contenedor Apps Script
-            ↓
-       frames[0] = documento sandbox
-
-     Cuando existe esa capa interna, enviamos la solicitud
-     directamente al documento sandbox. Si no existe, usamos
-     la ventana del iframe como compatibilidad.
-  */
-
-  const ventanaContenedora = frame.contentWindow;
-
-  try {
-
-    if (
-      ventanaContenedora.frames &&
-      ventanaContenedora.frames.length > 0
-    ) {
-
-      const ventanaSandbox =
-        ventanaContenedora.frames[0];
-
-      ventanaSandbox.postMessage(
-        mensaje,
-        "*"
-      );
-
-      console.info(
-        "CET34: solicitud enviada al sandbox interno de Apps Script."
-      );
-
-      return;
-    }
-
-  } catch (error) {
-
-    console.warn(
-      "CET34: no se pudo usar el sandbox interno; se intentará la ventana contenedora.",
-      error
-    );
-
-  }
-
-  ventanaContenedora.postMessage(
-    mensaje,
-    "*"
-  );
-
-  console.info(
-    "CET34: solicitud enviada a la ventana contenedora de Apps Script."
+  return (
+    texto === "https://script.google.com" ||
+    /^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/i.test(texto)
   );
 }
 
-function esperarPuente() {
+function crearSolicitudId() {
 
-  if (puenteListo) {
-    return Promise.resolve();
-  }
+  solicitudContador += 1;
 
-  return Promise.race([
-
-    promesaPuenteListo,
-
-    new Promise(function(_, reject) {
-
-      setTimeout(function() {
-
-        reject(
-          new Error(
-            "El puente de Apps Script no confirmó su conexión."
-          )
-        );
-
-      }, PUENTE_INICIO_TIMEOUT);
-
-    })
-
-  ]);
+  return (
+    "req_" +
+    Date.now() +
+    "_" +
+    solicitudContador
+  );
 }
 
+/*
+   Envía una solicitud al Web App mediante POST + iframe.
+
+   No se incluye el token en la URL.
+   El token viaja dentro del cuerpo POST como parte del payload.
+*/
 function llamarServidor(action, parametros) {
 
-  return esperarPuente().then(function() {
+  return new Promise(function(resolve, reject) {
 
-    return new Promise(function(resolve, reject) {
+    const id =
+      crearSolicitudId();
 
-      const frame = obtenerPuente();
+    const nombreIframe =
+      "cet34_post_" +
+      id.replace(/[^a-zA-Z0-9_]/g, "");
 
-      if (!frame || !frame.contentWindow) {
+    const iframe =
+      document.createElement("iframe");
 
-        reject(
-          new Error(
-            "El puente con Apps Script no está disponible."
-          )
-        );
+    iframe.name = nombreIframe;
+    iframe.title =
+      "Comunicación segura CET 34";
+    iframe.setAttribute(
+      "aria-hidden",
+      "true"
+    );
 
-        return;
-      }
+    iframe.style.position = "fixed";
+    iframe.style.width = "1px";
+    iframe.style.height = "1px";
+    iframe.style.border = "0";
+    iframe.style.opacity = "0";
+    iframe.style.pointerEvents = "none";
+    iframe.style.left = "-9999px";
+    iframe.style.top = "-9999px";
 
-      const id =
-        "req_" +
-        Date.now() +
-        "_" +
-        (++puenteContador);
+    document.body.appendChild(
+      iframe
+    );
 
-      const temporizador = setTimeout(function() {
+    const form =
+      document.createElement("form");
 
-        puentePendientes.delete(id);
+    form.method = "POST";
+    form.action = URL_APPS_SCRIPT;
+    form.target = nombreIframe;
+    form.acceptCharset = "UTF-8";
 
-        reject(
-          new Error(
-            "El servidor tardó demasiado en responder."
-          )
-        );
+    form.style.display = "none";
 
-      }, PUENTE_TIMEOUT);
+    function agregarCampo(nombre, valor) {
 
-      puentePendientes.set(id, {
+      const input =
+        document.createElement("input");
 
+      input.type = "hidden";
+      input.name = nombre;
+      input.value =
+        String(valor ?? "");
+
+      form.appendChild(input);
+
+    }
+
+    agregarCampo(
+      "action",
+      String(action || "")
+    );
+
+    agregarCampo(
+      "requestId",
+      id
+    );
+
+    agregarCampo(
+      "payload",
+      JSON.stringify(
+        parametros || {}
+      )
+    );
+
+    document.body.appendChild(
+      form
+    );
+
+    const temporizador =
+      setTimeout(
+        function() {
+
+          solicitudesPendientes.delete(
+            id
+          );
+
+          try {
+            form.remove();
+          } catch (_) {}
+
+          try {
+            iframe.remove();
+          } catch (_) {}
+
+          reject(
+            new Error(
+              "El servidor tardó demasiado en responder."
+            )
+          );
+
+        },
+        POST_TIMEOUT
+      );
+
+    solicitudesPendientes.set(
+      id,
+      {
         resolve: resolve,
-
         reject: reject,
+        temporizador: temporizador,
+        iframe: iframe,
+        form: form
+      }
+    );
 
-        temporizador: temporizador
+    console.info(
+      "CET34: enviando solicitud POST al servidor:",
+      {
+        action: action,
+        id: id
+      }
+    );
 
-      });
+    try {
+
+      form.submit();
+
+    } catch (error) {
+
+      clearTimeout(
+        temporizador
+      );
+
+      solicitudesPendientes.delete(
+        id
+      );
 
       try {
+        form.remove();
+      } catch (_) {}
 
-      console.log(
-  "CET34: enviando solicitud al puente",
-  {
-    id: id,
-    action: action
-  }
-);
-        enviarMensajeAlPuente({
+      try {
+        iframe.remove();
+      } catch (_) {}
 
-          canal: "CET34",
+      reject(
+        error
+      );
 
-          tipo: "llamada",
-
-          id: id,
-
-          action: String(action || ""),
-
-          parametros: parametros || {}
-
-        });
-
-      } catch (error) {
-
-        clearTimeout(temporizador);
-
-        puentePendientes.delete(id);
-
-        reject(error);
-
-      }
-
-    });
+    }
 
   });
 
 }
 
-window.addEventListener("message", function(event) {
+/*
+   Respuestas que llegan desde Apps Script mediante el iframe.
+*/
+window.addEventListener(
+  "message",
+  function(event) {
 
-  const frame = obtenerPuente();
-
-  /*
-     Apps Script HTMLService usa un iframe de sandbox y puede añadir
-     otra capa de navegación. Por eso event.source NO siempre es
-     exactamente frame.contentWindow. La validación correcta aquí es
-     el origen de Google Apps Script + nuestro canal.
-  */
-  const origenGoogle =
-    /^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/i.test(
-      String(event.origin || "")
-    ) ||
-    event.origin === "https://script.google.com";
-
-  if (!origenGoogle) {
-    return;
-  }
-
-  const datos = event.data || {};
-
-  if (datos.canal !== "CET34") {
-    return;
-  }
-
-  if (datos.tipo === "puente_listo") {
-
-    puenteListo = true;
-
-    puenteFrame = frame;
-
-    console.info(
-      "CET34: puente Apps Script conectado."
-    );
-
-    if (resolverPuenteListo) {
-      resolverPuenteListo();
-      resolverPuenteListo = null;
-      rechazarPuenteListo = null;
+    if (
+      !esOrigenAppsScript(
+        event.origin
+      )
+    ) {
+      return;
     }
 
-    return;
-  }
+    const datos =
+      event.data || {};
 
-  if (datos.tipo === "pong") {
+    if (
+      datos.canal !== "CET34" ||
+      datos.tipo !== "respuesta" ||
+      !datos.id
+    ) {
+      return;
+    }
 
-    console.info(
-      "CET34: respuesta PONG recibida del puente.",
-      datos
+    const pendiente =
+      solicitudesPendientes.get(
+        datos.id
+      );
+
+    if (!pendiente) {
+      return;
+    }
+
+    /*
+       Verificación adicional:
+       la respuesta debe proceder del iframe que generamos
+       para esa solicitud.
+    */
+    if (
+      pendiente.iframe &&
+      event.source !==
+        pendiente.iframe.contentWindow
+    ) {
+      console.warn(
+        "CET34: respuesta ignorada porque proviene de una ventana no asociada a la solicitud."
+      );
+
+      return;
+    }
+
+    clearTimeout(
+      pendiente.temporizador
     );
 
-    return;
-  }
-
-  if (
-    datos.tipo !== "respuesta" ||
-    !datos.id
-  ) {
-    return;
-  }
-
-  const pendiente =
-    puentePendientes.get(datos.id);
-
-  if (!pendiente) {
-    return;
-  }
-
-  clearTimeout(
-    pendiente.temporizador
-  );
-
-  puentePendientes.delete(
-    datos.id
-  );
-
-  if (datos.ok === true) {
-
-    pendiente.resolve(
-      datos.datos
+    solicitudesPendientes.delete(
+      datos.id
     );
 
-  } else {
+    try {
+      pendiente.form.remove();
+    } catch (_) {}
 
-    pendiente.reject(
-      new Error(
-        datos.mensaje ||
-        "Error del servidor."
-      )
-    );
+    try {
+      pendiente.iframe.remove();
+    } catch (_) {}
+
+    if (
+      datos.ok === true
+    ) {
+
+      console.info(
+        "CET34: respuesta POST recibida.",
+        {
+          id: datos.id
+        }
+      );
+
+      pendiente.resolve(
+        datos.datos
+      );
+
+    } else {
+
+      pendiente.reject(
+        new Error(
+          datos.mensaje ||
+          "Error del servidor."
+        )
+      );
+
+    }
 
   }
-
-});
-
+);
 
 /* =====================================================
    AUTENTICACIÓN GOOGLE
@@ -3903,60 +3896,35 @@ window.addEventListener(
   function() {
 
     mostrarPantallaAcceso(
-      "Conectando con el servidor...",
+      "Verificando tu cuenta de Google...",
       false
     );
 
     /*
-       PRIMERO esperamos al puente.
-       Esto evita que el ID Token llegue antes de que el iframe
-       tenga listo su receptor postMessage().
+       Con POST + iframe ya no necesitamos esperar ningún
+       "puente_listo". Google Identity Services puede iniciar
+       inmediatamente y la primera petición se enviará cuando
+       exista el ID Token.
     */
-    esperarPuente()
+    const intentar = function() {
 
-      .then(function() {
+      if (
+        typeof google !== "undefined" &&
+        google.accounts &&
+        google.accounts.id
+      ) {
 
-        console.info(
-          "CET34: puente listo. Iniciando Google Identity Services."
-        );
+        iniciarGoogleLogin(false);
+        return;
+      }
 
-        mostrarPantallaAcceso(
-          "Verificando tu cuenta de Google...",
-          false
-        );
+      setTimeout(
+        intentar,
+        300
+      );
+    };
 
-        const intentar = function() {
-
-          if (
-            typeof google !== "undefined" &&
-            google.accounts &&
-            google.accounts.id
-          ) {
-
-            iniciarGoogleLogin(false);
-            return;
-          }
-
-          setTimeout(intentar, 300);
-        };
-
-        intentar();
-
-      })
-
-      .catch(function(error) {
-
-        console.error(
-          "CET34: error inicializando el puente:",
-          error
-        );
-
-        mostrarPantallaAcceso(
-          "No se pudo conectar con el servidor. Recarga la página e inténtalo nuevamente.",
-          true
-        );
-
-      });
+    intentar();
 
   }
 );
