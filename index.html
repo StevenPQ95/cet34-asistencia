@@ -1841,220 +1841,86 @@ function cargarEstadisticas() {
    MOSTRAR ESTADÍSTICAS
    ===================================================== */
 
-/*
-   ============================================================
-   ESTADOS DEL RESUMEN DEL DÍA
+/* ============================================================
+   ESTADOS DE ASISTENCIA
    ------------------------------------------------------------
-   El backend actual entrega "faltantes" como estudiantes que
-   todavía no tienen registro.
+   El servidor es la fuente de verdad.
 
-   Mientras la jornada no esté cerrada, esos estudiantes deben
-   mostrarse como PENDIENTES, no como FALTAS.
+   Index NO vuelve a calcular Pendiente/Falta.
+   Usa directamente:
+     data.pendientesGeneral
+     data.faltasGeneral
+     data.jornadaCerrada
+     grupo.pendientes
+     grupo.faltas
+     grupo.estudiantesPendientes
+     grupo.estudiantesFaltas
 
-   El código admite una futura propiedad del backend:
-     jornadaCerrada / claseTerminada / horarioCerrado
+   Esto mantiene Index, Reportes e Historial con la misma lógica.
+   ============================================================ */
 
-   Si alguna de ellas llega en true, los faltantes vuelven a
-   mostrarse como faltas.
-   ============================================================
-*/
-
-function jornadaEstaCerrada(
-  data
+function mostrarEstadosDelGrupo(
+  grupo
 ) {
 
-  if (
-    data &&
-    (
-      data.jornadaCerrada === true ||
-      data.claseTerminada === true ||
-      data.horarioCerrado === true
-    )
-  ) {
+  const jornadaCerrada =
+    grupo &&
+    grupo.jornadaCerrada === true;
 
-    return true;
-
-  }
-
-  if (
-    data &&
-    Array.isArray(data.grupos) &&
-    data.grupos.length > 0
-  ) {
-
-    const hayEstadoExplicito =
-      data.grupos.some(
-        function(grupo) {
-
-          return (
-            grupo.jornadaCerrada !== undefined ||
-            grupo.claseTerminada !== undefined ||
-            grupo.horarioCerrado !== undefined
-          );
-
-        }
-      );
-
-    if (
-      hayEstadoExplicito
-    ) {
-
-      return data.grupos.every(
-        function(grupo) {
-
-          return (
-            grupo.jornadaCerrada === true ||
-            grupo.claseTerminada === true ||
-            grupo.horarioCerrado === true
-          );
-
-        }
-      );
-
-    }
-
-  }
-
-  /*
-     En el dashboard de la jornada actual, si el backend todavía
-     no proporciona la bandera de cierre, los estudiantes sin
-     registro se consideran pendientes. Esto corrige el estado
-     mientras el horario sigue abierto.
-  */
-  return false;
-
-}
-
-
-function estadosDelGrupo(
-  grupo,
-  jornadaCerrada
-) {
-
-  const faltantes =
-    Number(
-      grupo &&
-      grupo.faltantes || 0
-    );
-
-  const pendientesRecibidos =
+  const pendientes =
     Number(
       grupo &&
       grupo.pendientes || 0
     );
 
-  const faltasRecibidas =
+  const faltas =
     Number(
       grupo &&
       grupo.faltas || 0
     );
 
-  if (
-    jornadaCerrada
-  ) {
+  const estudiantesPendientes =
+    Array.isArray(
+      grupo &&
+      grupo.estudiantesPendientes
+    )
+      ? grupo.estudiantesPendientes
+      : [];
 
-    return {
-      pendientes:
-        pendientesRecibidos,
-
-      faltas:
-        faltasRecibidas ||
-        faltantes
-    };
-
-  }
+  const estudiantesFaltas =
+    Array.isArray(
+      grupo &&
+      grupo.estudiantesFaltas
+    )
+      ? grupo.estudiantesFaltas
+      : [];
 
   return {
+    jornadaCerrada:
+      jornadaCerrada,
 
     pendientes:
-      pendientesRecibidos ||
-      faltantes,
+      pendientes,
 
     faltas:
-      faltasRecibidas
+      faltas,
 
+    estudiantesPendientes:
+      estudiantesPendientes,
+
+    estudiantesFaltas:
+      estudiantesFaltas
   };
 
 }
-
-
-function estadosGenerales(
-  data,
-  jornadaCerrada
-) {
-
-  const faltantes =
-    Number(
-      data &&
-      data.faltantesGeneral || 0
-    );
-
-  const pendientesRecibidos =
-    Number(
-      data &&
-      data.pendientesGeneral || 0
-    );
-
-  const faltasRecibidas =
-    Number(
-      data &&
-      (
-        data.faltasGeneral ||
-        0
-      )
-    );
-
-  if (
-    jornadaCerrada
-  ) {
-
-    return {
-
-      pendientes:
-        pendientesRecibidos,
-
-      faltas:
-        faltasRecibidas ||
-        faltantes
-
-    };
-
-  }
-
-  return {
-
-    pendientes:
-      pendientesRecibidos ||
-      faltantes,
-
-    faltas:
-      faltasRecibidas
-
-  };
-
-}
-
 
 function mostrarEstadisticas(
   data
 ) {
 
-  const cerrada =
-    jornadaEstaCerrada(
-      data
-    );
-
-  const estados =
-    estadosGenerales(
-      data,
-      cerrada
-    );
-
-
   document.getElementById(
     "fecha"
   ).textContent =
-
     escaparHTML(
       data.dia
     ) +
@@ -2083,13 +1949,19 @@ function mostrarEstadisticas(
   document.getElementById(
     "pendientesGeneral"
   ).textContent =
-    estados.pendientes;
+    Number(
+      data.pendientesGeneral || 0
+    );
 
 
   document.getElementById(
     "faltantesGeneral"
   ).textContent =
-    estados.faltas;
+    Number(
+      data.faltasGeneral ??
+      data.faltantesGeneral ??
+      0
+    );
 
 
   document.getElementById(
@@ -2125,38 +1997,50 @@ function mostrarEstadisticas(
     "%";
 
 
+  const grupos =
+    Array.isArray(
+      data.grupos
+    )
+      ? data.grupos
+      : [];
+
+
   const jornada =
     document.getElementById(
       "jornada"
     );
 
 
+  const jornadaCerrada =
+    data.jornadaCerrada === true;
+
+
   if (
-    data.grupos &&
-    data.grupos.length > 0
+    grupos.length > 0
   ) {
 
     jornada.className =
-      cerrada
+      jornadaCerrada
         ? "jornada pausa"
         : "jornada";
 
+
     jornada.innerHTML =
-      cerrada
+      jornadaCerrada
         ? (
-            "🔴 JORNADA CERRADA · " +
-            data.grupos.length +
+            "🔴 JORNADA FINALIZADA · " +
+            grupos.length +
             (
-              data.grupos.length === 1
+              grupos.length === 1
                 ? " grupo"
                 : " grupos"
             )
           )
         : (
             "🟢 JORNADA ACTIVA · " +
-            data.grupos.length +
+            grupos.length +
             (
-              data.grupos.length === 1
+              grupos.length === 1
                 ? " grupo"
                 : " grupos"
             )
@@ -2181,8 +2065,7 @@ function mostrarEstadisticas(
 
 
   mostrarGrupos(
-    data.grupos,
-    cerrada
+    grupos
   );
 
 }
@@ -2447,8 +2330,7 @@ function crearLista(
    ===================================================== */
 
 function mostrarGrupos(
-  grupos,
-  jornadaCerrada
+  grupos
 ) {
 
   const contenedor =
@@ -2486,37 +2368,10 @@ function mostrarGrupos(
     function(grupo) {
 
       const estados =
-        estadosDelGrupo(
-          grupo,
-          jornadaCerrada === true
+        mostrarEstadosDelGrupo(
+          grupo
         );
 
-      const estudiantesFaltantes =
-        Array.isArray(
-          grupo.estudiantesFaltantes
-        )
-          ? grupo.estudiantesFaltantes
-          : [];
-
-      const etiquetaPendientes =
-        jornadaCerrada
-          ? "Pendientes"
-          : "Pendientes";
-
-      const tituloSinRegistro =
-        jornadaCerrada
-          ? "Faltantes"
-          : "Pendientes";
-
-      const tipoSinRegistro =
-        jornadaCerrada
-          ? "faltante"
-          : "pendiente";
-
-      const emojiSinRegistro =
-        jornadaCerrada
-          ? "🔴"
-          : "🔵";
 
       const tarjeta =
         document.createElement(
@@ -2528,23 +2383,12 @@ function mostrarGrupos(
         "grupo";
 
 
-      /*
-         NO se agrega:
-
-         tarjeta.open = true;
-
-         Por eso comienza cerrado.
-      */
-
-
       tarjeta.innerHTML = `
 
         <summary>
 
-
           <div
             class="grupo-cabecera">
-
 
             <div>
 
@@ -2574,6 +2418,22 @@ function mostrarGrupos(
                   grupo.hora
                 )}
 
+                ${
+                  grupo.jornadaCerrada === true
+                    ? `
+                      <span
+                        style="
+                          margin-left:6px;
+                          color:#b91c1c;
+                          font-weight:800;
+                        "
+                      >
+                        · Jornada finalizada
+                      </span>
+                    `
+                    : ""
+                }
+
               </div>
 
             </div>
@@ -2582,7 +2442,9 @@ function mostrarGrupos(
             <div
               class="grupo-badge">
 
-              ${grupo.porcentaje}%
+              ${Number(
+                grupo.porcentaje || 0
+              )}%
 
             </div>
 
@@ -2624,7 +2486,9 @@ function mostrarGrupos(
                 class="numero
                        numero-presente">
 
-                ${grupo.presentes}
+                ${Number(
+                  grupo.presentes || 0
+                )}
 
               </div>
 
@@ -2644,7 +2508,9 @@ function mostrarGrupos(
                 class="numero
                        numero-tardanza">
 
-                ${grupo.tardanzas}
+                ${Number(
+                  grupo.tardanzas || 0
+                )}
 
               </div>
 
@@ -2656,11 +2522,28 @@ function mostrarGrupos(
 
             </div>
 
-            <div class="grupo-estado">
-              <div class="numero numero-pendiente">
+
+            <div
+              class="grupo-estado">
+
+              <div
+                class="numero
+                       numero-pendiente">
+
                 ${estados.pendientes}
+
               </div>
-              <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
+
+              <div class="etiqueta">
+
+                <span
+                  class="estado-punto punto-pendiente">
+                </span>
+
+                Pendientes
+
+              </div>
+
             </div>
 
 
@@ -2677,7 +2560,11 @@ function mostrarGrupos(
 
               <div class="etiqueta">
 
-                <span class="estado-punto punto-faltante"></span> Faltas
+                <span
+                  class="estado-punto punto-faltante">
+                </span>
+
+                Faltas
 
               </div>
 
@@ -2687,10 +2574,8 @@ function mostrarGrupos(
           </div>
 
 
-
           <div
             class="grupo-info">
-
 
             <div class="info-item">
 
@@ -2698,7 +2583,10 @@ function mostrarGrupos(
 
               <strong>
 
-                ${grupo.tolerancia}
+                ${Number(
+                  grupo.tolerancia || 0
+                )}
+
                 min.
 
               </strong>
@@ -2712,15 +2600,15 @@ function mostrarGrupos(
 
               <strong>
 
-                ${grupo.total}
+                ${Number(
+                  grupo.total || 0
+                )}
 
               </strong>
 
             </div>
 
-
           </div>
-
 
 
           <div
@@ -2731,9 +2619,17 @@ function mostrarGrupos(
               <div
                 class="barra"
                 style="
-                  width:${grupo.porcentaje}%;
-                ">
-
+                  width:${Math.max(
+                    0,
+                    Math.min(
+                      100,
+                      Number(
+                        grupo.porcentaje || 0
+                      )
+                    )
+                  )}%;
+                "
+              >
               </div>
 
             </div>
@@ -2742,52 +2638,44 @@ function mostrarGrupos(
             <div class="porcentaje">
 
               Asistencia:
-              ${grupo.porcentaje}%
+              ${Number(
+                grupo.porcentaje || 0
+              )}%
 
             </div>
 
           </div>
 
 
-
           ${crearLista(
-
             grupo.estudiantesPresentes,
-
             "presente",
-
             "Presentes",
-
             "🟢"
-
           )}
 
 
-
           ${crearLista(
-
             grupo.estudiantesTardanza,
-
             "tardanza",
-
             "Tardanzas",
-
             "🟡"
-
           )}
 
 
+          ${crearLista(
+            estados.estudiantesPendientes,
+            "pendiente",
+            "Pendientes",
+            "🔵"
+          )}
+
 
           ${crearLista(
-
-            estudiantesFaltantes,
-
-            tipoSinRegistro,
-
-            tituloSinRegistro,
-
-            emojiSinRegistro
-
+            estados.estudiantesFaltas,
+            "faltante",
+            "Faltas",
+            "🔴"
           )}
 
 
@@ -2804,7 +2692,6 @@ function mostrarGrupos(
   );
 
 }
-
 
 /* =====================================================
    QR DETECTADO
