@@ -1007,6 +1007,8 @@ details[open] > summary .chevron {
 </style>
 
 <script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://stevenpq95.github.io/cet34-asistencia/auth.js"></script>
+
 </head>
 
 
@@ -1365,393 +1367,54 @@ const GOOGLE_CLIENT_ID =
 
 let googleIdToken = null;
 let usuarioAutorizado = null;
-let autenticacionIniciada = false;
+let autenticacionIniciada = true;
 
 
 /* =====================================================
-   VARIABLES
-   ===================================================== */
-
-let scanner = null;
-
-let procesando = false;
-
-let audioContext = null;
-
-let resultadoTimer = null;
-
-
-/* =====================================================
-   AUTENTICACIÓN GOOGLE
-   ===================================================== */
-
-function mostrarPantallaAcceso(mensaje, mostrarBotones) {
-
-  const pantalla = document.getElementById("pantallaAcceso");
-  const mensajeEl = document.getElementById("accesoMensaje");
-  const acciones = document.getElementById("accesoAcciones");
-
-  if (!pantalla) return;
-
-  pantalla.style.display = "flex";
-
-  if (mensajeEl) {
-    mensajeEl.textContent = mensaje || "Verificando tu cuenta de Google...";
-  }
-
-  if (acciones) {
-    acciones.style.display = mostrarBotones ? "grid" : "none";
-  }
-}
-
-function ocultarPantallaAcceso() {
-
-  const pantalla = document.getElementById("pantallaAcceso");
-
-  if (pantalla) {
-    pantalla.style.display = "none";
-  }
-}
-
-/* =====================================================
-   COMUNICACIÓN SEGURA GITHUB → APPS SCRIPT
+   AUTENTICACIÓN COMÚN CET 34
    =====================================================
 
-   IMPORTANTE:
-   - NO usamos fetch() contra Apps Script.
-   - NO dependemos de postMessage() para enviar solicitudes.
-   - Cada llamada utiliza un formulario POST HTML normal.
-   - El formulario apunta a un iframe temporal y oculto.
-   - Apps Script responde dentro de ese iframe y usa
-     postMessage() únicamente para devolver el resultado a GitHub.
-   - Las operaciones privadas llevan el ID Token de Google.
-   - El servidor vuelve a validar el token y consulta USUARIOS.
-   ===================================================== */
-
-const POST_TIMEOUT = 30000;
-let solicitudContador = 0;
-const solicitudesPendientes = new Map();
-
-/*
-   Apps Script puede responder desde script.google.com o desde
-   un subdominio dinámico googleusercontent.com.
-*/
-function esOrigenAppsScript(origen) {
-
-  const texto = String(origen || "");
-
-  return (
-    texto === "https://script.google.com" ||
-    /^https:\/\/([a-z0-9-]+\.)*googleusercontent\.com$/i.test(texto)
-  );
-}
-
-function crearSolicitudId() {
-
-  solicitudContador += 1;
-
-  const aleatorio =
-    (
-      typeof crypto !== "undefined" &&
-      typeof crypto.randomUUID === "function"
-    )
-      ? crypto.randomUUID()
-      : (
-          Math.random().toString(36).slice(2) +
-          Math.random().toString(36).slice(2)
-        );
-
-  return (
-    "req_" +
-    aleatorio +
-    "_" +
-    solicitudContador
-  );
-}
-
-/*
-   Envía una solicitud al Web App mediante POST + iframe.
-
-   No se incluye el token en la URL.
-   El token viaja dentro del cuerpo POST como parte del payload.
-*/
-function llamarServidor(action, parametros) {
-
-  return new Promise(function(resolve, reject) {
-
-    const id =
-      crearSolicitudId();
-
-    const nombreIframe =
-      "cet34_post_" +
-      id.replace(/[^a-zA-Z0-9_]/g, "");
-
-    const iframe =
-      document.createElement("iframe");
-
-    iframe.name = nombreIframe;
-    iframe.title =
-      "Comunicación segura CET 34";
-    iframe.setAttribute(
-      "aria-hidden",
-      "true"
-    );
-
-    iframe.style.position = "fixed";
-    iframe.style.width = "1px";
-    iframe.style.height = "1px";
-    iframe.style.border = "0";
-    iframe.style.opacity = "0";
-    iframe.style.pointerEvents = "none";
-    iframe.style.left = "-9999px";
-    iframe.style.top = "-9999px";
-
-    document.body.appendChild(
-      iframe
-    );
-
-    const form =
-      document.createElement("form");
-
-    form.method = "POST";
-    form.action = URL_APPS_SCRIPT;
-    form.target = nombreIframe;
-    form.acceptCharset = "UTF-8";
-
-    form.style.display = "none";
-
-    function agregarCampo(nombre, valor) {
-
-      const input =
-        document.createElement("input");
-
-      input.type = "hidden";
-      input.name = nombre;
-      input.value =
-        String(valor ?? "");
-
-      form.appendChild(input);
-
-    }
-
-    agregarCampo(
-      "action",
-      String(action || "")
-    );
-
-    agregarCampo(
-      "requestId",
-      id
-    );
-
-    agregarCampo(
-      "payload",
-      JSON.stringify(
-        parametros || {}
-      )
-    );
-
-    document.body.appendChild(
-      form
-    );
-
-    const temporizador =
-      setTimeout(
-        function() {
-
-          solicitudesPendientes.delete(
-            id
-          );
-
-          try {
-            form.remove();
-          } catch (_) {}
-
-          try {
-            iframe.remove();
-          } catch (_) {}
-
-          reject(
-            new Error(
-              "El servidor tardó demasiado en responder."
-            )
-          );
-
-        },
-        POST_TIMEOUT
-      );
-
-    solicitudesPendientes.set(
-      id,
-      {
-        resolve: resolve,
-        reject: reject,
-        temporizador: temporizador,
-        iframe: iframe,
-        form: form
-      }
-    );
-
-    console.info(
-      "CET34: enviando solicitud POST al servidor:",
-      {
-        action: action,
-        id: id
-      }
-    );
-
-    try {
-
-      form.submit();
-
-    } catch (error) {
-
-      clearTimeout(
-        temporizador
-      );
-
-      solicitudesPendientes.delete(
-        id
-      );
-
-      try {
-        form.remove();
-      } catch (_) {}
-
-      try {
-        iframe.remove();
-      } catch (_) {}
-
-      reject(
-        error
-      );
-
-    }
-
-  });
-
-}
-
-/*
-   Respuestas que llegan desde Apps Script mediante el iframe.
-*/
-window.addEventListener(
-  "message",
-  function(event) {
-
-    if (
-      !esOrigenAppsScript(
-        event.origin
-      )
-    ) {
-      return;
-    }
-
-    const datos =
-      event.data || {};
-
-    if (
-      datos.canal !== "CET34" ||
-      datos.tipo !== "respuesta" ||
-      !datos.id
-    ) {
-      return;
-    }
-
-    const pendiente =
-      solicitudesPendientes.get(
-        datos.id
-      );
-
-    if (!pendiente) {
-      return;
-    }
-
-    /*
-       Apps Script HTML Service puede devolver la respuesta
-       desde una ventana interna del sandbox en lugar de la
-       misma WindowProxy del iframe exterior.
-
-       Por eso NO comparamos event.source con iframe.contentWindow.
-       La respuesta se acepta únicamente cuando:
-       1) proviene de un origen válido de Apps Script; y
-       2) contiene un requestId que nosotros generamos y tenemos
-          pendiente.
-
-       El servidor ya validó el ID Token de Google antes de
-       generar esta respuesta.
-    */
-
-    clearTimeout(
-      pendiente.temporizador
-    );
-
-    solicitudesPendientes.delete(
-      datos.id
-    );
-
-    try {
-      pendiente.form.remove();
-    } catch (_) {}
-
-    try {
-      pendiente.iframe.remove();
-    } catch (_) {}
-
-    if (
-      datos.ok === true
-    ) {
-
-      console.info(
-        "CET34: respuesta POST recibida.",
-        {
-          id: datos.id,
-          origen: event.origin
-        }
-      );
-
-      pendiente.resolve(
-        datos.datos
-      );
-
-    } else {
-
-      pendiente.reject(
-        new Error(
-          datos.mensaje ||
-          "Error del servidor."
-        )
-      );
-
-    }
-
-  }
-);
-
-/* =====================================================
-   AUTENTICACIÓN GOOGLE
+   La autenticación real está en auth.js.
+
+   Estas funciones son pequeños puentes de compatibilidad
+   para conservar la lógica existente del scanner y de las
+   estadísticas sin modificar su funcionamiento.
    ===================================================== */
 
 function mostrarPantallaAcceso(mensaje, mostrarBotones) {
-  const pantalla = document.getElementById("pantallaAcceso");
-  const mensajeEl = document.getElementById("accesoMensaje");
-  const acciones = document.getElementById("accesoAcciones");
+  if (window.CET34Auth) {
 
-  if (!pantalla) return;
+    const panel =
+      document.getElementById("pantallaAcceso");
 
-  pantalla.style.display = "flex";
+    if (panel) {
+      panel.style.display = "flex";
+    }
 
-  if (mensajeEl) {
-    mensajeEl.textContent = mensaje || "Verificando tu cuenta de Google...";
-  }
+    const mensajeEl =
+      document.getElementById("accesoMensaje");
 
-  if (acciones) {
-    acciones.style.display = mostrarBotones ? "grid" : "none";
+    if (mensajeEl) {
+      mensajeEl.textContent =
+        mensaje ||
+        "Verificando tu cuenta de Google...";
+    }
+
+    const acciones =
+      document.getElementById("accesoAcciones");
+
+    if (acciones) {
+      acciones.style.display =
+        mostrarBotones ? "grid" : "none";
+    }
+
+    return;
   }
 }
 
 function ocultarPantallaAcceso() {
-  const pantalla = document.getElementById("pantallaAcceso");
+  const pantalla =
+    document.getElementById("pantallaAcceso");
 
   if (pantalla) {
     pantalla.style.display = "none";
@@ -1759,129 +1422,92 @@ function ocultarPantallaAcceso() {
 }
 
 function iniciarGoogleLogin(forzarSeleccion) {
-  if (typeof google === "undefined" || !google.accounts || !google.accounts.id) {
+
+  if (
+    !window.CET34Auth
+  ) {
+
     mostrarPantallaAcceso(
-      "Google Identity Services todavía está cargando. Intenta nuevamente en unos segundos.",
+      "No se pudo cargar el módulo de seguridad.",
       true
     );
+
     return;
+
   }
 
-  if (forzarSeleccion) {
-    try {
-      google.accounts.id.disableAutoSelect();
-    } catch (error) {
-      console.warn("No se pudo desactivar la selección automática:", error);
-    }
-  }
-
-  // Google Identity Services se inicializa una sola vez.
-  if (!autenticacionIniciada) {
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: recibirRespuestaGoogle,
-      auto_select: false,
-      cancel_on_tap_outside: false
-    });
-
-    autenticacionIniciada = true;
-  }
-
-  mostrarPantallaAcceso(
-    "Selecciona la cuenta de Google autorizada para utilizar el sistema.",
-    false
+  return CET34Auth.login(
+    Boolean(forzarSeleccion)
   );
+
+}
+
+
+/*
+   Todas las funciones antiguas que utilizaban
+   llamarServidor() pasan ahora por la autenticación común.
+
+   CET34Auth.request() agrega el ID Token actual
+   automáticamente y el servidor vuelve a validarlo.
+*/
+async function llamarServidor(
+  action,
+  parametros
+) {
+
+  if (
+    !window.CET34Auth
+  ) {
+
+    throw new Error(
+      "El módulo de autenticación CET34 no está disponible."
+    );
+
+  }
+
+  const datos =
+    await CET34Auth.request(
+      action,
+      parametros || {}
+    );
 
   /*
-     No usamos isNotDisplayed()/isSkippedMoment()/isDismissedMoment().
-     Esos métodos de estado de One Tap generan advertencias de
-     migración a FedCM y no son necesarios para el flujo de acceso.
+     Mantener estas variables para el código existente
+     que todavía las consulta.
   */
-  google.accounts.id.prompt();
-}
-
-function recibirRespuestaGoogle(respuesta) {
-  if (!respuesta || !respuesta.credential) {
-    mostrarPantallaAcceso(
-      "Google no devolvió una credencial válida.",
-      true
-    );
-    return;
-  }
-
-  googleIdToken = respuesta.credential;
-  enviarTokenAlServidor();
-}
-
-async function enviarTokenAlServidor() {
-  if (!googleIdToken) {
-    mostrarPantallaAcceso(
-      "No se recibió el ID Token de Google.",
-      true
-    );
-    return;
-  }
-
-  mostrarPantallaAcceso(
-    "Verificando tu cuenta con el sistema CET 34...",
-    false
-  );
-
   try {
-    const datos = await llamarServidor("verificargoogletoken", {
-      token: googleIdToken
-    });
+    googleIdToken =
+      CET34Auth.getToken();
+  } catch (_) {}
 
-    if (datos && datos.exito === true && datos.autorizado === true) {
-      usuarioAutorizado = datos;
+  usuarioAutorizado =
+    CET34Auth.getUser();
 
-      const usuarioEl = document.getElementById("accesoUsuario");
-
-      if (usuarioEl) {
-        usuarioEl.textContent =
-          (datos.nombre || datos.correo || "") +
-          (datos.rol ? " · " + datos.rol : "");
-      }
-
-      ocultarPantallaAcceso();
-
-      cargarEstadisticas();
-      iniciarScanner();
-      activarAudio();
-      return;
-    }
-
-    const usuarioEl = document.getElementById("accesoUsuario");
-
-    if (usuarioEl) {
-      usuarioEl.textContent = datos && datos.correo ? datos.correo : "";
-    }
-
-    mostrarPantallaAcceso(
-      (datos && datos.mensaje) ||
-      "Tu cuenta no está autorizada para utilizar el sistema.",
-      true
-    );
-
-  } catch (error) {
-    console.error("Error verificando Google:", error);
-
-    mostrarPantallaAcceso(
-      "No se pudo verificar tu cuenta con el servidor. Inténtalo nuevamente.",
-      true
-    );
-  }
+  return datos;
 }
+
 
 function urlConToken(url) {
-  if (!googleIdToken) {
-    throw new Error("No existe un ID Token de Google válido.");
+
+  /*
+     Se conserva por compatibilidad.
+     Las operaciones nuevas deben usar llamarServidor()
+     y no colocar tokens manualmente en URLs.
+  */
+
+  if (
+    !CET34Auth ||
+    !CET34Auth.isAuthenticated()
+  ) {
+
+    throw new Error(
+      "No existe una sesión autenticada."
+    );
+
   }
 
-  return url +
-    (url.indexOf("?") >= 0 ? "&" : "?") +
-    "token=" +
-    encodeURIComponent(googleIdToken);
+  return String(url || "");
+
 }
 
 /* =====================================================
@@ -3905,40 +3531,70 @@ window.addEventListener(
   "load",
   function() {
 
-    mostrarPantallaAcceso(
-      "Verificando tu cuenta de Google...",
-      false
-    );
-
     /*
-       Con POST + iframe ya no necesitamos esperar ningún
-       "puente_listo". Google Identity Services puede iniciar
-       inmediatamente y la primera petición se enviará cuando
-       exista el ID Token.
+       FASE 1:
+       Toda la aplicación privada usa el módulo auth.js.
+       Cuando la cuenta queda autorizada, recién entonces
+       inicializamos estadísticas y scanner.
     */
-    const intentar = function() {
 
-      if (
-        typeof google !== "undefined" &&
-        google.accounts &&
-        google.accounts.id
-      ) {
+    if (
+      !window.CET34Auth
+    ) {
 
-        iniciarGoogleLogin(false);
-        return;
-      }
-
-      setTimeout(
-        intentar,
-        300
+      mostrarPantallaAcceso(
+        "No se pudo cargar el módulo de seguridad.",
+        true
       );
-    };
 
-    intentar();
+      return;
+    }
+
+    CET34Auth
+      .requireAuth({
+        roles: [
+          "ADMINISTRADOR",
+          "DOCENTE"
+        ],
+        mensaje:
+          "Verificando tu cuenta de Google..."
+      })
+
+      .then(
+        function (datosUsuario) {
+
+          usuarioAutorizado =
+            datosUsuario;
+
+          try {
+            googleIdToken =
+              CET34Auth.getToken();
+          } catch (_) {
+            googleIdToken = null;
+          }
+
+          cargarEstadisticas();
+
+          iniciarScanner();
+
+          activarAudio();
+
+        }
+      )
+
+      .catch(
+        function (error) {
+
+          console.warn(
+            "CET34: acceso no completado.",
+            error
+          );
+
+        }
+      );
 
   }
 );
-
 </script>
 
 </body>
