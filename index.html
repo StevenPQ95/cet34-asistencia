@@ -1457,12 +1457,16 @@ function enviarMensajeAlPuente(mensaje) {
   }
 
   /*
-     El destino "*" es intencional porque Apps Script puede
-     redirigir el iframe entre script.google.com y un dominio
-     googleusercontent.com dinámico. La seguridad real se hace
-     en el receptor mediante event.origin y event.source.
-  */
+     Apps Script HTML Service puede utilizar un dominio
+     googleusercontent.com dinámico como destino real del iframe.
+     Por eso usamos "*" para el targetOrigin.
 
+     La seguridad NO depende de este targetOrigin:
+     - el puente valida que la solicitud venga de GitHub;
+     - GitHub valida que la respuesta venga de Apps Script;
+     - las operaciones privadas vuelven a validar el ID Token
+       en el servidor.
+  */
   frame.contentWindow.postMessage(
     mensaje,
     "*"
@@ -1545,13 +1549,7 @@ function llamarServidor(action, parametros) {
 
       try {
 
-      console.log(
-  "CET34: enviando solicitud al puente",
-  {
-    id: id,
-    action: action
-  }
-);
+      console.info("CET34: solicitud al puente:", action, id);
         enviarMensajeAlPuente({
 
           canal: "CET34",
