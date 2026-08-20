@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CET 34 - Reportes de Asistencia</title>
+
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client"
+        async
+        defer></script>
+
+<!-- Autenticación común CET 34 -->
+<script src="https://stevenpq95.github.io/cet34-asistencia/auth.js"></script>
 <style>
   * { box-sizing: border-box; }
   html, body { width:100%; max-width:100%; overflow-x:hidden; }
@@ -73,18 +81,38 @@
   .mini-estados { display:flex; gap:5px; align-items:center; justify-content:flex-end; flex-wrap:nowrap; min-width:0; }
   .mini { padding:6px 9px; border-radius:999px; font-size:12px; font-weight:900; white-space:nowrap; }
   .mini-presente{background:var(--verde-suave);color:var(--verde)} .mini-tardanza{background:var(--amarillo-suave);color:var(--amarillo)} .mini-falta{background:var(--rojo-suave);color:var(--rojo)} .mini-pendiente{background:var(--pendiente-suave);color:var(--pendiente)}
-  .flecha { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#94a3b8; justify-self:end; grid-column:4; grid-row:1; }
+  .flecha {
+    width:30px;
+    height:30px;
+    border-radius:9px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#94a3b8;
+    background:transparent;
+    justify-self:end;
+    grid-column:4;
+    grid-row:1;
+    transition:background .22s ease,color .22s ease;
+  }
+
   .flecha-icono {
     width:10px;
     height:10px;
     border-right:2.5px solid currentColor;
     border-bottom:2.5px solid currentColor;
-    transform:rotate(45deg) translate(-2px,-2px);
-    transform-origin:center;
+    transform:rotate(45deg);
+    transform-origin:center center;
     transition:transform .25s cubic-bezier(.4,0,.2,1);
   }
+
+  .estudiante-aula.abierto .flecha {
+    background:var(--azul-suave);
+    color:var(--azul);
+  }
+
   .estudiante-aula.abierto .flecha-icono {
-    transform:rotate(225deg) translate(-2px,-2px);
+    transform:rotate(225deg);
   }
   .detalle-estudiante { display:none; padding:0 14px 16px; border-top:1px solid #edf2f7; min-width:0; }
   .estudiante-aula.abierto .detalle-estudiante { display:block; }
@@ -220,7 +248,7 @@
     .estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}.estadistica{min-height:88px;border-radius:14px}.estadistica-total{grid-column:1 / -1;max-width:none;justify-self:stretch;min-height:64px;gap:9px}.estadistica-total .numero{font-size:28px}.estadistica .numero{font-size:28px;margin-bottom:6px}.estadistica-total .numero{margin-bottom:0}.estadistica .etiqueta{font-size:12px;gap:5px}
     .barra{height:10px;margin-bottom:20px}
     .titulo-lista{gap:7px;margin-bottom:11px}.titulo-lista h3{font-size:19px}
-    .estudiante-aula{border-radius:15px;margin-bottom:9px}.cabecera-estudiante{grid-template-columns:30px minmax(0,1fr) auto 28px;gap:7px;padding:10px 10px;min-height:64px}.numero-estudiante{width:30px;font-size:14px}.nombre-estudiante{font-size:13px;line-height:1.2}.mini-estados{gap:3px;max-width:100px}.mini{padding:5px 7px;font-size:11px}.flecha{width:28px;height:28px;font-size:18px}
+    .estudiante-aula{border-radius:15px;margin-bottom:9px}.cabecera-estudiante{grid-template-columns:30px minmax(0,1fr) auto 28px;gap:7px;padding:10px 10px;min-height:64px}.numero-estudiante{width:30px;font-size:14px}.nombre-estudiante{font-size:13px;line-height:1.2}.mini-estados{gap:3px;max-width:100px}.mini{padding:5px 7px;font-size:11px}.flecha{width:28px;height:28px}
     .detalle-estudiante{padding:0 10px 12px}.resumen-individual{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:11px}.resumen-item{padding:11px 6px;border-radius:13px}.resumen-item strong{font-size:21px}.resumen-item span{font-size:11px}
     .historial-aula{margin-top:13px;padding-top:13px}.historial-aula h4{font-size:17px;margin-bottom:9px}
     .registro-dia-aula{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:6px 8px;padding:12px 11px;font-size:13px;align-items:center}.registro-identificacion{grid-column:1 / -1;grid-row:1;grid-template-columns:minmax(0,1fr) auto;gap:8px}.registro-detalles-hora{grid-column:1;grid-row:2}.registro-dia-aula > .estado{grid-column:2;grid-row:2;align-self:center;justify-self:end}.registro-horario{margin:4px 0 0;font-size:11px;line-height:1.35}.registro-dia-nombre{margin-top:0}.estado{font-size:11px;padding:6px 10px}
@@ -250,6 +278,13 @@
 </style>
 </head>
 <body>
+<!--
+  Seguridad:
+  auth.js autentica con Google Identity Services.
+  Toda consulta privada usa CET34Auth.request(), que envía el
+  ID Token mediante POST + iframe y Apps Script vuelve a validar
+  la identidad y el rol en el servidor.
+-->
 <div class="contenedor">
   <header class="encabezado">
     <h1>📊 Reportes de asistencia</h1>
@@ -322,7 +357,7 @@
     No cambies el resto del código.
   */
 
-  const API_URL = "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
+  const API_URL = "https://script.google.com/macros/s/AKfycbwKwnUGpCtVSqCPMkFgaq3ho3e1Z12-xVjzKwl_bwfzOwV7SYHmB9tuSBuOnGJglb7x/exec";
 
 
   let estudianteSeleccionado = null;
@@ -662,39 +697,35 @@
 
     try {
 
-      const url =
-        API_URL +
-        "?action=reporte" +
-        "&fechaInicio=" +
-        encodeURIComponent(fechaInicio) +
-        "&fechaFin=" +
-        encodeURIComponent(fechaFin) +
-        "&grado=" +
-        encodeURIComponent(grado) +
-        "&seccion=" +
-        encodeURIComponent(seccion);
-
-
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-        throw new Error(
-          "No fue posible conectar con el servidor."
-        );
-      }
-
-
       const resultado =
-        await respuesta.json();
+        await CET34Auth.request(
+          "reporte",
+          {
+            fechaInicio:
+              fechaInicio,
+
+            fechaFin:
+              fechaFin,
+
+            grado:
+              grado,
+
+            seccion:
+              seccion
+          }
+        );
 
 
-      if (!resultado.exito) {
+      if (
+        !resultado ||
+        resultado.exito !== true
+      ) {
 
         throw new Error(
-          resultado.mensaje ||
-          "No fue posible generar el reporte."
+          resultado &&
+          resultado.mensaje
+            ? resultado.mensaje
+            : "No fue posible generar el reporte."
         );
 
       }
@@ -920,43 +951,26 @@
 
     try {
 
-      /*
-        Esta acción será implementada
-        en doGet():
-
-        action=buscarEstudiante
-      */
-
-
-      const url =
-        API_URL +
-        "?action=buscarEstudiante" +
-        "&q=" +
-        encodeURIComponent(texto);
-
-
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-
-        throw new Error(
-          "No fue posible conectar con el servidor."
+      const datos =
+        await CET34Auth.request(
+          "buscarestudiante",
+          {
+            q:
+              texto
+          }
         );
 
-      }
 
-
-      const datos =
-        await respuesta.json();
-
-
-      if (!datos.exito) {
+      if (
+        !datos ||
+        datos.exito !== true
+      ) {
 
         throw new Error(
-          datos.mensaje ||
-          "No fue posible realizar la búsqueda."
+          datos &&
+          datos.mensaje
+            ? datos.mensaje
+            : "No fue posible realizar la búsqueda."
         );
 
       }
@@ -1250,53 +1264,32 @@
 
     try {
 
-      /*
-        Esta acción será implementada
-        en doGet():
-
-        action=reporteEstudiante
-      */
-
-
-      const url =
-        API_URL +
-        "?action=reporteEstudiante" +
-        "&codigo=" +
-        encodeURIComponent(
-          estudianteSeleccionado.codigo
-        ) +
-        "&fechaInicio=" +
-        encodeURIComponent(
-          fechaInicio
-        ) +
-        "&fechaFin=" +
-        encodeURIComponent(
-          fechaFin
-        );
-
-
-      const respuesta =
-        await fetch(url);
-
-
-      if (!respuesta.ok) {
-
-        throw new Error(
-          "No fue posible conectar con el servidor."
-        );
-
-      }
-
-
       const datos =
-        await respuesta.json();
+        await CET34Auth.request(
+          "reporteestudiante",
+          {
+            codigoEstudiante:
+              estudianteSeleccionado.codigo,
+
+            fechaInicio:
+              fechaInicio,
+
+            fechaFin:
+              fechaFin
+          }
+        );
 
 
-      if (!datos.exito) {
+      if (
+        !datos ||
+        datos.exito !== true
+      ) {
 
         throw new Error(
-          datos.mensaje ||
-          "No fue posible generar el reporte individual."
+          datos &&
+          datos.mensaje
+            ? datos.mensaje
+            : "No fue posible generar el reporte individual."
         );
 
       }
@@ -1444,9 +1437,47 @@
 
   document.addEventListener(
     "DOMContentLoaded",
-    () => {
+    async () => {
 
       configurarFechas();
+
+      if (
+        !window.CET34Auth
+      ) {
+
+        console.error(
+          "CET34: auth.js no está disponible."
+        );
+
+        return;
+
+      }
+
+      try {
+
+        const usuario =
+          await CET34Auth.requireAuth({
+            roles: [
+              "ADMINISTRADOR",
+              "DOCENTE"
+            ],
+            mensaje:
+              "Verificando tu cuenta de Google..."
+          });
+
+        console.info(
+          "CET34 REPORTES: usuario autorizado:",
+          usuario.rol
+        );
+
+      } catch (error) {
+
+        console.warn(
+          "CET34 REPORTES: acceso no completado.",
+          error
+        );
+
+      }
 
     }
   );
