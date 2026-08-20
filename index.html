@@ -1841,9 +1841,215 @@ function cargarEstadisticas() {
    MOSTRAR ESTADÍSTICAS
    ===================================================== */
 
+/*
+   ============================================================
+   ESTADOS DEL RESUMEN DEL DÍA
+   ------------------------------------------------------------
+   El backend actual entrega "faltantes" como estudiantes que
+   todavía no tienen registro.
+
+   Mientras la jornada no esté cerrada, esos estudiantes deben
+   mostrarse como PENDIENTES, no como FALTAS.
+
+   El código admite una futura propiedad del backend:
+     jornadaCerrada / claseTerminada / horarioCerrado
+
+   Si alguna de ellas llega en true, los faltantes vuelven a
+   mostrarse como faltas.
+   ============================================================
+*/
+
+function jornadaEstaCerrada(
+  data
+) {
+
+  if (
+    data &&
+    (
+      data.jornadaCerrada === true ||
+      data.claseTerminada === true ||
+      data.horarioCerrado === true
+    )
+  ) {
+
+    return true;
+
+  }
+
+  if (
+    data &&
+    Array.isArray(data.grupos) &&
+    data.grupos.length > 0
+  ) {
+
+    const hayEstadoExplicito =
+      data.grupos.some(
+        function(grupo) {
+
+          return (
+            grupo.jornadaCerrada !== undefined ||
+            grupo.claseTerminada !== undefined ||
+            grupo.horarioCerrado !== undefined
+          );
+
+        }
+      );
+
+    if (
+      hayEstadoExplicito
+    ) {
+
+      return data.grupos.every(
+        function(grupo) {
+
+          return (
+            grupo.jornadaCerrada === true ||
+            grupo.claseTerminada === true ||
+            grupo.horarioCerrado === true
+          );
+
+        }
+      );
+
+    }
+
+  }
+
+  /*
+     En el dashboard de la jornada actual, si el backend todavía
+     no proporciona la bandera de cierre, los estudiantes sin
+     registro se consideran pendientes. Esto corrige el estado
+     mientras el horario sigue abierto.
+  */
+  return false;
+
+}
+
+
+function estadosDelGrupo(
+  grupo,
+  jornadaCerrada
+) {
+
+  const faltantes =
+    Number(
+      grupo &&
+      grupo.faltantes || 0
+    );
+
+  const pendientesRecibidos =
+    Number(
+      grupo &&
+      grupo.pendientes || 0
+    );
+
+  const faltasRecibidas =
+    Number(
+      grupo &&
+      grupo.faltas || 0
+    );
+
+  if (
+    jornadaCerrada
+  ) {
+
+    return {
+      pendientes:
+        pendientesRecibidos,
+
+      faltas:
+        faltasRecibidas ||
+        faltantes
+    };
+
+  }
+
+  return {
+
+    pendientes:
+      pendientesRecibidos ||
+      faltantes,
+
+    faltas:
+      faltasRecibidas
+
+  };
+
+}
+
+
+function estadosGenerales(
+  data,
+  jornadaCerrada
+) {
+
+  const faltantes =
+    Number(
+      data &&
+      data.faltantesGeneral || 0
+    );
+
+  const pendientesRecibidos =
+    Number(
+      data &&
+      data.pendientesGeneral || 0
+    );
+
+  const faltasRecibidas =
+    Number(
+      data &&
+      (
+        data.faltasGeneral ||
+        0
+      )
+    );
+
+  if (
+    jornadaCerrada
+  ) {
+
+    return {
+
+      pendientes:
+        pendientesRecibidos,
+
+      faltas:
+        faltasRecibidas ||
+        faltantes
+
+    };
+
+  }
+
+  return {
+
+    pendientes:
+      pendientesRecibidos ||
+      faltantes,
+
+    faltas:
+      faltasRecibidas
+
+  };
+
+}
+
+
 function mostrarEstadisticas(
   data
 ) {
+
+  const cerrada =
+    jornadaEstaCerrada(
+      data
+    );
+
+  const estados =
+    estadosGenerales(
+      data,
+      cerrada
+    );
+
 
   document.getElementById(
     "fecha"
@@ -1861,46 +2067,61 @@ function mostrarEstadisticas(
   document.getElementById(
     "presentesGeneral"
   ).textContent =
-    data.presentesGeneral;
+    Number(
+      data.presentesGeneral || 0
+    );
 
 
   document.getElementById(
     "tardanzasGeneral"
   ).textContent =
-    data.tardanzasGeneral;
+    Number(
+      data.tardanzasGeneral || 0
+    );
 
 
-  // Compatible con el backend actual y preparado para pendientesGeneral.
   document.getElementById(
     "pendientesGeneral"
   ).textContent =
-    Number(data.pendientesGeneral || 0);
+    estados.pendientes;
 
 
   document.getElementById(
     "faltantesGeneral"
   ).textContent =
-    data.faltantesGeneral;
+    estados.faltas;
 
 
   document.getElementById(
     "totalGeneral"
   ).textContent =
-    data.totalGeneral;
+    Number(
+      data.totalGeneral || 0
+    );
 
 
   document.getElementById(
     "porcentajeGeneral"
   ).textContent =
     "Asistencia: " +
-    data.porcentajeGeneral +
+    Number(
+      data.porcentajeGeneral || 0
+    ) +
     "%";
 
 
   document.getElementById(
     "barraGeneral"
   ).style.width =
-    data.porcentajeGeneral +
+    Math.max(
+      0,
+      Math.min(
+        100,
+        Number(
+          data.porcentajeGeneral || 0
+        )
+      )
+    ) +
     "%";
 
 
@@ -1916,16 +2137,30 @@ function mostrarEstadisticas(
   ) {
 
     jornada.className =
-      "jornada";
+      cerrada
+        ? "jornada pausa"
+        : "jornada";
 
     jornada.innerHTML =
-      "🟢 JORNADA ACTIVA · " +
-      data.grupos.length +
-      (
-        data.grupos.length === 1
-          ? " grupo"
-          : " grupos"
-      );
+      cerrada
+        ? (
+            "🔴 JORNADA CERRADA · " +
+            data.grupos.length +
+            (
+              data.grupos.length === 1
+                ? " grupo"
+                : " grupos"
+            )
+          )
+        : (
+            "🟢 JORNADA ACTIVA · " +
+            data.grupos.length +
+            (
+              data.grupos.length === 1
+                ? " grupo"
+                : " grupos"
+            )
+          );
 
   }
 
@@ -1946,11 +2181,11 @@ function mostrarEstadisticas(
 
 
   mostrarGrupos(
-    data.grupos
+    data.grupos,
+    cerrada
   );
 
 }
-
 
 /* =====================================================
    ÚLTIMO REGISTRO
@@ -2212,7 +2447,8 @@ function crearLista(
    ===================================================== */
 
 function mostrarGrupos(
-  grupos
+  grupos,
+  jornadaCerrada
 ) {
 
   const contenedor =
@@ -2248,6 +2484,39 @@ function mostrarGrupos(
 
   grupos.forEach(
     function(grupo) {
+
+      const estados =
+        estadosDelGrupo(
+          grupo,
+          jornadaCerrada === true
+        );
+
+      const estudiantesFaltantes =
+        Array.isArray(
+          grupo.estudiantesFaltantes
+        )
+          ? grupo.estudiantesFaltantes
+          : [];
+
+      const etiquetaPendientes =
+        jornadaCerrada
+          ? "Pendientes"
+          : "Pendientes";
+
+      const tituloSinRegistro =
+        jornadaCerrada
+          ? "Faltantes"
+          : "Pendientes";
+
+      const tipoSinRegistro =
+        jornadaCerrada
+          ? "faltante"
+          : "pendiente";
+
+      const emojiSinRegistro =
+        jornadaCerrada
+          ? "🔴"
+          : "🔵";
 
       const tarjeta =
         document.createElement(
@@ -2389,7 +2658,7 @@ function mostrarGrupos(
 
             <div class="grupo-estado">
               <div class="numero numero-pendiente">
-                ${Number(grupo.pendientes || 0)}
+                ${estados.pendientes}
               </div>
               <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
             </div>
@@ -2402,7 +2671,7 @@ function mostrarGrupos(
                 class="numero
                        numero-faltante">
 
-                ${grupo.faltantes}
+                ${estados.faltas}
 
               </div>
 
@@ -2511,13 +2780,13 @@ function mostrarGrupos(
 
           ${crearLista(
 
-            grupo.estudiantesFaltantes,
+            estudiantesFaltantes,
 
-            "faltante",
+            tipoSinRegistro,
 
-            "Faltantes",
+            tituloSinRegistro,
 
-            "🔴"
+            emojiSinRegistro
 
           )}
 
