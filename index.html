@@ -1457,19 +1457,61 @@ function enviarMensajeAlPuente(mensaje) {
   }
 
   /*
-     Apps Script HTML Service puede utilizar un dominio
-     googleusercontent.com dinámico como destino real del iframe.
-     Por eso usamos "*" para el targetOrigin.
+     Apps Script HTML Service puede usar una capa contenedora
+     externa y dentro de ella el documento sandbox real.
 
-     La seguridad NO depende de este targetOrigin:
-     - el puente valida que la solicitud venga de GitHub;
-     - GitHub valida que la respuesta venga de Apps Script;
-     - las operaciones privadas vuelven a validar el ID Token
-       en el servidor.
+     Desde GitHub:
+       iframe.contentWindow
+            ↓
+       contenedor Apps Script
+            ↓
+       frames[0] = documento sandbox
+
+     Cuando existe esa capa interna, enviamos la solicitud
+     directamente al documento sandbox. Si no existe, usamos
+     la ventana del iframe como compatibilidad.
   */
-  frame.contentWindow.postMessage(
+
+  const ventanaContenedora = frame.contentWindow;
+
+  try {
+
+    if (
+      ventanaContenedora.frames &&
+      ventanaContenedora.frames.length > 0
+    ) {
+
+      const ventanaSandbox =
+        ventanaContenedora.frames[0];
+
+      ventanaSandbox.postMessage(
+        mensaje,
+        "*"
+      );
+
+      console.info(
+        "CET34: solicitud enviada al sandbox interno de Apps Script."
+      );
+
+      return;
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "CET34: no se pudo usar el sandbox interno; se intentará la ventana contenedora.",
+      error
+    );
+
+  }
+
+  ventanaContenedora.postMessage(
     mensaje,
     "*"
+  );
+
+  console.info(
+    "CET34: solicitud enviada a la ventana contenedora de Apps Script."
   );
 }
 
@@ -1549,7 +1591,13 @@ function llamarServidor(action, parametros) {
 
       try {
 
-      console.info("CET34: solicitud al puente:", action, id);
+      console.log(
+  "CET34: enviando solicitud al puente",
+  {
+    id: id,
+    action: action
+  }
+);
         enviarMensajeAlPuente({
 
           canal: "CET34",
