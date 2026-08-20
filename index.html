@@ -13,6 +13,14 @@
 <script src="https://unpkg.com/html5-qrcode"
         type="text/javascript"></script>
 
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client"
+        async
+        defer></script>
+
+<!-- Autenticación común CET 34 -->
+<script src="https://stevenpq95.github.io/cet34-asistencia/auth.js"></script>
+
 
 <style>
 /* =====================================================
@@ -420,7 +428,7 @@ body {
 
 .estadisticas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -457,6 +465,22 @@ body {
   font-size: 10px;
   font-weight: 800;
 }
+
+.estado-punto {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-right: 3px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+
+.punto-presente { background: #22c55e; }
+.punto-tardanza { background: #f59e0b; }
+.punto-pendiente { background: #3b82f6; }
+.punto-faltante { background: #ef4444; }
+
+.numero-pendiente { color: var(--azul); }
 
 .total-general {
   display: flex;
@@ -681,7 +705,7 @@ details[open] > summary .chevron {
 
 .grupo-estadisticas {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 10px;
   padding-top: 14px;
 }
@@ -899,6 +923,11 @@ details[open] > summary .chevron {
     font-size: 18px;
   }
 
+  .fecha-jornada { gap: 11px; }
+  .fecha { font-size: 17px; }
+  .jornada { font-size: 11px; }
+  .btn-reportes { min-height: 44px; font-size: 12px; }
+
   #reader {
     min-height: 360px;
   }
@@ -909,7 +938,8 @@ details[open] > summary .chevron {
 
   .estadisticas,
   .grupo-estadisticas {
-    gap: 7px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .numero {
@@ -939,108 +969,32 @@ details[open] > summary .chevron {
   }
 
   .ultimo-detalles {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .ultimo-hora {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .ultimo-estado {
+    flex: 0 0 auto;
   }
 }
-
-
-/* =====================================================
-   ACCESO GOOGLE
-   ===================================================== */
-.pantalla-acceso {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(15, 23, 42, .96);
-  backdrop-filter: blur(8px);
-}
-.acceso-caja {
-  width: min(420px, 100%);
-  box-sizing: border-box;
-  padding: 28px 22px;
-  border-radius: 24px;
-  background: #fff;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
-}
-.acceso-icono { font-size: 42px; margin-bottom: 10px; }
-.acceso-titulo { font-size: 22px; font-weight: 800; color: #0f172a; }
-.acceso-mensaje { margin-top: 10px; color: #64748b; font-size: 14px; line-height: 1.5; }
-.acceso-usuario { margin-top: 10px; color: #334155; font-size: 13px; font-weight: 700; word-break: break-word; }
-.acceso-acciones { margin-top: 18px; display: grid; gap: 9px; }
-.btn-acceso {
-  border: 0;
-  border-radius: 14px;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  background: #0f172a;
-  color: #fff;
-}
-.btn-acceso.secundario { background: #e2e8f0; color: #334155; }
-@media (max-width: 480px) {
-  .acceso-caja { padding: 24px 18px; border-radius: 20px; }
-  .acceso-titulo { font-size: 20px; }
-}
-
-/* =====================================================
-   PUENTE GITHUB ↔ APPS SCRIPT
-   Evita fetch() directo y el problema CORS.
-   ===================================================== */
-#puenteAppsScript {
-  position: fixed;
-  width: 1px;
-  height: 1px;
-  left: -9999px;
-  top: -9999px;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
 </style>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://stevenpq95.github.io/cet34-asistencia/auth.js"></script>
 
 </head>
 
 
 <body>
-
-<!-- =====================================================
-     CONTROL DE ACCESO
-     ===================================================== -->
-<div id="pantallaAcceso" class="pantalla-acceso">
-  <div class="acceso-caja">
-    <div class="acceso-icono">🔐</div>
-    <div class="acceso-titulo">Acceso al sistema</div>
-    <div id="accesoMensaje" class="acceso-mensaje">Verificando tu cuenta de Google...</div>
-    <div id="accesoUsuario" class="acceso-usuario"></div>
-    <div id="accesoAcciones" class="acceso-acciones" style="display:none;">
-      <button type="button" class="btn-acceso" onclick="iniciarGoogleLogin(true)">
-        🔄 Cambiar cuenta de Google
-      </button>
-      <button type="button" class="btn-acceso secundario" onclick="iniciarGoogleLogin(true)">
-        ↻ Reintentar
-      </button>
-    </div>
-  </div>
-</div>
-
 <!--
-  Comunicación segura GitHub → Apps Script:
-  cada solicitud se envía mediante un formulario POST a un
-  iframe temporal. No se usa fetch() ni postMessage() para
-  enviar solicitudes al servidor.
+  Seguridad:
+  auth.js autentica con Google Identity Services.
+  Las operaciones privadas usan POST + iframe y el ID Token
+  se valida nuevamente en Apps Script.
 -->
-<div id="postBridgeContainer" aria-hidden="true"></div>
 
 
 <!-- =====================================================
@@ -1155,6 +1109,7 @@ details[open] > summary .chevron {
 
     </div>
 
+
   </div>
 
 </div>
@@ -1177,63 +1132,25 @@ details[open] > summary .chevron {
 
   <div class="estadisticas">
 
-
     <div class="estadistica">
-
-      <div
-        id="presentesGeneral"
-        class="numero numero-presente">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🟢 Presentes
-
-      </div>
-
+      <div id="presentesGeneral" class="numero numero-presente">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-presente"></span> Presentes</div>
     </div>
 
-
     <div class="estadistica">
-
-      <div
-        id="tardanzasGeneral"
-        class="numero numero-tardanza">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🟡 Tardanzas
-
-      </div>
-
+      <div id="tardanzasGeneral" class="numero numero-tardanza">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-tardanza"></span> Tardanzas</div>
     </div>
 
-
     <div class="estadistica">
-
-      <div
-        id="faltantesGeneral"
-        class="numero numero-faltante">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🔴 Faltantes
-
-      </div>
-
+      <div id="pendientesGeneral" class="numero numero-pendiente">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
     </div>
 
+    <div class="estadistica">
+      <div id="faltantesGeneral" class="numero numero-faltante">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-faltante"></span> Faltas</div>
+    </div>
 
   </div>
 
@@ -1362,173 +1279,26 @@ details[open] > summary .chevron {
 const URL_APPS_SCRIPT =
   "https://script.google.com/macros/s/AKfycbwKwnUGpCtVSqCPMkFgaq3ho3e1Z12-xVjzKwl_bwfzOwV7SYHmB9tuSBuOnGJglb7x/exec";
 
-const GOOGLE_CLIENT_ID =
-  "1014449940080-f87gjj53j23f9or14hn4ddmaop2vl2ks.apps.googleusercontent.com";
-
-let googleIdToken = null;
-let usuarioAutorizado = null;
-let autenticacionIniciada = true;
-
 
 /* =====================================================
-   VARIABLES DEL ESCÁNER Y AUDIO
-   =====================================================
-
-   Estas variables pertenecían al index original y deben
-   mantenerse globales porque varias funciones del scanner
-   las utilizan:
-   - iniciarScanner()
-   - qrDetectado()
-   - registrarAsistencia()
-   - sonidos
-   - mostrarResultadoTemporal()
+   VARIABLES
    ===================================================== */
 
 let scanner = null;
+
 let procesando = false;
+
 let audioContext = null;
+
 let resultadoTimer = null;
 
-
-/* =====================================================
-   AUTENTICACIÓN COMÚN CET 34
-   =====================================================
-
-   La autenticación real está en auth.js.
-
-   Estas funciones son pequeños puentes de compatibilidad
-   para conservar la lógica existente del scanner y de las
-   estadísticas sin modificar su funcionamiento.
-   ===================================================== */
-
-function mostrarPantallaAcceso(mensaje, mostrarBotones) {
-  if (window.CET34Auth) {
-
-    const panel =
-      document.getElementById("pantallaAcceso");
-
-    if (panel) {
-      panel.style.display = "flex";
-    }
-
-    const mensajeEl =
-      document.getElementById("accesoMensaje");
-
-    if (mensajeEl) {
-      mensajeEl.textContent =
-        mensaje ||
-        "Verificando tu cuenta de Google...";
-    }
-
-    const acciones =
-      document.getElementById("accesoAcciones");
-
-    if (acciones) {
-      acciones.style.display =
-        mostrarBotones ? "grid" : "none";
-    }
-
-    return;
-  }
-}
-
-function ocultarPantallaAcceso() {
-  const pantalla =
-    document.getElementById("pantallaAcceso");
-
-  if (pantalla) {
-    pantalla.style.display = "none";
-  }
-}
-
-function iniciarGoogleLogin(forzarSeleccion) {
-
-  if (
-    !window.CET34Auth
-  ) {
-
-    mostrarPantallaAcceso(
-      "No se pudo cargar el módulo de seguridad.",
-      true
-    );
-
-    return;
-
-  }
-
-  return CET34Auth.login(
-    Boolean(forzarSeleccion)
-  );
-
-}
-
-
 /*
-   Todas las funciones antiguas que utilizaban
-   llamarServidor() pasan ahora por la autenticación común.
-
-   CET34Auth.request() agrega el ID Token actual
-   automáticamente y el servidor vuelve a validarlo.
+   La autenticación ya no se gestiona aquí.
+   auth.js mantiene el ID Token en memoria y el servidor
+   vuelve a validar el token en cada operación privada.
 */
-async function llamarServidor(
-  action,
-  parametros
-) {
+let usuarioAutorizado = null;
 
-  if (
-    !window.CET34Auth
-  ) {
-
-    throw new Error(
-      "El módulo de autenticación CET34 no está disponible."
-    );
-
-  }
-
-  const datos =
-    await CET34Auth.request(
-      action,
-      parametros || {}
-    );
-
-  /*
-     Mantener estas variables para el código existente
-     que todavía las consulta.
-  */
-  try {
-    googleIdToken =
-      CET34Auth.getToken();
-  } catch (_) {}
-
-  usuarioAutorizado =
-    CET34Auth.getUser();
-
-  return datos;
-}
-
-
-function urlConToken(url) {
-
-  /*
-     Se conserva por compatibilidad.
-     Las operaciones nuevas deben usar llamarServidor()
-     y no colocar tokens manualmente en URLs.
-  */
-
-  if (
-    !CET34Auth ||
-    !CET34Auth.isAuthenticated()
-  ) {
-
-    throw new Error(
-      "No existe una sesión autenticada."
-    );
-
-  }
-
-  return String(url || "");
-
-}
 
 /* =====================================================
    ESCAPAR HTML
@@ -1991,32 +1761,81 @@ document.addEventListener(
 
 function cargarEstadisticas() {
 
-  llamarServidor("estadisticas", {
-    token: googleIdToken
-  })
-  .then(function(data) {
+  if (
+    !window.CET34Auth ||
+    !CET34Auth.isAuthenticated()
+  ) {
 
-    if (!data || data.exito !== true) {
-      throw new Error(
-        (data && data.mensaje) ||
-        "Error estadísticas"
-      );
-    }
+    console.warn(
+      "CET34: no se pueden cargar estadísticas sin autenticación."
+    );
 
-    mostrarEstadisticas(data);
-  })
-  .catch(function(error) {
+    return;
 
-    console.error(error);
+  }
 
-    document.getElementById("grupos").innerHTML = `
-      <div class="sin-registros">
-        ⚠️ No se pudieron cargar las estadísticas.
-      </div>
-    `;
-  });
+  CET34Auth
+    .request(
+      "estadisticas",
+      {}
+    )
+
+    .then(
+      function(data) {
+
+        if (
+          !data ||
+          data.exito !== true
+        ) {
+
+          throw new Error(
+            data &&
+            data.mensaje
+              ? data.mensaje
+              : "Error estadísticas"
+          );
+
+        }
+
+        mostrarEstadisticas(
+          data
+        );
+
+      }
+    )
+
+    .catch(
+      function(error) {
+
+        console.error(
+          "CET34: error cargando estadísticas:",
+          error
+        );
+
+        const grupos =
+          document.getElementById(
+            "grupos"
+          );
+
+        if (grupos) {
+
+          grupos.innerHTML = `
+
+            <div class="sin-registros">
+
+              ⚠️ No se pudieron cargar
+              las estadísticas.
+
+            </div>
+
+          `;
+
+        }
+
+      }
+    );
+
 }
-
 
 /* =====================================================
    MOSTRAR ESTADÍSTICAS
@@ -2049,6 +1868,13 @@ function mostrarEstadisticas(
     "tardanzasGeneral"
   ).textContent =
     data.tardanzasGeneral;
+
+
+  // Compatible con el backend actual y preparado para pendientesGeneral.
+  document.getElementById(
+    "pendientesGeneral"
+  ).textContent =
+    Number(data.pendientesGeneral || 0);
 
 
   document.getElementById(
@@ -2561,6 +2387,13 @@ function mostrarGrupos(
 
             </div>
 
+            <div class="grupo-estado">
+              <div class="numero numero-pendiente">
+                ${Number(grupo.pendientes || 0)}
+              </div>
+              <div class="etiqueta"><span class="estado-punto punto-pendiente"></span> Pendientes</div>
+            </div>
+
 
             <div
               class="grupo-estado">
@@ -2575,7 +2408,7 @@ function mostrarGrupos(
 
               <div class="etiqueta">
 
-                🔴 Faltantes
+                <span class="estado-punto punto-faltante"></span> Faltas
 
               </div>
 
@@ -2770,46 +2603,88 @@ function registrarAsistencia(
 
   mostrarProcesando();
 
-  if (!googleIdToken) {
+  if (
+    !window.CET34Auth ||
+    !CET34Auth.isAuthenticated()
+  ) {
+
     procesando = false;
+
     mostrarResultadoTemporal(
       "resultado-error",
       `
         <div class="resultado-icono">🔐</div>
-        <div class="resultado-titulo">ACCESO NO AUTORIZADO</div>
-        <div style="margin-top:8px;">Debes iniciar sesión con una cuenta autorizada.</div>
+
+        <div class="resultado-titulo">
+          ACCESO NO AUTORIZADO
+        </div>
+
+        <div style="margin-top:8px;">
+          Debes iniciar sesión con una cuenta autorizada.
+        </div>
       `
     );
+
     return;
+
   }
 
-  llamarServidor("registrarasistencia", {
-    token: googleIdToken,
-    codigo: codigo
-  })
-  .then(function(data) {
-    procesarRespuesta(data);
-  })
-  .catch(function(error) {
+  CET34Auth
+    .request(
+      "registrarasistencia",
+      {
+        codigo: codigo
+      }
+    )
 
-    console.error(error);
+    .then(
+      function(data) {
 
-    procesando = false;
-    sonidoError();
+        procesarRespuesta(
+          data
+        );
 
-    mostrarResultadoTemporal(
-      "resultado-error",
-      `
-        <div class="resultado-icono">❌</div>
-        <div class="resultado-titulo">ERROR</div>
-        <div style="margin-top:8px;">No se pudo conectar con el servidor.</div>
-      `
+      }
+    )
+
+    .catch(
+      function(error) {
+
+        console.error(
+          "CET34: error registrando asistencia:",
+          error
+        );
+
+        procesando =
+          false;
+
+        sonidoError();
+
+        mostrarResultadoTemporal(
+          "resultado-error",
+          `
+            <div class="resultado-icono">❌</div>
+
+            <div class="resultado-titulo">
+              ERROR
+            </div>
+
+            <div style="margin-top:8px;">
+              No se pudo conectar
+              con el servidor.
+            </div>
+          `
+        );
+
+        setTimeout(
+          iniciarScanner,
+          2500
+        );
+
+      }
     );
 
-    setTimeout(iniciarScanner, 2500);
-  });
 }
-
 
 /* =====================================================
    PROCESAR RESPUESTA
@@ -3552,22 +3427,22 @@ window.addEventListener(
   function() {
 
     /*
-       FASE 1:
-       Toda la aplicación privada usa el módulo auth.js.
-       Cuando la cuenta queda autorizada, recién entonces
-       inicializamos estadísticas y scanner.
+       La página conserva exactamente el diseño y la
+       funcionalidad del index original, pero ahora toda
+       información privada y el scanner quedan detrás de
+       la autenticación común de auth.js.
     */
 
     if (
       !window.CET34Auth
     ) {
 
-      mostrarPantallaAcceso(
-        "No se pudo cargar el módulo de seguridad.",
-        true
+      console.error(
+        "CET34: auth.js no está disponible."
       );
 
       return;
+
     }
 
     CET34Auth
@@ -3581,17 +3456,22 @@ window.addEventListener(
       })
 
       .then(
-        function (datosUsuario) {
+        function(datosUsuario) {
 
           usuarioAutorizado =
             datosUsuario;
 
-          try {
-            googleIdToken =
-              CET34Auth.getToken();
-          } catch (_) {
-            googleIdToken = null;
-          }
+          console.info(
+            "CET34: usuario autorizado:",
+            datosUsuario.rol
+          );
+
+          /*
+             Recién después de autorizar:
+             - cargamos datos privados;
+             - activamos el scanner;
+             - habilitamos el audio.
+          */
 
           cargarEstadisticas();
 
@@ -3603,7 +3483,7 @@ window.addEventListener(
       )
 
       .catch(
-        function (error) {
+        function(error) {
 
           console.warn(
             "CET34: acceso no completado.",
@@ -3615,6 +3495,7 @@ window.addEventListener(
 
   }
 );
+
 </script>
 
 </body>
