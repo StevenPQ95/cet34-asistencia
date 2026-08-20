@@ -240,10 +240,14 @@ body {
 }
 
 #reader video {
+  display: block !important;
   width: 100% !important;
+  height: 100% !important;
+  min-height: 320px;
   max-height: 490px;
   object-fit: cover;
   border-radius: 16px;
+  background: #000;
 }
 
 #reader__scan_region {
@@ -3378,21 +3382,48 @@ function mostrarClaseTerminada(
    INICIAR SCANNER
    ===================================================== */
 
-function iniciarScanner() {
+async function iniciarScanner() {
 
-  procesando =
-    false;
-
+  procesando = false;
 
   const reader =
-    document.getElementById(
-      "reader"
+    document.getElementById("reader");
+
+  if (!reader) {
+    console.error(
+      "CET34: no existe el contenedor #reader."
+    );
+    return;
+  }
+
+  /*
+     Si existe un scanner anterior, lo detenemos antes de
+     crear uno nuevo. Esto evita dejar una pista de cámara
+     anterior abierta cuando después de un registro volvemos
+     a iniciar el escáner.
+  */
+  try {
+
+    if (
+      scanner &&
+      typeof scanner.isScanning === "boolean" &&
+      scanner.isScanning
+    ) {
+
+      await scanner.stop();
+
+    }
+
+  } catch (error) {
+
+    console.warn(
+      "CET34: no se pudo detener el scanner anterior:",
+      error
     );
 
+  }
 
-  reader.innerHTML =
-    "";
-
+  reader.innerHTML = "";
 
   if (resultadoTimer) {
 
@@ -3402,30 +3433,56 @@ function iniciarScanner() {
 
   }
 
-
   const resultado =
     document.getElementById(
       "resultado"
     );
 
+  if (resultado) {
 
-  resultado.style.display =
-    "none";
+    resultado.style.display =
+      "none";
 
+    resultado.innerHTML =
+      "";
 
-  resultado.innerHTML =
-    "";
+  }
 
+  /*
+     Comprobación clara para evitar un fallo silencioso si
+     la librería html5-qrcode no cargó.
+  */
+  if (
+    typeof Html5Qrcode === "undefined"
+  ) {
+
+    console.error(
+      "CET34: Html5Qrcode no está disponible."
+    );
+
+    mostrarErrorCamara(
+      "No se pudo cargar el módulo del escáner QR."
+    );
+
+    return;
+
+  }
 
   scanner =
     new Html5Qrcode(
       "reader"
     );
 
-
+  /*
+     Usamos un cuadro QR adaptativo y una relación de aspecto
+     para que el vídeo tenga una superficie visible estable
+     tanto en PC como en teléfonos.
+  */
   const configuracion = {
 
     fps: 10,
+
+    aspectRatio: 1.777778,
 
     qrbox:
       function(
@@ -3434,91 +3491,428 @@ function iniciarScanner() {
       ) {
 
         const size =
-          Math.min(
-            width,
-            height
-          ) * .70;
-
+          Math.floor(
+            Math.min(
+              width,
+              height
+            ) * 0.70
+          );
 
         return {
 
-          width: size,
+          width:
+            Math.max(
+              180,
+              size
+            ),
 
-          height: size
+          height:
+            Math.max(
+              180,
+              size
+            )
 
         };
 
-      }
+      },
+
+    showTorchButtonIfSupported:
+      true
 
   };
 
+  try {
 
-  scanner.start(
+    /*
+       MÉTODO RECOMENDADO:
+       primero obtenemos las cámaras disponibles.
 
-    {
-      facingMode:
-        "environment"
-    },
+       Html5Qrcode.getCameras() solicita permiso y devuelve
+       identificadores reales de los dispositivos. Utilizar
+       el deviceId es más estable que depender únicamente
+       de facingMode.
+    */
+    const camaras =
+      await Html5Qrcode.getCameras();
 
+    if (
+      !camaras ||
+      !camaras.length
+    ) {
 
-    configuracion,
-
-
-    qrDetectado,
-
-
-    function() {}
-
-  )
-
-  .catch(
-    function(error) {
-
-      console.error(
-        "Error cámara:",
-        error
-      );
-
-
-      sonidoError();
-
-
-      mostrarResultadoTemporal(
-
-        "resultado-error",
-
-        `
-
-          <div
-            class="resultado-icono">
-
-            ❌
-
-          </div>
-
-
-          <div
-            class="resultado-titulo">
-
-            ERROR DE CÁMARA
-
-          </div>
-
-
-          <div
-            style="margin-top:8px;">
-
-            No se pudo acceder
-            a la cámara.
-
-          </div>
-
-        `
-
+      throw new Error(
+        "No se encontró ninguna cámara disponible."
       );
 
     }
-  );
+
+    /*
+       Preferimos una cámara trasera cuando el navegador
+       expone un nombre identificable.
+    */
+    const patronesTrasera = [
+      /back/i,
+      /rear/i,
+      /environment/i,
+      /trasera/i,
+      /posterior/i,
+      /trasero/i
+    ];
+
+    let camara =
+      camaras.find(
+        function(dispositivo) {
+
+          const etiqueta =
+            String(
+              dispositivo.label || ""
+            );
+
+          return patronesTrasera.some(
+            function(patron) {
+              return patron.test(
+                etiqueta
+              );
+            }
+          );
+
+        }
+      );
+
+    /*
+       Si no podemos identificarla por nombre, usamos la
+       primera cámara disponible. En móviles normalmente
+       el navegador ya devuelve una cámara utilizable.
+    */
+    if (!camara) {
+      camara = camaras[0];
+    }
+
+    console.info(
+      "CET34: cámaras disponibles:",
+      camaras
+    );
+
+    console.info(
+      "CET34: cámara seleccionada:",
+      camara
+    );
+
+    await scanner.start(
+
+      camara.id,
+
+      configuracion,
+
+      qrDetectado,
+
+      function() {
+        /*
+           Errores normales de lectura: no hay QR en el
+           fotograma actual. No los mostramos en consola
+           para evitar miles de mensajes por segundo.
+        */
+      }
+
+    );
+
+    /*
+       Ajustamos el vídeo una vez creado por la librería.
+    */
+    const video =
+      reader.querySelector(
+        "video"
+      );
+
+    if (video) {
+
+      video.setAttribute(
+        "playsinline",
+        "true"
+      );
+
+      video.setAttribute(
+        "autoplay",
+        "true"
+      );
+
+      video.muted =
+        true;
+
+      video.playsInline =
+        true;
+
+      video.style.width =
+        "100%";
+
+      video.style.height =
+        "100%";
+
+      video.style.minHeight =
+        "320px";
+
+      video.style.objectFit =
+        "cover";
+
+    }
+
+    console.info(
+      "CET34: cámara iniciada correctamente."
+    );
+
+  } catch (error) {
+
+    console.error(
+      "CET34: error iniciando cámara:",
+      error
+    );
+
+    /*
+       Como respaldo probamos facingMode. Esto ayuda en
+       navegadores que entregan información limitada sobre
+       los dispositivos.
+    */
+    try {
+
+      if (
+        scanner &&
+        typeof scanner.isScanning === "boolean" &&
+        scanner.isScanning
+      ) {
+
+        await scanner.stop();
+
+      }
+
+    } catch (_) {}
+
+    try {
+
+      scanner =
+        new Html5Qrcode(
+          "reader"
+        );
+
+      await scanner.start(
+
+        {
+          facingMode:
+            "environment"
+        },
+
+        configuracion,
+
+        qrDetectado,
+
+        function() {}
+
+      );
+
+      const video =
+        reader.querySelector(
+          "video"
+        );
+
+      if (video) {
+
+        video.setAttribute(
+          "playsinline",
+          "true"
+        );
+
+        video.setAttribute(
+          "autoplay",
+          "true"
+        );
+
+        video.muted =
+          true;
+
+        video.playsInline =
+          true;
+
+        video.style.width =
+          "100%";
+
+        video.style.height =
+          "100%";
+
+        video.style.minHeight =
+          "320px";
+
+        video.style.objectFit =
+          "cover";
+
+      }
+
+      console.info(
+        "CET34: cámara iniciada mediante facingMode."
+      );
+
+      return;
+
+    } catch (errorFallback) {
+
+      console.error(
+        "CET34: también falló el modo facingMode:",
+        errorFallback
+      );
+
+      mostrarErrorCamara(
+        obtenerMensajeCamara(
+          errorFallback
+        )
+      );
+
+    }
+
+  }
+
+}
+
+
+function obtenerMensajeCamara(
+  error
+) {
+
+  const nombre =
+    String(
+      error &&
+      error.name
+        ? error.name
+        : ""
+    );
+
+  if (nombre) {
+
+    return "No se pudo iniciar la cámara. Revisa el permiso de cámara del navegador.";
+
+  }
+
+  const texto =
+    String(
+      error &&
+      error.message
+        ? error.message
+        : error || ""
+    ).toLowerCase();
+
+  if (
+    texto.includes(
+      "permission"
+    ) ||
+    texto.includes(
+      "notallowed"
+    ) ||
+    texto.includes(
+      "denied"
+    )
+  ) {
+
+    return "El navegador bloqueó la cámara. Permite el acceso a la cámara y vuelve a intentarlo.";
+
+  }
+
+  if (
+    texto.includes(
+      "notfound"
+    ) ||
+    texto.includes(
+      "no camera"
+    ) ||
+    texto.includes(
+      "camera not found"
+    )
+  ) {
+
+    return "No se encontró una cámara disponible en este dispositivo.";
+
+  }
+
+  return "No se pudo iniciar la cámara. Pulsa «Reintentar cámara» y verifica los permisos.";
+
+}
+
+
+function mostrarErrorCamara(
+  mensaje
+) {
+
+  const reader =
+    document.getElementById(
+      "reader"
+    );
+
+  if (!reader) {
+    return;
+  }
+
+  reader.innerHTML = `
+    <div
+      style="
+        width:100%;
+        min-height:320px;
+        display:flex;
+        flex-direction:column;
+        align-items:center;
+        justify-content:center;
+        gap:12px;
+        padding:24px;
+        box-sizing:border-box;
+        text-align:center;
+        color:#e2e8f0;
+      "
+    >
+      <div
+        style="
+          font-size:40px;
+          line-height:1;
+        "
+      >
+        📷
+      </div>
+
+      <div
+        style="
+          font-size:14px;
+          font-weight:800;
+        "
+      >
+        CÁMARA NO DISPONIBLE
+      </div>
+
+      <div
+        style="
+          max-width:420px;
+          color:#94a3b8;
+          font-size:12px;
+          line-height:1.5;
+        "
+      >
+        ${escaparHTML(
+          mensaje ||
+          "No se pudo iniciar la cámara."
+        )}
+      </div>
+
+      <button
+        type="button"
+        onclick="iniciarScanner()"
+        style="
+          margin-top:4px;
+          border:1px solid rgba(255,255,255,.18);
+          border-radius:10px;
+          padding:10px 16px;
+          background:#fff;
+          color:#334155;
+          font-weight:800;
+          cursor:pointer;
+        "
+      >
+        ↻ Reintentar cámara
+      </button>
+    </div>
+  `;
 
 }
 
