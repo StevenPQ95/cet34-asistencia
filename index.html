@@ -1450,9 +1450,20 @@ function crearSolicitudId() {
 
   solicitudContador += 1;
 
+  const aleatorio =
+    (
+      typeof crypto !== "undefined" &&
+      typeof crypto.randomUUID === "function"
+    )
+      ? crypto.randomUUID()
+      : (
+          Math.random().toString(36).slice(2) +
+          Math.random().toString(36).slice(2)
+        );
+
   return (
     "req_" +
-    Date.now() +
+    aleatorio +
     "_" +
     solicitudContador
   );
@@ -1657,21 +1668,19 @@ window.addEventListener(
     }
 
     /*
-       Verificación adicional:
-       la respuesta debe proceder del iframe que generamos
-       para esa solicitud.
-    */
-    if (
-      pendiente.iframe &&
-      event.source !==
-        pendiente.iframe.contentWindow
-    ) {
-      console.warn(
-        "CET34: respuesta ignorada porque proviene de una ventana no asociada a la solicitud."
-      );
+       Apps Script HTML Service puede devolver la respuesta
+       desde una ventana interna del sandbox en lugar de la
+       misma WindowProxy del iframe exterior.
 
-      return;
-    }
+       Por eso NO comparamos event.source con iframe.contentWindow.
+       La respuesta se acepta únicamente cuando:
+       1) proviene de un origen válido de Apps Script; y
+       2) contiene un requestId que nosotros generamos y tenemos
+          pendiente.
+
+       El servidor ya validó el ID Token de Google antes de
+       generar esta respuesta.
+    */
 
     clearTimeout(
       pendiente.temporizador
@@ -1696,7 +1705,8 @@ window.addEventListener(
       console.info(
         "CET34: respuesta POST recibida.",
         {
-          id: datos.id
+          id: datos.id,
+          origen: event.origin
         }
       );
 
