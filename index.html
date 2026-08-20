@@ -1,3996 +1,1456 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
-
 <meta charset="UTF-8">
-
-<meta name="viewport"
-      content="width=device-width, initial-scale=1.0">
-
-<title>CET 34 - Control de Asistencia</title>
-
-<script src="https://unpkg.com/html5-qrcode"
-        type="text/javascript"></script>
-
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CET 34 - Reportes de Asistencia</title>
 <style>
-/* =====================================================
-   CET 34 · DISEÑO GENERAL
-   Interfaz optimizada para uso diario en PC/tablet
-   ===================================================== */
-
-:root {
-  --vino-900: #4a001d;
-  --vino-800: #620026;
-  --vino-700: #78002f;
-  --vino-100: #f9edf2;
-
-  --fondo: #f4f6f8;
-  --blanco: #ffffff;
-  --texto: #172033;
-  --texto-sec: #64748b;
-  --borde: #e2e8f0;
-
-  --verde: #15803d;
-  --verde-bg: #ecfdf3;
-  --amarillo: #b45309;
-  --amarillo-bg: #fffbeb;
-  --rojo: #b91c1c;
-  --rojo-bg: #fef2f2;
-  --azul: #2563eb;
-  --azul-bg: #eff6ff;
-
-  --sombra: 0 12px 30px rgba(15, 23, 42, .07);
-  --sombra-fuerte: 0 18px 45px rgba(15, 23, 42, .12);
-  --radio: 20px;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html {
-  scroll-behavior: smooth;
-}
-
-body {
-  margin: 0;
-  min-height: 100vh;
-  background:
-    radial-gradient(circle at 50% -10%, rgba(120, 0, 47, .08), transparent 34%),
-    var(--fondo);
-  color: var(--texto);
-  font-family: Arial, Helvetica, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
-/* =====================================================
-   ENCABEZADO
-   ===================================================== */
-
-.header {
-  min-height: 108px;
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px 110px;
-  color: #fff;
-  background:
-    linear-gradient(135deg, var(--vino-900), var(--vino-700) 55%, var(--vino-800));
-  box-shadow: 0 5px 18px rgba(74, 0, 29, .22);
-}
-
-.header::after {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 3px;
-  background: rgba(255,255,255,.18);
-}
-
-.header-centro {
-  text-align: center;
-  max-width: 620px;
-}
-
-.header-centro h1 {
-  margin: 0;
-  font-size: clamp(24px, 3vw, 31px);
-  font-weight: 900;
-  letter-spacing: -.5px;
-}
-
-.header-centro p {
-  margin: 6px 0 0;
-  font-size: 12px;
-  font-weight: 700;
-  letter-spacing: 1.5px;
-  opacity: .9;
-}
-
-.header-insignia {
-  position: absolute;
-  top: 50%;
-  width: 64px;
-  height: 64px;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  border: 1px solid rgba(255,255,255,.22);
-  border-radius: 50%;
-  background: rgba(255,255,255,.10);
-  box-shadow: 0 8px 20px rgba(0,0,0,.12);
-}
-
-.header-insignia img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-.header-insignia.izquierda {
-  left: 24px;
-}
-
-.header-insignia.derecha {
-  right: 24px;
-}
-
-/* =====================================================
-   CONTENEDOR PRINCIPAL
-   ===================================================== */
-
-.container {
-  width: min(1180px, calc(100% - 32px));
-  margin: 24px auto 48px;
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(320px, .75fr);
-  grid-template-areas:
-    "scanner jornada"
-    "scanner resumen"
-    "ultimo ultimo"
-    "grupos grupos"
-    "footer footer";
-  gap: 18px;
-}
-
-/* Las tarjetas conservan sus clases originales. */
-.container > .card:nth-of-type(1) { grid-area: scanner; }
-.container > .card:nth-of-type(2) { grid-area: jornada; }
-.container > .card:nth-of-type(3) { grid-area: resumen; }
-.container > .card:nth-of-type(4) { grid-area: ultimo; }
-.container > .card:nth-of-type(5) { grid-area: grupos; }
-.container > .footer { grid-area: footer; }
-
-/* =====================================================
-   TARJETAS
-   ===================================================== */
-
-.card {
-  min-width: 0;
-  background: var(--blanco);
-  border: 1px solid var(--borde);
-  border-radius: var(--radio);
-  padding: 22px;
-  box-shadow: var(--sombra);
-}
-
-.card:hover {
-  box-shadow: 0 15px 36px rgba(15, 23, 42, .09);
-}
-
-.card:nth-of-type(1) {
-  min-height: 575px;
-  display: flex;
-  flex-direction: column;
-}
-
-.titulo {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin-bottom: 18px;
-  color: var(--texto);
-  font-size: 17px;
-  font-weight: 900;
-  letter-spacing: .1px;
-}
-
-.titulo::after {
-  content: "";
-  flex: 1;
-  height: 1px;
-  margin-left: 4px;
-  background: var(--borde);
-}
-
-/* =====================================================
-   ESCÁNER
-   ===================================================== */
-
-.scanner-titulo {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 6px;
-  color: var(--vino-800);
-  font-size: 21px;
-  font-weight: 900;
-}
-
-.scanner-instruccion {
-  margin-bottom: 16px;
-  color: var(--texto-sec);
-  font-size: 13px;
-  line-height: 1.5;
-}
-
-#reader {
-  width: 100%;
-  flex: 1;
-  min-height: 410px;
-  overflow: hidden;
-  border: 1px solid #d9e0e8;
-  border-radius: 17px;
-  background: #0b1220;
-}
-
-#reader video {
-  display: block !important;
-  width: 100% !important;
-  height: 100% !important;
-  min-height: 320px;
-  max-height: 490px;
-  object-fit: cover;
-  border-radius: 16px;
-  background: #000;
-}
-
-#reader__scan_region {
-  min-height: 300px;
-  border-radius: 16px;
-  overflow: hidden;
-}
-
-#reader__scan_region img {
-  display: none !important;
-}
-
-#reader__dashboard_section {
-  padding: 10px 8px 8px !important;
-  background: #fff;
-}
-
-#reader__dashboard_section_csr button,
-#reader__dashboard_section_swaplink {
-  border: 1px solid #cbd5e1 !important;
-  border-radius: 10px !important;
-  padding: 8px 12px !important;
-  background: #fff !important;
-  color: #334155 !important;
-  font-weight: 700 !important;
-}
-
-#reader__dashboard_section_csr span {
-  color: #64748b !important;
-  font-size: 12px !important;
-}
-
-.audio-indicador {
-  margin-top: 12px;
-  padding: 9px 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 11px;
-  background: #f8fafc;
-  color: var(--texto-sec);
-  font-size: 11px;
-  text-align: center;
-}
-
-/* =====================================================
-   RESULTADOS DEL ESCÁNER
-   ===================================================== */
-
-#resultado {
-  display: none;
-  margin-top: 12px;
-  padding: 18px;
-  border: 1px solid transparent;
-  border-radius: 16px;
-  text-align: center;
-  animation: resultadoEntrada .22s ease-out;
-}
-
-@keyframes resultadoEntrada {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
+  * { box-sizing: border-box; }
+  html, body { width:100%; max-width:100%; overflow-x:hidden; }
+  :root {
+    --azul:#2563eb; --azul-suave:#eff6ff;
+    --verde:#16a34a; --verde-suave:#ecfdf3;
+    --amarillo:#d97706; --amarillo-suave:#fffbeb;
+    --rojo:#dc2626; --rojo-suave:#fef2f2;
+    --pendiente:#2563eb; --pendiente-suave:#eff6ff;
+    --morado:#6d1f5b; --texto:#0f172a; --texto-secundario:#64748b;
+    --fondo:#eef3f8; --blanco:#fff; --borde:#dbe4ef;
+    --sombra:0 10px 28px rgba(15,23,42,.07);
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  body { margin:0; background:var(--fondo); color:var(--texto); font-family:Arial,Helvetica,sans-serif; }
+  button,input,select { font:inherit; }
+  button { -webkit-tap-highlight-color:transparent; }
+  .contenedor { width:min(1280px,calc(100% - 32px)); margin:24px auto 50px; }
+  .encabezado { margin-bottom:18px; }
+  .encabezado h1 { margin:0; font-size:30px; font-weight:900; letter-spacing:-.6px; }
+  .encabezado p { margin:6px 0 0; color:var(--texto-secundario); font-size:14px; }
+  .seccion,.reporte { background:var(--blanco); border:1px solid var(--borde); border-radius:20px; padding:24px; margin-bottom:20px; box-shadow:var(--sombra); min-width:0; max-width:100%; }
+  .titulo-seccion { display:flex; align-items:center; gap:12px; margin-bottom:20px; min-width:0; }
+  .titulo-seccion .icono { width:44px; height:44px; flex:0 0 44px; border-radius:13px; display:flex; align-items:center; justify-content:center; background:var(--azul-suave); font-size:22px; }
+  .titulo-seccion h2 { margin:0; font-size:22px; font-weight:900; }
+  .titulo-seccion p { margin:3px 0 0; color:var(--texto-secundario); font-size:13px; line-height:1.35; }
+  .form-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:14px; }
+  .campo { display:flex; flex-direction:column; gap:7px; min-width:0; }
+  .campo label { font-size:13px; font-weight:800; color:#334155; }
+  input,select { width:100%; min-width:0; height:52px; border:1px solid #cbd5e1; border-radius:12px; background:#fff; color:var(--texto); padding:0 14px; font-size:15px; outline:none; }
+  input:focus,select:focus { border-color:var(--azul); box-shadow:0 0 0 4px rgba(37,99,235,.10); }
+  .acciones { display:flex; justify-content:flex-end; margin-top:18px; }
+  .btn { border:0; border-radius:12px; min-height:52px; padding:0 22px; font-size:15px; font-weight:900; cursor:pointer; transition:transform .18s ease,filter .18s ease,opacity .18s ease; }
+  .btn:hover { transform:translateY(-1px); filter:brightness(.98); }
+  .btn:active { transform:none; }
+  .btn:disabled { opacity:.55; cursor:not-allowed; transform:none; }
+  .btn-principal { background:#8d183f; color:#fff; }
+  .btn-azul { background:var(--azul); color:#fff; }
+  .btn-secundario { background:#e2e8f0; color:#334155; }
+  .mensaje { display:none; margin-top:16px; padding:14px 16px; border-radius:13px; font-weight:800; text-align:center; line-height:1.35; }
+  .mensaje.exito { display:block; background:var(--verde-suave); color:var(--verde); }
+  .mensaje.error { display:block; background:var(--rojo-suave); color:var(--rojo); }
+  .mensaje.info { display:block; background:var(--azul-suave); color:var(--azul); }
+  .reporte { display:none; }
+  .reporte.visible { display:block; }
+  .cabecera-reporte { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:18px; margin-bottom:20px; min-width:0; }
+  .cabecera-reporte h2 { margin:0; font-size:24px; line-height:1.2; overflow-wrap:anywhere; }
+  .cabecera-reporte p { margin:6px 0 0; color:var(--texto-secundario); font-size:14px; }
+  .porcentaje,.porcentaje-individual { min-width:82px; height:60px; padding:0 12px; border-radius:16px; background:var(--azul-suave); color:var(--azul); display:flex; align-items:center; justify-content:center; font-size:25px; font-weight:900; }
+  .estadisticas { display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px; margin-bottom:20px; }
+  .estadistica { min-height:100px; border-radius:16px; background:#f8fafc; border:1px solid #e5ebf2; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; }
+  .estadistica .numero { font-size:32px; font-weight:900; line-height:1; margin-bottom:8px; }
+  .estadistica .etiqueta { color:var(--texto-secundario); font-size:14px; display:flex; align-items:center; justify-content:center; gap:7px; white-space:nowrap; }
+  .estadistica-total { grid-column:1 / -1; flex-direction:row; gap:10px; min-height:72px; }
+  .estadistica-total .numero { margin-bottom:0; }
+  .verde{color:var(--verde)} .amarillo{color:var(--amarillo)} .rojo{color:var(--rojo)} .azul{color:var(--pendiente)} .morado{color:var(--morado)}
+  .punto { width:12px; height:12px; border-radius:50%; display:inline-block; flex:0 0 12px; }
+  .punto-verde{background:#4ade80}.punto-amarillo{background:#fbbf24}.punto-rojo{background:#f43f5e}.punto-azul{background:#3b82f6}
+  .barra { width:100%; height:12px; background:#e2e8f0; border-radius:999px; overflow:hidden; margin-bottom:26px; }
+  .barra-progreso { height:100%; background:#22c55e; border-radius:inherit; transition:width .5s ease; }
+  .titulo-lista { display:flex; align-items:center; gap:9px; margin-bottom:15px; min-width:0; }
+  .titulo-lista h3 { margin:0; font-size:21px; }
+  .estudiante-aula { border:1px solid var(--borde); border-radius:16px; margin-bottom:10px; overflow:hidden; background:#fff; min-width:0; }
+  .cabecera-estudiante { width:100%; min-width:0; min-height:66px; border:0; background:#fff; padding:10px 14px; display:grid; grid-template-columns:40px minmax(0,1fr) auto 30px; grid-template-rows:auto; align-items:center; gap:10px; cursor:pointer; text-align:left; position:relative; }
+  .cabecera-estudiante:hover { background:#f8fafc; }
+  .numero-estudiante { width:40px; color:#94a3b8; font-size:16px; font-weight:900; text-align:center; }
+  .nombre-estudiante { min-width:0; font-size:15px; line-height:1.2; font-weight:900; overflow-wrap:anywhere; }
+  .mini-estados { display:flex; gap:5px; align-items:center; justify-content:flex-end; flex-wrap:nowrap; min-width:0; }
+  .mini { padding:6px 9px; border-radius:999px; font-size:12px; font-weight:900; white-space:nowrap; }
+  .mini-presente{background:var(--verde-suave);color:var(--verde)} .mini-tardanza{background:var(--amarillo-suave);color:var(--amarillo)} .mini-falta{background:var(--rojo-suave);color:var(--rojo)} .mini-pendiente{background:var(--pendiente-suave);color:var(--pendiente)}
+  .flecha { width:30px; height:30px; border-radius:9px; display:flex; align-items:center; justify-content:center; color:#94a3b8; justify-self:end; grid-column:4; grid-row:1; }
+  .flecha-icono {
+    width:10px;
+    height:10px;
+    border-right:2.5px solid currentColor;
+    border-bottom:2.5px solid currentColor;
+    transform:rotate(45deg) translate(-2px,-2px);
+    transform-origin:center;
+    transition:transform .25s cubic-bezier(.4,0,.2,1);
   }
-}
-
-.resultado-presente {
-  background: var(--verde-bg);
-  border-color: #bbf7d0 !important;
-  color: #166534;
-}
-
-.resultado-tardanza {
-  background: var(--amarillo-bg);
-  border-color: #fde68a !important;
-  color: #92400e;
-}
-
-.resultado-duplicado {
-  background: #fff7ed;
-  border-color: #fed7aa !important;
-  color: #9a3412;
-}
-
-.resultado-error {
-  background: var(--rojo-bg);
-  border-color: #fecaca !important;
-  color: #991b1b;
-}
-
-.resultado-procesando {
-  background: var(--azul-bg);
-  border-color: #bfdbfe !important;
-  color: #1d4ed8;
-}
-
-.resultado-icono {
-  margin-bottom: 4px;
-  font-size: 28px;
-  line-height: 1;
-}
-
-.resultado-titulo {
-  font-size: 14px;
-  font-weight: 900;
-  letter-spacing: .4px;
-}
-
-.resultado-estudiante {
-  margin-top: 7px;
-  font-size: 16px;
-  font-weight: 900;
-}
-
-.resultado-grupo {
-  margin-top: 3px;
-  font-size: 12px;
-  opacity: .82;
-}
-
-.resultado-hora {
-  margin-top: 9px;
-  font-size: 19px;
-  font-weight: 900;
-}
-
-.resultado-estado {
-  margin-top: 8px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-/* =====================================================
-   FECHA / JORNADA
-   ===================================================== */
-
-.fecha-jornada {
-  min-height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 13px;
-}
-
-.fecha {
-  color: var(--texto);
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.jornada {
-  width: fit-content;
-  max-width: 100%;
-  padding: 9px 12px;
-  border: 1px solid #bbf7d0;
-  border-radius: 999px;
-  background: var(--verde-bg);
-  color: #166534;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.jornada.pausa {
-  border-color: #cbd5e1;
-  background: #f8fafc;
-  color: #64748b;
-}
-
-/* =====================================================
-   ESTADÍSTICAS GENERALES
-   ===================================================== */
-
-.estadisticas {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.estadistica {
-  min-width: 0;
-  padding: 13px 8px;
-  border: 1px solid var(--borde);
-  border-radius: 15px;
-  background: #f8fafc;
-  text-align: center;
-}
-
-.numero {
-  font-size: 28px;
-  line-height: 1;
-  font-weight: 900;
-}
-
-.numero-presente {
-  color: var(--verde);
-}
-
-.numero-tardanza {
-  color: var(--amarillo);
-}
-
-.numero-faltante {
-  color: var(--rojo);
-}
-
-.etiqueta {
-  margin-top: 6px;
-  color: var(--texto-sec);
-  font-size: 10px;
-  font-weight: 800;
-}
-
-.total-general {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-top: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
-  background: #f8fafc;
-  color: var(--texto-sec);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.total-general strong {
-  color: var(--texto);
-  font-size: 17px;
-}
-
-.barra-contenedor {
-  margin-top: 13px;
-}
-
-.barra-fondo {
-  width: 100%;
-  height: 9px;
-  overflow: hidden;
-  border-radius: 999px;
-  background: #e2e8f0;
-}
-
-.barra {
-  height: 100%;
-  width: 0;
-  border-radius: inherit;
-  background: linear-gradient(90deg, #15803d, #22c55e);
-  transition: width .45s ease;
-}
-
-.porcentaje {
-  margin-top: 6px;
-  color: var(--texto-sec);
-  font-size: 11px;
-  font-weight: 800;
-  text-align: right;
-}
-
-/* =====================================================
-   ÚLTIMO REGISTRO
-   ===================================================== */
-
-.ultimo-registro {
-  min-height: 105px;
-  padding: 17px;
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #fbfdff, #f8fafc);
-}
-
-.ultimo-titulo {
-  color: var(--texto-sec);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .7px;
-  text-transform: uppercase;
-}
-
-.ultimo-estudiante {
-  margin-top: 5px;
-  font-size: 19px;
-  font-weight: 900;
-}
-
-.ultimo-grupo {
-  margin-top: 3px;
-  color: var(--texto-sec);
-  font-size: 12px;
-}
-
-.ultimo-detalles {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-top: 11px;
-}
-
-.ultimo-hora {
-  color: var(--texto);
-  font-size: 14px;
-  font-weight: 900;
-}
-
-.ultimo-estado {
-  padding: 6px 10px;
-  border-radius: 999px;
-  font-size: 10px;
-  font-weight: 900;
-}
-
-.ultimo-estado.presente {
-  background: var(--verde-bg);
-  color: #166534;
-}
-
-.ultimo-estado.tardanza {
-  background: var(--amarillo-bg);
-  color: #92400e;
-}
-
-/* =====================================================
-   GRUPOS / SECCIONES
-   ===================================================== */
-
-.grupo {
-  overflow: hidden;
-  margin-top: 12px;
-  border: 1px solid var(--borde);
-  border-radius: 16px;
-  background: #fff;
-}
-
-.grupo:first-child {
-  margin-top: 0;
-}
-
-.grupo > summary,
-.lista-panel > summary {
-  list-style: none;
-  cursor: pointer;
-}
-
-.grupo > summary::-webkit-details-marker,
-.lista-panel > summary::-webkit-details-marker {
-  display: none;
-}
-
-.grupo > summary {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-  min-height: 76px;
-  padding: 13px 16px;
-  background: #fbfcfe;
-}
-
-.grupo > summary:hover {
-  background: #f8fafc;
-}
-
-.grupo-cabecera {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 15px;
-}
-
-.grupo-titulo {
-  font-size: 15px;
-  font-weight: 900;
-}
-
-.grupo-hora {
-  margin-top: 4px;
-  color: var(--texto-sec);
-  font-size: 11px;
-}
-
-.grupo-badge {
-  flex: 0 0 auto;
-  min-width: 58px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  background: var(--vino-100);
-  color: var(--vino-800);
-  font-size: 12px;
-  font-weight: 900;
-  text-align: center;
-}
-
-.grupo-contenido {
-  padding: 0 15px 15px;
-  border-top: 1px solid var(--borde);
-}
-
-.chevron {
-  flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: #f1f5f9;
-  color: #64748b;
-  transition: transform .22s ease, background .22s ease;
-}
-
-.chevron svg {
-  width: 17px;
-  height: 17px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2.4;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
-details[open] > summary .chevron {
-  transform: rotate(180deg);
-  background: var(--vino-100);
-  color: var(--vino-800);
-}
-
-/* =====================================================
-   ESTADÍSTICAS DEL GRUPO
-   ===================================================== */
-
-.grupo-estadisticas {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  padding-top: 14px;
-}
-
-.grupo-estado {
-  padding: 11px 7px;
-  border-radius: 13px;
-  background: #f8fafc;
-  text-align: center;
-}
-
-.grupo-info {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin-top: 10px;
-}
-
-.info-item {
-  padding: 10px;
-  border-radius: 12px;
-  background: #f8fafc;
-  color: var(--texto-sec);
-  font-size: 11px;
-  text-align: center;
-}
-
-.info-item strong {
-  display: block;
-  margin-top: 3px;
-  color: var(--texto);
-  font-size: 12px;
-}
-
-/* =====================================================
-   LISTAS
-   ===================================================== */
-
-.lista-panel {
-  margin-top: 10px;
-  overflow: hidden;
-  border: 1px solid var(--borde);
-  border-radius: 13px;
-}
-
-.lista-panel > summary {
-  min-height: 48px;
-  padding: 10px 13px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.lista-titulo {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  line-height: 1;
-}
-
-.lista-panel.presente > summary {
-  background: var(--verde-bg);
-  color: #166534;
-}
-
-.lista-panel.tardanza > summary {
-  background: var(--amarillo-bg);
-  color: #92400e;
-}
-
-.lista-panel.faltante > summary {
-  background: var(--rojo-bg);
-  color: #991b1b;
-}
-
-.lista-estudiantes {
-  padding: 2px 12px 7px;
-  background: #fff;
-}
-
-.estudiante-item {
-  display: grid;
-  grid-template-columns: 38px 1fr;
-  align-items: center;
-  min-height: 43px;
-  padding: 7px 3px;
-  border-bottom: 1px solid #edf2f7;
-  font-size: 12px;
-}
-
-.estudiante-item:last-child {
-  border-bottom: none;
-}
-
-.estudiante-numero {
-  display: flex;
-  align-items: center;
-  height: 100%;
-  color: #94a3b8;
-  font-weight: 900;
-}
-
-.estudiante-nombre {
-  display: flex;
-  align-items: center;
-  min-height: 29px;
-  line-height: 1.3;
-}
-
-.lista-vacia,
-.sin-registros {
-  padding: 22px 12px;
-  color: #94a3b8;
-  font-size: 12px;
-  text-align: center;
-}
-
-/* =====================================================
-   PIE
-   ===================================================== */
-
-.footer {
-  padding: 8px 0 0;
-  color: #94a3b8;
-  font-size: 10px;
-  text-align: center;
-}
-
-/* =====================================================
-   RESPONSIVE
-   ===================================================== */
-
-@media (max-width: 850px) {
-  .header {
-    min-height: 96px;
-    padding: 14px 82px;
+  .estudiante-aula.abierto .flecha-icono {
+    transform:rotate(225deg) translate(-2px,-2px);
+  }
+  .detalle-estudiante { display:none; padding:0 14px 16px; border-top:1px solid #edf2f7; min-width:0; }
+  .estudiante-aula.abierto .detalle-estudiante { display:block; }
+  .resumen-individual { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; padding-top:14px; }
+  .resumen-item { min-width:0; border:1px solid #e2e8f0; border-radius:14px; padding:13px 8px; text-align:center; }
+  .resumen-item strong { display:block; font-size:21px; margin-bottom:4px; }
+  .resumen-item span { font-size:12px; color:var(--texto-secundario); }
+  .historial-aula { margin-top:16px; border-top:1px solid #edf2f7; padding-top:15px; min-width:0; }
+  .historial-aula h4 { margin:0 0 11px; font-size:17px; }
+  .registro-dia-aula {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:auto auto;
+    gap:7px 10px;
+    align-items:center;
+    padding:12px 13px;
+    border:1px solid #e2e8f0;
+    border-bottom:0;
+    background:#fbfdff;
+    font-size:13px;
+    min-width:0;
+  }
+  .registro-dia-aula:first-child { border-radius:12px 12px 0 0; }
+  .registro-dia-aula:last-child { border-bottom:1px solid #e2e8f0; border-radius:0 0 12px 12px; }
+  .registro-identificacion {
+    grid-column:1 / -1;
+    grid-row:1;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+  .registro-detalles-hora {
+    grid-column:1;
+    grid-row:2;
+    min-width:0;
+  }
+  .registro-identificacion,.registro-detalles-hora,.registro-fecha,.registro-dia-nombre,.registro-hora { min-width:0; overflow-wrap:anywhere; }
+  .registro-fecha { font-weight:900; white-space:nowrap; }
+  .registro-dia-nombre { color:#475569; font-weight:800; text-align:right; white-space:nowrap; }
+  .registro-hora { color:#475569; }
+  .registro-horario { color:#64748b; font-size:12px; line-height:1.3; margin-top:4px; }
+  .registro-horario strong,.dia-horario strong { color:#334155; }
+  .estado {
+    grid-column:2;
+    grid-row:2;
+    justify-self:end;
+    align-self:center;
+    width:max-content;
+    max-width:100%;
+    padding:7px 12px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:900;
+    white-space:nowrap;
+  }
+  .estado-presente{background:var(--verde-suave);color:var(--verde)} .estado-tardanza{background:var(--amarillo-suave);color:var(--amarillo)} .estado-falta{background:var(--rojo-suave);color:var(--rojo)} .estado-pendiente{background:var(--pendiente-suave);color:var(--pendiente)}
+  .resultado-estudiante { display:none; margin-top:22px; min-width:0; }
+  .resultado-estudiante.visible { display:block; }
+  .perfil-estudiante { border:1px solid var(--borde); border-radius:22px; overflow:hidden; background:#fff; min-width:0; }
+  .perfil-cabecera { display:grid; grid-template-columns:minmax(0,1fr) auto; align-items:center; gap:16px; padding:25px; background:linear-gradient(135deg,#f8fafc,#eef4ff); min-width:0; }
+  .perfil-cabecera h2 { margin:0; font-size:25px; line-height:1.15; overflow-wrap:anywhere; }
+  .perfil-cabecera p { margin:7px 0 0; color:var(--texto-secundario); line-height:1.45; }
+  .perfil-meta { margin-top:8px; display:flex; align-items:center; flex-wrap:wrap; gap:4px 12px; color:var(--texto-secundario); line-height:1.4; font-size:14px; }
+  .meta-grado,.meta-periodo { min-width:0; }
+  .meta-periodo { white-space:nowrap; }
+  .meta-flecha { display:inline-block; padding:0 3px; }
+  .estadisticas-individual { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; padding:20px 22px; }
+  .historial { padding:0 22px 24px; min-width:0; }
+  .historial h3 { margin:0 0 13px; font-size:21px; }
+  .dia-registro {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    grid-template-rows:auto auto;
+    gap:7px 10px;
+    align-items:center;
+    min-height:64px;
+    border:1px solid #e2e8f0;
+    border-bottom:0;
+    padding:12px 13px;
+    min-width:0;
+  }
+  .dia-registro:first-of-type { border-radius:12px 12px 0 0; }
+  .dia-registro:last-of-type { border-bottom:1px solid #e2e8f0; border-radius:0 0 12px 12px; }
+  .dia-identificacion {
+    grid-column:1 / -1;
+    grid-row:1;
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    gap:12px;
+    min-width:0;
+  }
+  .dia-detalles-hora {
+    grid-column:1;
+    grid-row:2;
+    min-width:0;
+  }
+  .dia-identificacion,.dia-detalles-hora,.fecha-dia,.dia-nombre,.hora-dia,.dia-horario { min-width:0; overflow-wrap:anywhere; }
+  .fecha-dia { font-weight:900; font-size:14px; white-space:nowrap; }
+  .dia-nombre { color:#475569; font-size:13px; font-weight:800; text-align:right; white-space:nowrap; }
+  .hora-dia { color:var(--texto-secundario); font-size:14px; }
+  .dia-horario { color:#64748b; font-size:12px; line-height:1.35; margin-top:4px; }
+  .rango-resumen { margin-top:9px; color:var(--texto-secundario); font-size:13px; }
+  .resultados-busqueda { display:none; margin-top:18px; min-width:0; } .resultados-busqueda.visible{display:block}
+  .titulo-resultados{font-size:16px;font-weight:900;margin-bottom:10px}
+  .resultado-item { width:100%; min-width:0; border:1px solid var(--borde); background:#fff; border-radius:14px; padding:14px; margin-bottom:8px; display:grid; grid-template-columns:38px minmax(0,1fr) auto; align-items:center; gap:12px; cursor:pointer; text-align:left; }
+  .resultado-item:hover{border-color:var(--azul);background:var(--azul-suave)}
+  .resultado-numero{width:38px;height:38px;flex:0 0 38px;border-radius:11px;background:var(--azul-suave);color:var(--azul);display:flex;align-items:center;justify-content:center;font-weight:900}
+  .resultado-info{min-width:0}.resultado-nombre{display:block;font-weight:900;font-size:14px;line-height:1.25;overflow-wrap:anywhere}.resultado-curso{display:block;color:var(--texto-secundario);font-size:12px;margin-top:4px}.resultado-ver{color:var(--azul);font-weight:900;font-size:12px;white-space:nowrap}
+  .cargando{display:none;align-items:center;justify-content:center;gap:9px;padding:20px;color:var(--azul);font-weight:900}.cargando.visible{display:flex}.spinner{width:21px;height:21px;border:3px solid #dbeafe;border-top-color:var(--azul);border-radius:50%;animation:girar .8s linear infinite}@keyframes girar{to{transform:rotate(360deg)}}
+  #formularioIndividual > div { min-width:0; }
+  #estudianteSeleccionado { min-width:0; overflow-wrap:anywhere; }
+
+  @media (max-width:1000px){
+    .form-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .estadisticas{grid-template-columns:repeat(3,minmax(0,1fr));}
+    .estadisticas-individual{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .registro-dia-aula,.dia-registro{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;}
   }
 
-  .header-insignia {
-    width: 55px;
-    height: 55px;
+  @media (max-width:700px){
+    body{font-size:14px;}
+    .contenedor{width:calc(100% - 16px);margin:12px auto 34px;}
+    .encabezado{padding:0 3px;margin-bottom:14px}.encabezado h1{font-size:25px;line-height:1.15}.encabezado p{font-size:12px}
+    .seccion,.reporte{padding:14px;border-radius:17px;margin-bottom:14px;}
+    .titulo-seccion{gap:9px;margin-bottom:16px}.titulo-seccion .icono{width:38px;height:38px;flex-basis:38px;border-radius:11px;font-size:19px}.titulo-seccion h2{font-size:19px}.titulo-seccion p{font-size:11px}
+    .form-grid{grid-template-columns:1fr;gap:11px}.campo{gap:6px}.campo label{font-size:12px}input,select{height:47px;font-size:14px;border-radius:11px}
+    .acciones{margin-top:14px}.btn{width:100%;min-height:48px;font-size:14px;border-radius:11px;padding:0 14px}
+    .mensaje{margin-top:13px;padding:12px 13px;font-size:13px}
+    .cabecera-reporte{grid-template-columns:minmax(0,1fr) auto;gap:10px;margin-bottom:15px;align-items:start}.cabecera-reporte h2{font-size:19px}.cabecera-reporte p{font-size:12px;line-height:1.35}.porcentaje{min-width:70px;height:52px;font-size:22px;border-radius:14px}
+    .estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}.estadistica{min-height:88px;border-radius:14px}.estadistica-total{grid-column:1 / -1;max-width:none;justify-self:stretch;min-height:64px;gap:9px}.estadistica-total .numero{font-size:28px}.estadistica .numero{font-size:28px;margin-bottom:6px}.estadistica-total .numero{margin-bottom:0}.estadistica .etiqueta{font-size:12px;gap:5px}
+    .barra{height:10px;margin-bottom:20px}
+    .titulo-lista{gap:7px;margin-bottom:11px}.titulo-lista h3{font-size:19px}
+    .estudiante-aula{border-radius:15px;margin-bottom:9px}.cabecera-estudiante{grid-template-columns:30px minmax(0,1fr) auto 28px;gap:7px;padding:10px 10px;min-height:64px}.numero-estudiante{width:30px;font-size:14px}.nombre-estudiante{font-size:13px;line-height:1.2}.mini-estados{gap:3px;max-width:100px}.mini{padding:5px 7px;font-size:11px}.flecha{width:28px;height:28px;font-size:18px}
+    .detalle-estudiante{padding:0 10px 12px}.resumen-individual{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:11px}.resumen-item{padding:11px 6px;border-radius:13px}.resumen-item strong{font-size:21px}.resumen-item span{font-size:11px}
+    .historial-aula{margin-top:13px;padding-top:13px}.historial-aula h4{font-size:17px;margin-bottom:9px}
+    .registro-dia-aula{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:6px 8px;padding:12px 11px;font-size:13px;align-items:center}.registro-identificacion{grid-column:1 / -1;grid-row:1;grid-template-columns:minmax(0,1fr) auto;gap:8px}.registro-detalles-hora{grid-column:1;grid-row:2}.registro-dia-aula > .estado{grid-column:2;grid-row:2;align-self:center;justify-self:end}.registro-horario{margin:4px 0 0;font-size:11px;line-height:1.35}.registro-dia-nombre{margin-top:0}.estado{font-size:11px;padding:6px 10px}
+    .resultado-estudiante{margin-top:15px}.perfil-estudiante{border-radius:18px}.perfil-cabecera{grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:20px 16px}.perfil-cabecera h2{font-size:22px;line-height:1.12}.perfil-cabecera p{font-size:12px}.perfil-meta{font-size:12px;display:flex;flex-direction:column;align-items:flex-start;gap:2px;line-height:1.35}.meta-periodo{white-space:normal}.meta-flecha{padding:0 2px}.porcentaje-individual{min-width:68px;height:52px;font-size:22px;border-radius:14px}.rango-resumen{font-size:11px;margin-top:7px}
+    .estadisticas-individual{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:14px}.historial{padding:0 14px 17px}.historial h3{font-size:19px;margin-bottom:10px}.dia-registro{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:6px 8px;min-height:0;padding:12px 11px}.dia-identificacion{grid-column:1 / -1;grid-row:1;grid-template-columns:minmax(0,1fr) auto;gap:8px}.dia-detalles-hora{grid-column:1;grid-row:2}.dia-registro > .estado{grid-column:2;grid-row:2;align-self:center;justify-self:end}.fecha-dia{font-size:14px}.dia-nombre{font-size:12px;margin-top:0}.hora-dia{font-size:13px}.dia-horario{font-size:11px}.estado{justify-self:end}
+    .resultados-busqueda{margin-top:15px}.titulo-resultados{font-size:15px}.resultado-item{grid-template-columns:34px minmax(0,1fr) auto;gap:8px;padding:12px 10px;border-radius:13px}.resultado-numero{width:34px;height:34px;font-size:12px}.resultado-nombre{font-size:13px}.resultado-curso{font-size:11px}.resultado-ver{font-size:11px}
+    #formularioIndividual{margin-top:18px!important}.titulo-lista[style]{margin-bottom:12px!important} #formularioIndividual > div[style]{padding-top:17px!important}.cargando{padding:16px;font-size:13px}
+    #estudianteSeleccionado{padding:12px 13px!important;font-size:13px;line-height:1.35}
+  }
+  @media (max-width:380px){
+    .contenedor{width:calc(100% - 12px)}.cabecera-estudiante{grid-template-columns:28px minmax(0,1fr) auto 25px;padding-left:8px;padding-right:8px}.numero-estudiante{width:28px}.mini-estados{max-width:78px}.mini{padding:4px 6px;font-size:10px}.nombre-estudiante{font-size:12px}.perfil-cabecera h2{font-size:20px}.porcentaje-individual{min-width:62px}.estadistica .numero{font-size:26px}
   }
 
-  .header-insignia.izquierda {
-    left: 14px;
+  /* Ajustes finales de alineación móvil: no modifican la lógica. */
+  .registro-dia-aula, .dia-registro { overflow:hidden; }
+  .registro-identificacion, .dia-identificacion { width:100%; }
+  .registro-detalles-hora, .dia-detalles-hora { align-self:center; }
+  .registro-dia-aula > .estado, .dia-registro > .estado { align-self:center; }
+  @media (max-width:700px){
+    .registro-identificacion, .dia-identificacion { grid-template-columns:minmax(0,1fr) auto; }
+    .registro-fecha, .fecha-dia { font-size:13px; }
+    .registro-dia-nombre, .dia-nombre { font-size:12px; }
+    .registro-hora, .hora-dia { font-size:12px; }
+    .registro-horario, .dia-horario { font-size:11px; }
+    .flecha-icono { width:9px; height:9px; }
   }
-
-  .header-insignia.derecha {
-    right: 14px;
-  }
-
-  .container {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-      "scanner"
-      "jornada"
-      "resumen"
-      "ultimo"
-      "grupos"
-      "footer";
-  }
-
-  .card:nth-of-type(1) {
-    min-height: auto;
-  }
-
-  #reader {
-    min-height: 430px;
-  }
-}
-
-@media (max-width: 560px) {
-  .header {
-    min-height: 88px;
-    padding: 12px 68px;
-  }
-
-  .header-centro h1 {
-    font-size: 22px;
-  }
-
-  .header-centro p {
-    font-size: 10px;
-    letter-spacing: 1px;
-  }
-
-  .header-insignia {
-    width: 48px;
-    height: 48px;
-  }
-
-  .header-insignia.izquierda {
-    left: 10px;
-  }
-
-  .header-insignia.derecha {
-    right: 10px;
-  }
-
-  .container {
-    width: min(100% - 20px, 1180px);
-    margin-top: 12px;
-    gap: 12px;
-  }
-
-  .card {
-    padding: 16px;
-    border-radius: 17px;
-  }
-
-  .scanner-titulo {
-    font-size: 18px;
-  }
-
-  #reader {
-    min-height: 360px;
-  }
-
-  #reader video {
-    max-height: 390px;
-  }
-
-  .estadisticas,
-  .grupo-estadisticas {
-    gap: 7px;
-  }
-
-  .numero {
-    font-size: 24px;
-  }
-
-  .etiqueta {
-    font-size: 9px;
-  }
-
-  .grupo > summary {
-    padding: 11px 12px;
-  }
-
-  .grupo-cabecera {
-    gap: 8px;
-  }
-
-  .grupo-titulo {
-    font-size: 13px;
-  }
-
-  .grupo-badge {
-    min-width: 50px;
-    padding: 6px 7px;
-    font-size: 11px;
-  }
-
-  .ultimo-detalles {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-}
-
-
-/* =====================================================
-   ACCESO GOOGLE
-   ===================================================== */
-.pantalla-acceso {
-  position: fixed;
-  inset: 0;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-  background: rgba(15, 23, 42, .96);
-  backdrop-filter: blur(8px);
-}
-.acceso-caja {
-  width: min(420px, 100%);
-  box-sizing: border-box;
-  padding: 28px 22px;
-  border-radius: 24px;
-  background: #fff;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
-}
-.acceso-icono { font-size: 42px; margin-bottom: 10px; }
-.acceso-titulo { font-size: 22px; font-weight: 800; color: #0f172a; }
-.acceso-mensaje { margin-top: 10px; color: #64748b; font-size: 14px; line-height: 1.5; }
-.acceso-usuario { margin-top: 10px; color: #334155; font-size: 13px; font-weight: 700; word-break: break-word; }
-.acceso-acciones { margin-top: 18px; display: grid; gap: 9px; }
-.btn-acceso {
-  border: 0;
-  border-radius: 14px;
-  padding: 12px 16px;
-  font-size: 14px;
-  font-weight: 800;
-  cursor: pointer;
-  background: #0f172a;
-  color: #fff;
-}
-.btn-acceso.secundario { background: #e2e8f0; color: #334155; }
-@media (max-width: 480px) {
-  .acceso-caja { padding: 24px 18px; border-radius: 20px; }
-  .acceso-titulo { font-size: 20px; }
-}
-
-/* =====================================================
-   PUENTE GITHUB ↔ APPS SCRIPT
-   Evita fetch() directo y el problema CORS.
-   ===================================================== */
-#puenteAppsScript {
-  position: fixed;
-  width: 1px;
-  height: 1px;
-  left: -9999px;
-  top: -9999px;
-  border: 0;
-  opacity: 0;
-  pointer-events: none;
-}
-
 </style>
-
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://stevenpq95.github.io/cet34-asistencia/auth.js"></script>
-
 </head>
-
-
 <body>
+<div class="contenedor">
+  <header class="encabezado">
+    <h1>📊 Reportes de asistencia</h1>
+    <p>Sistema de consulta y seguimiento de asistencia · CET 34</p>
+  </header>
 
-<!-- =====================================================
-     CONTROL DE ACCESO
-     ===================================================== -->
-<div id="pantallaAcceso" class="pantalla-acceso">
-  <div class="acceso-caja">
-    <div class="acceso-icono">🔐</div>
-    <div class="acceso-titulo">Acceso al sistema</div>
-    <div id="accesoMensaje" class="acceso-mensaje">Verificando tu cuenta de Google...</div>
-    <div id="accesoUsuario" class="acceso-usuario"></div>
-    <div id="accesoAcciones" class="acceso-acciones" style="display:none;">
-      <button type="button" class="btn-acceso" onclick="iniciarGoogleLogin(true)">
-        🔄 Cambiar cuenta de Google
-      </button>
-      <button type="button" class="btn-acceso secundario" onclick="iniciarGoogleLogin(true)">
-        ↻ Reintentar
-      </button>
+  <section class="seccion">
+    <div class="titulo-seccion"><div class="icono">📊</div><div><h2>Reporte por aula</h2><p>Consulta la asistencia de todo un salón durante un periodo y revisa el detalle día por día de cada estudiante.</p></div></div>
+    <div class="form-grid">
+      <div class="campo"><label for="fechaInicioAula">Fecha de inicio</label><input type="date" id="fechaInicioAula"></div>
+      <div class="campo"><label for="fechaFinAula">Fecha de fin</label><input type="date" id="fechaFinAula"></div>
+      <div class="campo"><label for="gradoAula">Grado</label><select id="gradoAula"><option value="">Seleccionar grado</option><option value="1°">1°</option><option value="2°">2°</option><option value="3°">3°</option><option value="4°">4°</option><option value="5°">5°</option></select></div>
+      <div class="campo"><label for="seccionAula">Sección</label><select id="seccionAula"><option value="">Seleccionar sección</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option><option value="I">I</option><option value="J">J</option></select></div>
     </div>
-  </div>
-</div>
+    <div class="acciones"><button class="btn btn-principal" id="btnGenerarAula" onclick="generarReporteAula()">📊 Generar reporte</button></div>
+    <div id="mensajeAula" class="mensaje"></div>
+    <div id="cargandoAula" class="cargando"><div class="spinner"></div>Generando reporte...</div>
+  </section>
 
-<!--
-  Comunicación segura GitHub → Apps Script:
-  cada solicitud se envía mediante un formulario POST a un
-  iframe temporal. No se usa fetch() ni postMessage() para
-  enviar solicitudes al servidor.
--->
-<div id="postBridgeContainer" aria-hidden="true"></div>
-
-
-<!-- =====================================================
-     ENCABEZADO
-     ===================================================== -->
-
-<div class="header">
-
-
-  <div class="header-insignia izquierda">
-
-    <img
-      src="insignia-izquierda.png"
-      alt="Insignia IE">
-
-  </div>
-
-
-  <div class="header-centro">
-
-    <h1>
-      🏫 CET 34
-    </h1>
-
-    <p>
-      CONTROL DE ASISTENCIA QR
-    </p>
-
-  </div>
-
-
-  <div class="header-insignia derecha">
-
-    <img
-      src="insignia-derecha.png"
-      alt="Insignia IE">
-
-  </div>
-
-
-</div>
-
-
-
-<div class="container">
-
-
-<!-- =====================================================
-     ESCÁNER
-     ===================================================== -->
-
-<div class="card">
-
-
-  <div class="scanner-titulo">
-
-    📷 ESCANEAR QR
-
-  </div>
-
-
-  <div class="scanner-instruccion">
-
-    Coloca el código QR del estudiante
-    frente a la cámara
-
-  </div>
-
-
-  <div id="reader"></div>
-
-
-  <div id="resultado"></div>
-
-
-  <div
-    id="audioIndicador"
-    class="audio-indicador">
-
-    🔊 Toca la pantalla para activar
-    el sonido
-
-  </div>
-
-
-</div>
-
-
-
-<!-- =====================================================
-     FECHA / JORNADA
-     ===================================================== -->
-
-<div class="card">
-
-  <div class="fecha-jornada">
-
-    <div
-      id="fecha"
-      class="fecha">
-
-      Cargando fecha...
-
+  <section id="reporteAula" class="reporte">
+    <div class="cabecera-reporte"><div><h2 id="tituloReporteAula">Reporte de asistencia</h2><p id="periodoReporteAula">Periodo:</p></div><div id="porcentajeAula" class="porcentaje">0%</div></div>
+    <div class="estadisticas">
+      <div class="estadistica"><div id="aulaPresentes" class="numero verde">0</div><div class="etiqueta"><span class="punto punto-verde"></span>Presentes</div></div>
+      <div class="estadistica"><div id="aulaTardanzas" class="numero amarillo">0</div><div class="etiqueta"><span class="punto punto-amarillo"></span>Tardanzas</div></div>
+      <div class="estadistica"><div id="aulaPendientes" class="numero azul">0</div><div class="etiqueta"><span class="punto punto-azul"></span>Pendientes</div></div>
+      <div class="estadistica"><div id="aulaFaltas" class="numero rojo">0</div><div class="etiqueta"><span class="punto punto-rojo"></span>Faltas</div></div>
+      <div class="estadistica estadistica-total"><div id="aulaEstudiantes" class="numero morado">0</div><div class="etiqueta">👥 Estudiantes</div></div>
     </div>
+    <div class="barra"><div id="barraAula" class="barra-progreso" style="width:0%"></div></div>
+    <div class="titulo-lista"><span style="font-size:23px">👥</span><h3>Detalle de estudiantes</h3></div>
+    <div id="listaEstudiantesAula"></div>
+  </section>
 
+  <section class="seccion">
+    <div class="titulo-seccion"><div class="icono">🔎</div><div><h2>Reporte por estudiante</h2><p>Busca por nombre, apellido o código. Luego selecciona al estudiante y define su propio rango de fechas.</p></div></div>
+    <div class="campo"><label for="buscarEstudiante">Nombre, apellido o código</label><input type="text" id="buscarEstudiante" placeholder="Ejemplo: Silva, Quispe o nombre completo..." autocomplete="off" onkeydown="manejarEnterBusqueda(event)"></div>
+    <div class="acciones"><button class="btn btn-azul" id="btnBuscarEstudiante" onclick="buscarEstudiantes()">🔎 Buscar estudiante</button></div>
+    <div id="mensajeBusqueda" class="mensaje"></div>
+    <div id="cargandoBusqueda" class="cargando"><div class="spinner"></div>Buscando estudiantes...</div>
+    <div id="resultadosBusqueda" class="resultados-busqueda"></div>
 
-    <div
-      id="jornada"
-      class="jornada">
-
-      🟢 Cargando jornada...
-
-    </div>
-
-  </div>
-
-</div>
-
-
-
-<!-- =====================================================
-     RESUMEN DEL DÍA
-     ===================================================== -->
-
-<div class="card">
-
-
-  <div class="titulo">
-
-    📊 RESUMEN DEL DÍA
-
-  </div>
-
-
-  <div class="estadisticas">
-
-
-    <div class="estadistica">
-
-      <div
-        id="presentesGeneral"
-        class="numero numero-presente">
-
-        0
-
+    <div id="formularioIndividual" style="display:none;margin-top:25px;">
+      <div style="border-top:1px solid #e2e8f0;padding-top:24px;">
+        <div class="titulo-lista" style="margin-bottom:16px;"><span style="font-size:22px">📅</span><h3 style="font-size:20px">Periodo del reporte individual</h3></div>
+        <div class="form-grid">
+          <div class="campo"><label for="fechaInicioEstudiante">Fecha de inicio</label><input type="date" id="fechaInicioEstudiante"></div>
+          <div class="campo"><label for="fechaFinEstudiante">Fecha de fin</label><input type="date" id="fechaFinEstudiante"></div>
+        </div>
+        <div id="estudianteSeleccionado" style="margin-top:18px;padding:15px 17px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:13px;font-weight:700;"></div>
+        <div class="acciones"><button class="btn btn-principal" id="btnGenerarIndividual" onclick="generarReporteEstudiante()">👤 Generar reporte individual</button></div>
       </div>
-
-      <div class="etiqueta">
-
-        🟢 Presentes
-
-      </div>
-
     </div>
-
-
-    <div class="estadistica">
-
-      <div
-        id="tardanzasGeneral"
-        class="numero numero-tardanza">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🟡 Tardanzas
-
-      </div>
-
-    </div>
-
-
-    <div class="estadistica">
-
-      <div
-        id="faltantesGeneral"
-        class="numero numero-faltante">
-
-        0
-
-      </div>
-
-      <div class="etiqueta">
-
-        🔴 Faltantes
-
-      </div>
-
-    </div>
-
-
-  </div>
-
-
-
-  <div class="total-general">
-
-    👥 Total de estudiantes
-
-    <strong id="totalGeneral">
-
-      0
-
-    </strong>
-
-  </div>
-
-
-
-  <div class="barra-contenedor">
-
-    <div class="barra-fondo">
-
-      <div
-        id="barraGeneral"
-        class="barra">
-
-      </div>
-
-    </div>
-
-
-    <div
-      id="porcentajeGeneral"
-      class="porcentaje">
-
-      Asistencia: 0%
-
-    </div>
-
-  </div>
-
-
+    <div id="cargandoIndividual" class="cargando"><div class="spinner"></div>Generando reporte individual...</div>
+    <div id="mensajeIndividual" class="mensaje"></div>
+    <div id="resultadoEstudiante" class="resultado-estudiante"></div>
+  </section>
 </div>
-
-
-
-<!-- =====================================================
-     ÚLTIMO REGISTRO
-     ===================================================== -->
-
-<div class="card">
-
-
-  <div class="titulo">
-
-    👤 ÚLTIMO REGISTRO
-
-  </div>
-
-
-  <div
-    id="ultimoRegistro"
-    class="ultimo-registro">
-
-    <div class="sin-registros">
-
-      Todavía no hay registros de hoy.
-
-    </div>
-
-  </div>
-
-
-</div>
-
-
-
-<!-- =====================================================
-     CONTROL POR SECCIÓN
-     ===================================================== -->
-
-<div class="card">
-
-
-  <div class="titulo">
-
-    🎓 CONTROL POR SECCIÓN
-
-  </div>
-
-
-  <div id="grupos">
-
-    <div class="sin-registros">
-
-      Cargando grupos...
-
-    </div>
-
-  </div>
-
-
-</div>
-
-
-
-<div class="footer">
-
-  CET 34 · Sistema de Asistencia Digital
-  · Prof. StevenQP
-
-</div>
-
-
-</div>
-
-
-
 <script>
 
-/* =====================================================
-   URL APPS SCRIPT
-   ===================================================== */
-
-const URL_APPS_SCRIPT =
-  "https://script.google.com/macros/s/AKfycbwKwnUGpCtVSqCPMkFgaq3ho3e1Z12-xVjzKwl_bwfzOwV7SYHmB9tuSBuOnGJglb7x/exec";
-
-const GOOGLE_CLIENT_ID =
-  "1014449940080-f87gjj53j23f9or14hn4ddmaop2vl2ks.apps.googleusercontent.com";
-
-let googleIdToken = null;
-let usuarioAutorizado = null;
-let autenticacionIniciada = true;
-
-
-/* =====================================================
-   AUTENTICACIÓN COMÚN CET 34
-   =====================================================
-
-   La autenticación real está en auth.js.
-
-   Estas funciones son pequeños puentes de compatibilidad
-   para conservar la lógica existente del scanner y de las
-   estadísticas sin modificar su funcionamiento.
-   ===================================================== */
-
-function mostrarPantallaAcceso(mensaje, mostrarBotones) {
-  if (window.CET34Auth) {
-
-    const panel =
-      document.getElementById("pantallaAcceso");
-
-    if (panel) {
-      panel.style.display = "flex";
-    }
-
-    const mensajeEl =
-      document.getElementById("accesoMensaje");
-
-    if (mensajeEl) {
-      mensajeEl.textContent =
-        mensaje ||
-        "Verificando tu cuenta de Google...";
-    }
-
-    const acciones =
-      document.getElementById("accesoAcciones");
-
-    if (acciones) {
-      acciones.style.display =
-        mostrarBotones ? "grid" : "none";
-    }
-
-    return;
-  }
-}
-
-function ocultarPantallaAcceso() {
-  const pantalla =
-    document.getElementById("pantallaAcceso");
-
-  if (pantalla) {
-    pantalla.style.display = "none";
-  }
-}
-
-function iniciarGoogleLogin(forzarSeleccion) {
-
-  if (
-    !window.CET34Auth
-  ) {
-
-    mostrarPantallaAcceso(
-      "No se pudo cargar el módulo de seguridad.",
-      true
-    );
-
-    return;
-
-  }
-
-  return CET34Auth.login(
-    Boolean(forzarSeleccion)
-  );
-
-}
-
-
-/*
-   Todas las funciones antiguas que utilizaban
-   llamarServidor() pasan ahora por la autenticación común.
-
-   CET34Auth.request() agrega el ID Token actual
-   automáticamente y el servidor vuelve a validarlo.
-*/
-async function llamarServidor(
-  action,
-  parametros
-) {
-
-  if (
-    !window.CET34Auth
-  ) {
-
-    throw new Error(
-      "El módulo de autenticación CET34 no está disponible."
-    );
-
-  }
-
-  const datos =
-    await CET34Auth.request(
-      action,
-      parametros || {}
-    );
+  /* =====================================================
+     CONFIGURACIÓN
+  ===================================================== */
 
   /*
-     Mantener estas variables para el código existente
-     que todavía las consulta.
-  */
-  try {
-    googleIdToken =
-      CET34Auth.getToken();
-  } catch (_) {}
+    IMPORTANTE:
 
-  usuarioAutorizado =
-    CET34Auth.getUser();
+    Coloca aquí la URL de implementación de tu Web App
+    de Google Apps Script.
 
-  return datos;
-}
-
-
-function urlConToken(url) {
-
-  /*
-     Se conserva por compatibilidad.
-     Las operaciones nuevas deben usar llamarServidor()
-     y no colocar tokens manualmente en URLs.
+    No cambies el resto del código.
   */
 
-  if (
-    !CET34Auth ||
-    !CET34Auth.isAuthenticated()
+  const API_URL = "https://script.google.com/macros/s/AKfycbz4GruqdN5Fs57l3C_HQC0GF3tfqXmiGGqrTHuwkrntNgCKbCIbV0KdedUpqWZ84A0R/exec";
+
+
+  let estudianteSeleccionado = null;
+
+
+  /* =====================================================
+     UTILIDADES
+  ===================================================== */
+
+  function escapeHTML(texto) {
+
+    if (texto === null || texto === undefined) {
+      return "";
+    }
+
+    return String(texto)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  function fechaHoy() {
+
+    const ahora = new Date();
+
+    const año = ahora.getFullYear();
+
+    const mes = String(
+      ahora.getMonth() + 1
+    ).padStart(2, "0");
+
+    const dia = String(
+      ahora.getDate()
+    ).padStart(2, "0");
+
+    return `${año}-${mes}-${dia}`;
+  }
+
+
+  function mostrarMensaje(
+    elemento,
+    texto,
+    tipo
   ) {
 
-    throw new Error(
-      "No existe una sesión autenticada."
+    elemento.textContent = texto;
+
+    elemento.className =
+      "mensaje " + tipo;
+
+  }
+
+
+  function ocultarMensaje(elemento) {
+
+    elemento.className = "mensaje";
+
+    elemento.textContent = "";
+
+  }
+
+
+  function formatoFecha(fecha) {
+
+    if (!fecha) {
+      return "";
+    }
+
+    const partes = String(fecha).split("-");
+
+    if (partes.length !== 3) {
+      return fecha;
+    }
+
+    return `${partes[2]}/${partes[1]}/${partes[0]}`;
+
+  }
+
+
+  function obtenerEstadoClase(estado) {
+
+    const normalizado =
+      String(estado || "")
+        .toLowerCase()
+        .trim();
+
+    if (normalizado === "presente") {
+      return "estado-presente";
+    }
+
+    if (normalizado === "tardanza") {
+      return "estado-tardanza";
+    }
+
+    if (
+      normalizado === "falta" ||
+      normalizado === "faltante"
+    ) {
+      return "estado-falta";
+    }
+
+    return "estado-pendiente";
+
+  }
+
+
+  /* =====================================================
+     NORMALIZAR DATOS DEL REPORTE
+  ===================================================== */
+
+  function obtenerHistorial(datos) {
+    if (Array.isArray(datos?.historial)) return datos.historial;
+    if (Array.isArray(datos?.asistencia)) return datos.asistencia;
+    return [];
+  }
+
+  /* =====================================================
+     FORMATEAR HORAS DEL BACKEND
+     -----------------------------------------------------
+     El reporte por aula puede recibir las horas como
+     segundos desde medianoche (ej.: 44560 = 12:22:40).
+     El reporte individual ya las recibe formateadas.
+     Esta función soporta ambos formatos sin cambiar
+     los datos que entrega el servidor.
+  ===================================================== */
+
+  function formatearHoraUniversal(valor) {
+    if (valor === null || valor === undefined || valor === "") {
+      return "";
+    }
+
+    // Date de Google Sheets
+    if (Object.prototype.toString.call(valor) === "[object Date]") {
+      if (isNaN(valor.getTime())) return "";
+
+      let horas = valor.getHours();
+      const minutos = String(valor.getMinutes()).padStart(2, "0");
+      const segundos = String(valor.getSeconds()).padStart(2, "0");
+      const periodo = horas >= 12 ? "PM" : "AM";
+
+      horas = horas % 12;
+      if (horas === 0) horas = 12;
+
+      return `${horas}:${minutos}:${segundos} ${periodo}`;
+    }
+
+    const texto = String(valor).trim();
+    if (!texto) return "";
+
+    // Segundos desde medianoche: 44560, 75760, 38860, etc.
+    // También acepta valores numéricos enviados como texto.
+    if (/^\d+(?:\.\d+)?$/.test(texto)) {
+      const segundosTotales = Number(texto);
+
+      if (Number.isFinite(segundosTotales) && segundosTotales >= 0 && segundosTotales < 86400) {
+        let horas = Math.floor(segundosTotales / 3600);
+        const minutos = Math.floor((segundosTotales % 3600) / 60);
+        const segundos = Math.floor(segundosTotales % 60);
+        const periodo = horas >= 12 ? "PM" : "AM";
+
+        horas = horas % 12;
+        if (horas === 0) horas = 12;
+
+        return `${horas}:${String(minutos).padStart(2, "0")}:${String(segundos).padStart(2, "0")} ${periodo}`;
+      }
+    }
+
+    // Ya viene como hora legible.
+    return texto;
+  }
+
+  function textoHorario(registro) {
+    const entrada = formatearHoraUniversal(
+      registro?.horaEntrada ?? registro?.horaIngreso ?? ""
+    );
+    const salida = formatearHoraUniversal(
+      registro?.horaSalida ?? ""
     );
 
+    if (!entrada && !salida) return "";
+    if (entrada && salida) return `${entrada} → ${salida}`;
+    if (entrada) return `Ingreso: ${entrada}`;
+    return `Salida: ${salida}`;
   }
 
-  return String(url || "");
+  function textoHora(registro) {
+    const hora = formatearHoraUniversal(registro?.hora);
+    return hora || "—";
+  }
 
-}
+  function normalizarEstudianteIndividual(datos) {
+    const base = datos?.estudiante && typeof datos.estudiante === "object"
+      ? datos.estudiante
+      : {};
 
-/* =====================================================
-   ESCAPAR HTML
-   ===================================================== */
-
-function escaparHTML(texto) {
-
-  return String(texto ?? "")
-
-    .replace(/&/g, "&amp;")
-
-    .replace(/</g, "&lt;")
-
-    .replace(/>/g, "&gt;")
-
-    .replace(/"/g, "&quot;")
-
-    .replace(/'/g, "&#039;");
-
-}
-
-
-/* =====================================================
-   FORMATEAR HORA
-   ===================================================== */
-
-function formatearHora(hora) {
-
-  if (!hora) {
-
-    return "";
-
+    return {
+      codigo: datos?.codigo || base.codigo || estudianteSeleccionado?.codigo || "",
+      estudiante: typeof datos?.estudiante === "string"
+        ? datos.estudiante
+        : base.estudiante || estudianteSeleccionado?.estudiante || "",
+      grado: datos?.grado || base.grado || estudianteSeleccionado?.grado || "",
+      seccion: datos?.seccion || base.seccion || estudianteSeleccionado?.seccion || ""
+    };
   }
 
 
-  const partes =
-    String(hora)
-      .trim()
-      .split(":");
+  /* =====================================================
+     CONFIGURAR FECHAS INICIALES
+  ===================================================== */
 
+  function configurarFechas() {
 
-  if (partes.length < 2) {
+    const hoy = fechaHoy();
 
-    return hora;
-
-  }
-
-
-  let horas =
-    parseInt(
-      partes[0],
-      10
-    );
-
-
-  const minutos =
-    partes[1];
-
-
-  const segundos =
-    partes.length >= 3
-      ? partes[2]
-      : "00";
-
-
-  if (isNaN(horas)) {
-
-    return hora;
-
-  }
-
-
-  const periodo =
-    horas >= 12
-      ? "PM"
-      : "AM";
-
-
-  let horas12 =
-    horas % 12;
-
-
-  if (horas12 === 0) {
-
-    horas12 = 12;
-
-  }
-
-
-  return (
-    horas12 +
-    ":" +
-    minutos +
-    ":" +
-    segundos +
-    " " +
-    periodo
-  );
-
-}
-
-
-/* =====================================================
-   RESULTADO TEMPORAL
-   ===================================================== */
-
-function mostrarResultadoTemporal(
-  clase,
-  contenido
-) {
-
-  const resultado =
     document.getElementById(
-      "resultado"
-    );
+      "fechaInicioAula"
+    ).value = hoy;
 
+    document.getElementById(
+      "fechaFinAula"
+    ).value = hoy;
 
-  if (resultadoTimer) {
+    document.getElementById(
+      "fechaInicioEstudiante"
+    ).value = hoy;
 
-    clearTimeout(
-      resultadoTimer
-    );
+    document.getElementById(
+      "fechaFinEstudiante"
+    ).value = hoy;
 
   }
 
 
-  resultado.className =
-    clase;
+  /* =====================================================
+     VALIDAR RANGO
+  ===================================================== */
 
+  function validarRango(
+    inicio,
+    fin
+  ) {
 
-  resultado.innerHTML =
-    contenido;
+    if (!inicio || !fin) {
 
+      alert(
+        "Selecciona la fecha de inicio y la fecha de fin."
+      );
 
-  resultado.style.display =
-    "block";
-
-
-  resultadoTimer =
-    setTimeout(
-      function() {
-
-        resultado.style.display =
-          "none";
-
-        resultado.innerHTML =
-          "";
-
-      },
-      2500
-    );
-
-}
-
-
-/* =====================================================
-   AUDIO
-   ===================================================== */
-
-function activarAudio() {
-
-  try {
-
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-
-    if (!AudioContext) {
-
-      return;
-
+      return false;
     }
 
+    if (inicio > fin) {
 
-    if (!audioContext) {
+      alert(
+        "La fecha de inicio no puede ser posterior a la fecha de fin."
+      );
 
-      audioContext =
-        new AudioContext();
-
+      return false;
     }
+
+    return true;
+  }
+
+
+  /* =====================================================
+     REPORTE POR AULA
+  ===================================================== */
+
+  async function generarReporteAula() {
+
+    const fechaInicio =
+      document.getElementById(
+        "fechaInicioAula"
+      ).value;
+
+    const fechaFin =
+      document.getElementById(
+        "fechaFinAula"
+      ).value;
+
+    const grado =
+      document.getElementById(
+        "gradoAula"
+      ).value;
+
+    const seccion =
+      document.getElementById(
+        "seccionAula"
+      ).value;
 
 
     if (
-      audioContext.state ===
-      "suspended"
+      !validarRango(
+        fechaInicio,
+        fechaFin
+      )
     ) {
-
-      audioContext.resume();
-
+      return;
     }
 
 
-    const indicador =
-      document.getElementById(
-        "audioIndicador"
+    if (!grado || !seccion) {
+
+      alert(
+        "Selecciona el grado y la sección."
       );
-
-
-    if (indicador) {
-
-      indicador.textContent =
-        "🔊 Sonido activo";
-
-    }
-
-  }
-
-  catch(error) {
-
-    console.error(error);
-
-  }
-
-}
-
-
-/* =====================================================
-   TONO
-   ===================================================== */
-
-function tono(
-  frecuencia,
-  duracion,
-  retraso,
-  volumen
-) {
-
-  try {
-
-    activarAudio();
-
-
-    if (!audioContext) {
 
       return;
-
     }
 
 
-    const inicio =
-      audioContext.currentTime +
-      (retraso || 0);
-
-
-    const oscilador =
-      audioContext.createOscillator();
-
-
-    const ganancia =
-      audioContext.createGain();
-
-
-    oscilador.type =
-      "sine";
-
-
-    oscilador.frequency.setValueAtTime(
-      frecuencia,
-      inicio
-    );
-
-
-    ganancia.gain.setValueAtTime(
-      0.0001,
-      inicio
-    );
-
-
-    ganancia.gain.exponentialRampToValueAtTime(
-      volumen || 0.8,
-      inicio + 0.025
-    );
-
-
-    ganancia.gain.exponentialRampToValueAtTime(
-      0.0001,
-      inicio + duracion
-    );
-
-
-    oscilador.connect(
-      ganancia
-    );
-
-
-    ganancia.connect(
-      audioContext.destination
-    );
-
-
-    oscilador.start(
-      inicio
-    );
-
-
-    oscilador.stop(
-      inicio +
-      duracion +
-      0.02
-    );
-
-  }
-
-  catch(error) {
-
-    console.error(error);
-
-  }
-
-}
-
-
-/* =====================================================
-   SONIDOS
-   ===================================================== */
-
-function sonidoPresente() {
-
-  activarAudio();
-
-  tono(
-    784,
-    .14,
-    0,
-    .8
-  );
-
-  tono(
-    1175,
-    .18,
-    .15,
-    .85
-  );
-
-
-  if (navigator.vibrate) {
-
-    navigator.vibrate(100);
-
-  }
-
-}
-
-
-function sonidoTardanza() {
-
-  activarAudio();
-
-  tono(
-    700,
-    .18,
-    0,
-    .85
-  );
-
-  tono(
-    440,
-    .22,
-    .20,
-    .9
-  );
-
-
-  if (navigator.vibrate) {
-
-    navigator.vibrate([
-      120,
-      80,
-      120
-    ]);
-
-  }
-
-}
-
-
-function sonidoDuplicado() {
-
-  activarAudio();
-
-  tono(
-    520,
-    .16,
-    0,
-    .9
-  );
-
-  tono(
-    520,
-    .16,
-    .30,
-    .9
-  );
-
-
-  if (navigator.vibrate) {
-
-    navigator.vibrate([
-      100,
-      100,
-      100
-    ]);
-
-  }
-
-}
-
-
-function sonidoError() {
-
-  activarAudio();
-
-  tono(
-    300,
-    .25,
-    0,
-    .95
-  );
-
-  tono(
-    180,
-    .30,
-    .28,
-    1
-  );
-
-
-  if (navigator.vibrate) {
-
-    navigator.vibrate([
-      160,
-      90,
-      160
-    ]);
-
-  }
-
-}
-
-
-document.addEventListener(
-  "touchstart",
-  activarAudio,
-  {
-    passive: true
-  }
-);
-
-
-document.addEventListener(
-  "click",
-  activarAudio
-);
-
-
-/* =====================================================
-   CARGAR ESTADÍSTICAS
-   ===================================================== */
-
-function cargarEstadisticas() {
-
-  llamarServidor("estadisticas", {
-    token: googleIdToken
-  })
-  .then(function(data) {
-
-    if (!data || data.exito !== true) {
-      throw new Error(
-        (data && data.mensaje) ||
-        "Error estadísticas"
-      );
-    }
-
-    mostrarEstadisticas(data);
-  })
-  .catch(function(error) {
-
-    console.error(error);
-
-    document.getElementById("grupos").innerHTML = `
-      <div class="sin-registros">
-        ⚠️ No se pudieron cargar las estadísticas.
-      </div>
-    `;
-  });
-}
-
-
-/* =====================================================
-   MOSTRAR ESTADÍSTICAS
-   ===================================================== */
-
-function mostrarEstadisticas(
-  data
-) {
-
-  document.getElementById(
-    "fecha"
-  ).textContent =
-
-    escaparHTML(
-      data.dia
-    ) +
-    " · " +
-    escaparHTML(
-      data.fecha
-    );
-
-
-  document.getElementById(
-    "presentesGeneral"
-  ).textContent =
-    data.presentesGeneral;
-
-
-  document.getElementById(
-    "tardanzasGeneral"
-  ).textContent =
-    data.tardanzasGeneral;
-
-
-  document.getElementById(
-    "faltantesGeneral"
-  ).textContent =
-    data.faltantesGeneral;
-
-
-  document.getElementById(
-    "totalGeneral"
-  ).textContent =
-    data.totalGeneral;
-
-
-  document.getElementById(
-    "porcentajeGeneral"
-  ).textContent =
-    "Asistencia: " +
-    data.porcentajeGeneral +
-    "%";
-
-
-  document.getElementById(
-    "barraGeneral"
-  ).style.width =
-    data.porcentajeGeneral +
-    "%";
-
-
-  const jornada =
-    document.getElementById(
-      "jornada"
-    );
-
-
-  if (
-    data.grupos &&
-    data.grupos.length > 0
-  ) {
-
-    jornada.className =
-      "jornada";
-
-    jornada.innerHTML =
-      "🟢 JORNADA ACTIVA · " +
-      data.grupos.length +
-      (
-        data.grupos.length === 1
-          ? " grupo"
-          : " grupos"
+    const boton =
+      document.getElementById(
+        "btnGenerarAula"
       );
 
-  }
+    const cargando =
+      document.getElementById(
+        "cargandoAula"
+      );
 
-  else {
+    const mensaje =
+      document.getElementById(
+        "mensajeAula"
+      );
 
-    jornada.className =
-      "jornada pausa";
 
-    jornada.innerHTML =
-      "⚪ SIN HORARIO ACTIVO";
+    boton.disabled = true;
 
-  }
+    cargando.classList.add("visible");
 
+    ocultarMensaje(mensaje);
 
-  mostrarUltimoRegistro(
-    data.ultimoRegistro
-  );
 
+    try {
 
-  mostrarGrupos(
-    data.grupos
-  );
+      const url =
+        API_URL +
+        "?action=reporte" +
+        "&fechaInicio=" +
+        encodeURIComponent(fechaInicio) +
+        "&fechaFin=" +
+        encodeURIComponent(fechaFin) +
+        "&grado=" +
+        encodeURIComponent(grado) +
+        "&seccion=" +
+        encodeURIComponent(seccion);
 
-}
 
+      const respuesta =
+        await fetch(url);
 
-/* =====================================================
-   ÚLTIMO REGISTRO
-   ===================================================== */
 
-function mostrarUltimoRegistro(
-  registro
-) {
-
-  const contenedor =
-    document.getElementById(
-      "ultimoRegistro"
-    );
-
-
-  if (!registro) {
-
-    contenedor.innerHTML = `
-
-      <div class="sin-registros">
-
-        Todavía no hay registros de hoy.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  const estado =
-    String(
-      registro.estado || ""
-    )
-      .trim()
-      .toUpperCase();
-
-
-  const esTardanza =
-    estado === "TARDANZA";
-
-
-  contenedor.innerHTML = `
-
-    <div class="ultimo-titulo">
-
-      👤 ÚLTIMO ESTUDIANTE REGISTRADO
-
-    </div>
-
-
-    <div class="ultimo-estudiante">
-
-      ${escaparHTML(
-        registro.estudiante
-      )}
-
-    </div>
-
-
-    <div class="ultimo-grupo">
-
-      ${escaparHTML(
-        registro.grado
-      )}
-
-      · Sección
-
-      ${escaparHTML(
-        registro.seccion
-      )}
-
-    </div>
-
-
-    <div class="ultimo-detalles">
-
-      <div class="ultimo-hora">
-
-        🕐
-        ${formatearHora(
-          registro.hora
-        )}
-
-      </div>
-
-
-      <div
-        class="ultimo-estado
-        ${
-          esTardanza
-            ? "tardanza"
-            : "presente"
-        }">
-
-        ${
-          esTardanza
-            ? "🟡 TARDANZA"
-            : "🟢 PRESENTE"
-        }
-
-      </div>
-
-    </div>
-
-  `;
-
-}
-
-
-/* =====================================================
-   CREAR LISTA
-   ===================================================== */
-
-function crearLista(
-  estudiantes,
-  tipo,
-  titulo,
-  emoji
-) {
-
-  const lista =
-    estudiantes || [];
-
-
-  let contenido = "";
-
-
-  if (
-    lista.length === 0
-  ) {
-
-    contenido = `
-
-      <div class="lista-vacia">
-
-        No hay estudiantes
-        en esta categoría.
-
-      </div>
-
-    `;
-
-  }
-
-  else {
-
-    contenido =
-      '<div class="lista-estudiantes">';
-
-
-    lista.forEach(
-      function(
-        estudiante,
-        indice
-      ) {
-
-        contenido += `
-
-          <div class="estudiante-item">
-
-            <div
-              class="estudiante-numero">
-
-              ${
-                String(
-                  indice + 1
-                ).padStart(
-                  2,
-                  "0"
-                )
-              }
-
-            </div>
-
-
-            <div
-              class="estudiante-nombre">
-
-              ${escaparHTML(
-                estudiante.nombre
-              )}
-
-            </div>
-
-          </div>
-
-        `;
-
+      if (!respuesta.ok) {
+        throw new Error(
+          "No fue posible conectar con el servidor."
+        );
       }
-    );
 
 
-    contenido +=
-      "</div>";
-
-  }
+      const resultado =
+        await respuesta.json();
 
 
-  return `
+      if (!resultado.exito) {
 
-    <details
-      class="lista-panel ${tipo}">
-
-
-      <summary>
-
-
-        <span
-          class="lista-titulo">
-
-          <span>
-            ${emoji}
-          </span>
-
-          <span>
-
-            ${titulo}
-            · ${lista.length}
-
-          </span>
-
-        </span>
-
-
-        <span
-          class="chevron"
-          aria-hidden="true">
-
-          <svg
-            viewBox="0 0 24 24">
-
-            <path
-              d="M6 9l6 6 6-6">
-            </path>
-
-          </svg>
-
-        </span>
-
-
-      </summary>
-
-
-      ${contenido}
-
-
-    </details>
-
-  `;
-
-}
-
-
-/* =====================================================
-   MOSTRAR GRUPOS
-   ===================================================== */
-
-function mostrarGrupos(
-  grupos
-) {
-
-  const contenedor =
-    document.getElementById(
-      "grupos"
-    );
-
-
-  contenedor.innerHTML =
-    "";
-
-
-  if (
-    !grupos ||
-    grupos.length === 0
-  ) {
-
-    contenedor.innerHTML = `
-
-      <div class="sin-registros">
-
-        📅 Hoy no hay grupos
-        con horario configurado.
-
-      </div>
-
-    `;
-
-    return;
-
-  }
-
-
-  grupos.forEach(
-    function(grupo) {
-
-      const tarjeta =
-        document.createElement(
-          "details"
+        throw new Error(
+          resultado.mensaje ||
+          "No fue posible generar el reporte."
         );
 
+      }
 
-      tarjeta.className =
-        "grupo";
 
+      mostrarReporteAula(
+        resultado
+      );
+
+
+      mostrarMensaje(
+        mensaje,
+        "✓ Reporte generado correctamente.",
+        "exito"
+      );
+
+
+    } catch(error) {
+
+      mostrarMensaje(
+        mensaje,
+        "✕ " + error.message,
+        "error"
+      );
+
+    } finally {
+
+      boton.disabled = false;
+
+      cargando.classList.remove(
+        "visible"
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     MOSTRAR REPORTE DEL AULA
+  ===================================================== */
+
+  function mostrarReporteAula(
+    datos
+  ) {
+
+    const reporte = document.getElementById("reporteAula");
+    reporte.classList.add("visible");
+
+    document.getElementById("tituloReporteAula").textContent =
+      `Reporte de asistencia · ${datos.grado || ""} · Sección ${datos.seccion || ""}`;
+
+    document.getElementById("periodoReporteAula").textContent =
+      `Periodo: ${formatoFechaUniversal(datos.fechaInicio)} → ${formatoFechaUniversal(datos.fechaFin)}`;
+
+    document.getElementById("porcentajeAula").textContent =
+      `${Number(datos.porcentaje || 0)}%`;
+
+    document.getElementById("aulaPresentes").textContent = Number(datos.presentes || 0);
+    document.getElementById("aulaTardanzas").textContent = Number(datos.tardanzas || 0);
+    document.getElementById("aulaFaltas").textContent = Number(datos.faltantes || 0);
+    document.getElementById("aulaPendientes").textContent = Number(datos.pendientes || 0);
+    document.getElementById("aulaEstudiantes").textContent = Number(datos.totalEstudiantes || 0);
+
+    document.getElementById("barraAula").style.width =
+      Math.max(0, Math.min(100, Number(datos.porcentaje || 0))) + "%";
+
+    const lista = document.getElementById("listaEstudiantesAula");
+    lista.innerHTML = "";
+
+    if (!Array.isArray(datos.estudiantes) || datos.estudiantes.length === 0) {
+      lista.innerHTML = `<div style="text-align:center;padding:35px;color:#64748b;">No hay estudiantes para mostrar.</div>`;
+      return;
+    }
+
+    datos.estudiantes.forEach((estudiante, indice) => {
+      const historial = obtenerHistorial(estudiante);
+      let presentes = 0, tardanzas = 0, faltas = 0, pendientes = 0;
+
+      historial.forEach(registro => {
+        const estado = String(registro.estado || "").toLowerCase().trim();
+        if (estado === "presente") presentes++;
+        else if (estado === "tardanza") tardanzas++;
+        else if (estado === "falta" || estado === "faltante") faltas++;
+        else pendientes++;
+      });
+
+      const articulo = document.createElement("div");
+      articulo.className = "estudiante-aula";
+
+      const filasHistorial = historial.length
+        ? historial.map(registro => {
+            const horario = textoHorario(registro);
+            return `
+              <div class="registro-dia-aula">
+                <div class="registro-identificacion">
+                  <div class="registro-fecha">📅 ${escapeHTML(formatoFechaUniversal(registro.fecha))}</div>
+                  <div class="registro-dia-nombre">${escapeHTML(registro.dia || "")}</div>
+                </div>
+                <div class="registro-detalles-hora">
+                  <div class="registro-hora">🕐 ${escapeHTML(textoHora(registro))}</div>
+                  ${horario ? `<div class="registro-horario"><strong>Horario:</strong> ${escapeHTML(horario)}</div>` : ""}
+                </div>
+                <div class="estado ${obtenerEstadoClase(registro.estado)}">${escapeHTML(registro.estado || "Pendiente")}</div>
+              </div>`;
+          }).join("")
+        : `<div style="padding:18px;text-align:center;color:#64748b;">No hay jornadas configuradas en este periodo.</div>`;
+
+      articulo.innerHTML = `
+        <button class="cabecera-estudiante" type="button" aria-expanded="false">
+          <span class="numero-estudiante">${String(indice + 1).padStart(2, "0")}</span>
+          <span class="nombre-estudiante">${escapeHTML(estudiante.estudiante)}</span>
+          <span class="mini-estados">
+            ${presentes > 0 ? `<span class="mini mini-presente">🟢 ${presentes}</span>` : ""}
+            ${tardanzas > 0 ? `<span class="mini mini-tardanza">🟡 ${tardanzas}</span>` : ""}
+            ${pendientes > 0 ? `<span class="mini mini-pendiente">🔵 ${pendientes}</span>` : ""}
+            ${faltas > 0 ? `<span class="mini mini-falta">🔴 ${faltas}</span>` : ""}
+          </span>
+          <span class="flecha" aria-hidden="true"><span class="flecha-icono"></span></span>
+        </button>
+
+        <div class="detalle-estudiante">
+          <div class="resumen-individual">
+            <div class="resumen-item"><strong class="verde">${presentes}</strong><span>Presentes</span></div>
+            <div class="resumen-item"><strong class="amarillo">${tardanzas}</strong><span>Tardanzas</span></div>
+            <div class="resumen-item"><strong class="azul">${pendientes}</strong><span>Pendientes</span></div>
+            <div class="resumen-item"><strong class="rojo">${faltas}</strong><span>Faltas</span></div>
+          </div>
+
+          <div class="historial-aula">
+            <h4>📅 Historial día por día</h4>
+            ${filasHistorial}
+          </div>
+        </div>`;
+
+      const boton = articulo.querySelector(".cabecera-estudiante");
+      boton.addEventListener("click", () => {
+        const abierto = articulo.classList.toggle("abierto");
+        boton.setAttribute("aria-expanded", abierto ? "true" : "false");
+      });
+
+      lista.appendChild(articulo);
+    });
+  }
+
+
+  /* =====================================================
+     BUSCAR ESTUDIANTE
+  ===================================================== */
+
+  function manejarEnterBusqueda(
+    evento
+  ) {
+
+    if (
+      evento.key === "Enter"
+    ) {
+
+      buscarEstudiantes();
+
+    }
+
+  }
+
+
+  async function buscarEstudiantes() {
+
+    const texto =
+      document.getElementById(
+        "buscarEstudiante"
+      ).value.trim();
+
+
+    if (texto.length < 2) {
+
+      mostrarMensaje(
+        document.getElementById(
+          "mensajeBusqueda"
+        ),
+        "Escribe al menos 2 caracteres para realizar la búsqueda.",
+        "info"
+      );
+
+      return;
+    }
+
+
+    const boton =
+      document.getElementById(
+        "btnBuscarEstudiante"
+      );
+
+    const cargando =
+      document.getElementById(
+        "cargandoBusqueda"
+      );
+
+    const resultados =
+      document.getElementById(
+        "resultadosBusqueda"
+      );
+
+
+    boton.disabled = true;
+
+    cargando.classList.add(
+      "visible"
+    );
+
+    resultados.classList.remove(
+      "visible"
+    );
+
+    resultados.innerHTML = "";
+
+
+    ocultarMensaje(
+      document.getElementById(
+        "mensajeBusqueda"
+      )
+    );
+
+
+    try {
 
       /*
-         NO se agrega:
+        Esta acción será implementada
+        en doGet():
 
-         tarjeta.open = true;
-
-         Por eso comienza cerrado.
+        action=buscarEstudiante
       */
 
 
-      tarjeta.innerHTML = `
-
-        <summary>
-
-
-          <div
-            class="grupo-cabecera">
+      const url =
+        API_URL +
+        "?action=buscarEstudiante" +
+        "&q=" +
+        encodeURIComponent(texto);
 
 
-            <div>
-
-              <div
-                class="grupo-titulo">
-
-                🎓
-                ${escaparHTML(
-                  grupo.grado
-                )}
-
-                · Sección
-
-                ${escaparHTML(
-                  grupo.seccion
-                )}
-
-              </div>
+      const respuesta =
+        await fetch(url);
 
 
-              <div
-                class="grupo-hora">
+      if (!respuesta.ok) {
 
-                🕐 Entrada:
+        throw new Error(
+          "No fue posible conectar con el servidor."
+        );
 
-                ${formatearHora(
-                  grupo.hora
-                )}
-
-              </div>
-
-            </div>
+      }
 
 
-            <div
-              class="grupo-badge">
-
-              ${grupo.porcentaje}%
-
-            </div>
+      const datos =
+        await respuesta.json();
 
 
-          </div>
+      if (!datos.exito) {
+
+        throw new Error(
+          datos.mensaje ||
+          "No fue posible realizar la búsqueda."
+        );
+
+      }
 
 
-          <span
-            class="chevron"
-            aria-hidden="true">
+      mostrarResultadosBusqueda(
+        datos.estudiantes || []
+      );
 
-            <svg
-              viewBox="0 0 24 24">
 
-              <path
-                d="M6 9l6 6 6-6">
-              </path>
+    } catch(error) {
 
-            </svg>
+      mostrarMensaje(
+        document.getElementById(
+          "mensajeBusqueda"
+        ),
+        "✕ " + error.message,
+        "error"
+      );
+
+    } finally {
+
+      boton.disabled = false;
+
+      cargando.classList.remove(
+        "visible"
+      );
+
+    }
+
+  }
+
+
+  /* =====================================================
+     MOSTRAR RESULTADOS DE BÚSQUEDA
+  ===================================================== */
+
+  function mostrarResultadosBusqueda(
+    estudiantes
+  ) {
+
+    const contenedor =
+      document.getElementById(
+        "resultadosBusqueda"
+      );
+
+
+    contenedor.innerHTML = "";
+
+
+    if (
+      !estudiantes ||
+      estudiantes.length === 0
+    ) {
+
+      contenedor.innerHTML = `
+        <div
+          style="
+            padding:22px;
+            text-align:center;
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-radius:14px;
+            color:#64748b;
+          "
+        >
+          No se encontraron estudiantes.
+        </div>
+      `;
+
+      contenedor.classList.add(
+        "visible"
+      );
+
+      return;
+    }
+
+
+    const titulo =
+      document.createElement(
+        "div"
+      );
+
+    titulo.className =
+      "titulo-resultados";
+
+
+    titulo.textContent =
+      estudiantes.length === 1
+      ? "1 estudiante encontrado"
+      : `${estudiantes.length} estudiantes encontrados`;
+
+
+    contenedor.appendChild(
+      titulo
+    );
+
+
+    estudiantes.forEach(
+      (estudiante, indice) => {
+
+        const boton =
+          document.createElement(
+            "button"
+          );
+
+
+        boton.type = "button";
+
+        boton.className =
+          "resultado-item";
+
+
+        boton.innerHTML = `
+
+          <span class="resultado-numero">
+            ${String(indice + 1).padStart(2, "0")}
+          </span>
+
+          <span class="resultado-info">
+
+            <span class="resultado-nombre">
+              ${escapeHTML(estudiante.estudiante)}
+            </span>
+
+            <span class="resultado-curso">
+              ${escapeHTML(estudiante.grado || "")}
+              ·
+              Sección
+              ${escapeHTML(estudiante.seccion || "")}
+            </span>
 
           </span>
 
+          <span class="resultado-ver">
+            Ver reporte →
+          </span>
 
-        </summary>
+        `;
 
 
-        <div
-          class="grupo-contenido">
+        boton.addEventListener(
+          "click",
+          () => {
 
-
-          <div
-            class="grupo-estadisticas">
-
-
-            <div
-              class="grupo-estado">
-
-              <div
-                class="numero
-                       numero-presente">
-
-                ${grupo.presentes}
-
-              </div>
-
-              <div class="etiqueta">
-
-                🟢 Presentes
-
-              </div>
-
-            </div>
-
-
-            <div
-              class="grupo-estado">
-
-              <div
-                class="numero
-                       numero-tardanza">
-
-                ${grupo.tardanzas}
-
-              </div>
-
-              <div class="etiqueta">
-
-                🟡 Tardanzas
-
-              </div>
-
-            </div>
-
-
-            <div
-              class="grupo-estado">
-
-              <div
-                class="numero
-                       numero-faltante">
-
-                ${grupo.faltantes}
-
-              </div>
-
-              <div class="etiqueta">
-
-                🔴 Faltantes
-
-              </div>
-
-            </div>
-
-
-          </div>
-
-
-
-          <div
-            class="grupo-info">
-
-
-            <div class="info-item">
-
-              🕐 Tolerancia
-
-              <strong>
-
-                ${grupo.tolerancia}
-                min.
-
-              </strong>
-
-            </div>
-
-
-            <div class="info-item">
-
-              👥 Estudiantes
-
-              <strong>
-
-                ${grupo.total}
-
-              </strong>
-
-            </div>
-
-
-          </div>
-
-
-
-          <div
-            class="barra-contenedor">
-
-            <div class="barra-fondo">
-
-              <div
-                class="barra"
-                style="
-                  width:${grupo.porcentaje}%;
-                ">
-
-              </div>
-
-            </div>
-
-
-            <div class="porcentaje">
-
-              Asistencia:
-              ${grupo.porcentaje}%
-
-            </div>
-
-          </div>
-
-
-
-          ${crearLista(
-
-            grupo.estudiantesPresentes,
-
-            "presente",
-
-            "Presentes",
-
-            "🟢"
-
-          )}
-
-
-
-          ${crearLista(
-
-            grupo.estudiantesTardanza,
-
-            "tardanza",
-
-            "Tardanzas",
-
-            "🟡"
-
-          )}
-
-
-
-          ${crearLista(
-
-            grupo.estudiantesFaltantes,
-
-            "faltante",
-
-            "Faltantes",
-
-            "🔴"
-
-          )}
-
-
-        </div>
-
-      `;
-
-
-      contenedor.appendChild(
-        tarjeta
-      );
-
-    }
-  );
-
-}
-
-
-/* =====================================================
-   QR DETECTADO
-   ===================================================== */
-
-function qrDetectado(
-  codigo
-) {
-
-  if (procesando) {
-
-    return;
-
-  }
-
-
-  procesando =
-    true;
-
-
-  if (scanner) {
-
-    scanner.stop()
-
-      .then(
-        function() {
-
-          registrarAsistencia(
-            codigo
-          );
-
-        }
-      )
-
-      .catch(
-        function() {
-
-          registrarAsistencia(
-            codigo
-          );
-
-        }
-      );
-
-  }
-
-  else {
-
-    registrarAsistencia(
-      codigo
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   REGISTRAR ASISTENCIA
-   ===================================================== */
-
-function registrarAsistencia(
-  codigo
-) {
-
-  mostrarProcesando();
-
-  if (!googleIdToken) {
-    procesando = false;
-    mostrarResultadoTemporal(
-      "resultado-error",
-      `
-        <div class="resultado-icono">🔐</div>
-        <div class="resultado-titulo">ACCESO NO AUTORIZADO</div>
-        <div style="margin-top:8px;">Debes iniciar sesión con una cuenta autorizada.</div>
-      `
-    );
-    return;
-  }
-
-  llamarServidor("registrarasistencia", {
-    token: googleIdToken,
-    codigo: codigo
-  })
-  .then(function(data) {
-    procesarRespuesta(data);
-  })
-  .catch(function(error) {
-
-    console.error(error);
-
-    procesando = false;
-    sonidoError();
-
-    mostrarResultadoTemporal(
-      "resultado-error",
-      `
-        <div class="resultado-icono">❌</div>
-        <div class="resultado-titulo">ERROR</div>
-        <div style="margin-top:8px;">No se pudo conectar con el servidor.</div>
-      `
-    );
-
-    setTimeout(iniciarScanner, 2500);
-  });
-}
-
-
-/* =====================================================
-   PROCESAR RESPUESTA
-   ===================================================== */
-
-function procesarRespuesta(
-  data
-) {
-
-  procesando =
-    false;
-
-
-  if (
-
-    data.exito === true &&
-
-    data.tipo === "registrado"
-
-  ) {
-
-    const tardanza =
-
-      String(
-        data.estado || ""
-      )
-        .trim()
-        .toUpperCase() ===
-      "TARDANZA";
-
-
-    if (tardanza) {
-
-      sonidoTardanza();
-
-    }
-
-    else {
-
-      sonidoPresente();
-
-    }
-
-
-    mostrarAsistencia(
-      data
-    );
-
-
-    setTimeout(
-      cargarEstadisticas,
-      300
-    );
-
-
-    setTimeout(
-      iniciarScanner,
-      2500
-    );
-
-
-    return;
-
-  }
-
-
-  if (
-
-    data.exito === false &&
-
-    data.tipo === "duplicado"
-
-  ) {
-
-    sonidoDuplicado();
-
-
-    mostrarDuplicado(
-      data
-    );
-
-
-    setTimeout(
-      iniciarScanner,
-      2500
-    );
-
-
-    return;
-
-  }
-
-
-  if (
-
-    data.tipo === "clase_terminada" ||
-
-    data.estado === "Clase terminada"
-
-  ) {
-
-    sonidoError();
-
-
-    mostrarClaseTerminada(
-      data
-    );
-
-
-    setTimeout(
-      iniciarScanner,
-      3000
-    );
-
-
-    return;
-
-  }
-
-
-  if (
-
-    data.tipo === "sin_horario" ||
-
-    data.estado === "Sin horario"
-
-  ) {
-
-    sonidoError();
-
-
-    mostrarSinHorario(
-      data
-    );
-
-
-    setTimeout(
-      iniciarScanner,
-      2500
-    );
-
-
-    return;
-
-  }
-
-
-  sonidoError();
-
-
-  mostrarResultadoTemporal(
-
-    "resultado-error",
-
-    `
-
-      <div
-        class="resultado-icono">
-
-        ❌
-
-      </div>
-
-
-      <div
-        class="resultado-titulo">
-
-        ERROR
-
-      </div>
-
-
-      <div
-        style="margin-top:8px;">
-
-        ${escaparHTML(
-          data.mensaje ||
-          "No se pudo registrar."
-        )}
-
-      </div>
-
-    `
-
-  );
-
-
-  setTimeout(
-    iniciarScanner,
-    2500
-  );
-
-}
-
-
-/* =====================================================
-   PROCESANDO
-   ===================================================== */
-
-function mostrarProcesando() {
-
-  mostrarResultadoTemporal(
-
-    "resultado-procesando",
-
-    `
-
-      <div
-        class="resultado-icono">
-
-        ⏳
-
-      </div>
-
-
-      <div
-        class="resultado-titulo">
-
-        REGISTRANDO...
-
-      </div>
-
-    `
-
-  );
-
-}
-
-
-/* =====================================================
-   MOSTRAR ASISTENCIA
-   ===================================================== */
-
-function mostrarAsistencia(
-  data
-) {
-
-  const tardanza =
-
-    String(
-      data.estado || ""
-    )
-      .trim()
-      .toUpperCase() ===
-    "TARDANZA";
-
-
-  mostrarResultadoTemporal(
-
-    tardanza
-      ? "resultado-tardanza"
-      : "resultado-presente",
-
-
-    `
-
-      <div
-        class="resultado-icono">
-
-        ${
-          tardanza
-            ? "🟡"
-            : "🟢"
-        }
-
-      </div>
-
-
-      <div
-        class="resultado-titulo">
-
-        ASISTENCIA REGISTRADA
-
-      </div>
-
-
-      <div
-        class="resultado-estudiante">
-
-        ${escaparHTML(
-          data.estudiante
-        )}
-
-      </div>
-
-
-      <div
-        class="resultado-grupo">
-
-        ${escaparHTML(
-          data.grado
-        )}
-
-        · Sección
-
-        ${escaparHTML(
-          data.seccion
-        )}
-
-      </div>
-
-
-      <div
-        class="resultado-hora">
-
-        ${formatearHora(
-          data.hora
-        )}
-
-      </div>
-
-
-      <div
-        class="resultado-estado">
-
-        ${
-          tardanza
-            ? "🟡 TARDANZA"
-            : "🟢 PRESENTE"
-        }
-
-      </div>
-
-    `
-
-  );
-
-}
-
-
-/* =====================================================
-   DUPLICADO
-   ===================================================== */
-
-function mostrarDuplicado(
-  data
-) {
-
-  mostrarResultadoTemporal(
-
-    "resultado-duplicado",
-
-    `
-
-      <div
-        class="resultado-icono">
-
-        ⚠️
-
-      </div>
-
-
-      <div
-        class="resultado-titulo">
-
-        YA REGISTRADO
-
-      </div>
-
-
-      <div
-        class="resultado-estudiante">
-
-        ${escaparHTML(
-          data.estudiante
-        )}
-
-      </div>
-
-
-      <div
-        class="resultado-grupo">
-
-        ${
-          data.grado
-            ? escaparHTML(
-                data.grado
-              )
-            : ""
-        }
-
-        ${
-          data.seccion
-            ? " · Sección " +
-              escaparHTML(
-                data.seccion
-              )
-            : ""
-        }
-
-      </div>
-
-
-      <div
-        class="resultado-hora">
-
-        🕐
-        ${formatearHora(
-          data.horaRegistro
-        )}
-
-      </div>
-
-    `
-
-  );
-
-}
-
-
-/* =====================================================
-   SIN HORARIO
-   ===================================================== */
-
-function mostrarSinHorario(
-  data
-) {
-
-  mostrarResultadoTemporal(
-
-    "resultado-error",
-
-    `
-
-      <div
-        class="resultado-icono">
-
-        🚫
-
-      </div>
-
-
-      <div
-        class="resultado-titulo">
-
-        SIN HORARIO
-
-      </div>
-
-
-      <div
-        class="resultado-estudiante">
-
-        ${escaparHTML(
-          data.estudiante || ""
-        )}
-
-      </div>
-
-
-      <div
-        class="resultado-grupo">
-
-        ${
-          data.grado
-            ? escaparHTML(
-                data.grado
-              )
-            : ""
-        }
-
-        ${
-          data.seccion
-            ? " · Sección " +
-              escaparHTML(
-                data.seccion
-              )
-            : ""
-        }
-
-      </div>
-
-
-      <div
-        style="margin-top:8px;">
-
-        Este estudiante no tiene
-        horario configurado para hoy.
-
-      </div>
-
-    `
-
-  );
-
-}
-
-
-/* =====================================================
-   CLASE TERMINADA
-   ===================================================== */
-
-function mostrarClaseTerminada(
-  data
-) {
-
-  mostrarResultadoTemporal(
-
-    "resultado-error",
-
-    `
-
-      <div
-        class="resultado-icono">
-
-        ⏰
-
-      </div>
-
-
-      <div
-        class="resultado-titulo">
-
-        JORNADA FINALIZADA
-
-      </div>
-
-
-      <div
-        class="resultado-estudiante">
-
-        ${escaparHTML(
-          data.estudiante || ""
-        )}
-
-      </div>
-
-
-      <div
-        class="resultado-grupo">
-
-        ${
-          data.grado
-            ? escaparHTML(
-                data.grado
-              )
-            : ""
-        }
-
-        ${
-          data.seccion
-            ? " · Sección " +
-              escaparHTML(
-                data.seccion
-              )
-            : ""
-        }
-
-      </div>
-
-
-      <div
-        style="margin-top:8px;">
-
-        La hora de salida configurada para
-        esta jornada ya ha terminado.
-
-      </div>
-
-
-      ${
-        data.horaSalida
-          ? `
-            <div
-              class="resultado-hora"
-              style="font-size:15px;">
-
-              Hora de salida:
-              ${escaparHTML(
-                formatearHora(data.horaSalida)
-              )}
-
-            </div>
-          `
-          : ""
-      }
-
-    `
-
-  );
-
-}
-
-
-/* =====================================================
-   INICIAR SCANNER
-   ===================================================== */
-
-async function iniciarScanner() {
-
-  procesando = false;
-
-  const reader =
-    document.getElementById("reader");
-
-  if (!reader) {
-    console.error(
-      "CET34: no existe el contenedor #reader."
-    );
-    return;
-  }
-
-  /*
-     Si existe un scanner anterior, lo detenemos antes de
-     crear uno nuevo. Esto evita dejar una pista de cámara
-     anterior abierta cuando después de un registro volvemos
-     a iniciar el escáner.
-  */
-  try {
-
-    if (
-      scanner &&
-      typeof scanner.isScanning === "boolean" &&
-      scanner.isScanning
-    ) {
-
-      await scanner.stop();
-
-    }
-
-  } catch (error) {
-
-    console.warn(
-      "CET34: no se pudo detener el scanner anterior:",
-      error
-    );
-
-  }
-
-  reader.innerHTML = "";
-
-  if (resultadoTimer) {
-
-    clearTimeout(
-      resultadoTimer
-    );
-
-  }
-
-  const resultado =
-    document.getElementById(
-      "resultado"
-    );
-
-  if (resultado) {
-
-    resultado.style.display =
-      "none";
-
-    resultado.innerHTML =
-      "";
-
-  }
-
-  /*
-     Comprobación clara para evitar un fallo silencioso si
-     la librería html5-qrcode no cargó.
-  */
-  if (
-    typeof Html5Qrcode === "undefined"
-  ) {
-
-    console.error(
-      "CET34: Html5Qrcode no está disponible."
-    );
-
-    mostrarErrorCamara(
-      "No se pudo cargar el módulo del escáner QR."
-    );
-
-    return;
-
-  }
-
-  scanner =
-    new Html5Qrcode(
-      "reader"
-    );
-
-  /*
-     Usamos un cuadro QR adaptativo y una relación de aspecto
-     para que el vídeo tenga una superficie visible estable
-     tanto en PC como en teléfonos.
-  */
-  const configuracion = {
-
-    fps: 10,
-
-    aspectRatio: 1.777778,
-
-    qrbox:
-      function(
-        width,
-        height
-      ) {
-
-        const size =
-          Math.floor(
-            Math.min(
-              width,
-              height
-            ) * 0.70
-          );
-
-        return {
-
-          width:
-            Math.max(
-              180,
-              size
-            ),
-
-          height:
-            Math.max(
-              180,
-              size
-            )
-
-        };
-
-      },
-
-    showTorchButtonIfSupported:
-      true
-
-  };
-
-  try {
-
-    /*
-       MÉTODO RECOMENDADO:
-       primero obtenemos las cámaras disponibles.
-
-       Html5Qrcode.getCameras() solicita permiso y devuelve
-       identificadores reales de los dispositivos. Utilizar
-       el deviceId es más estable que depender únicamente
-       de facingMode.
-    */
-    const camaras =
-      await Html5Qrcode.getCameras();
-
-    if (
-      !camaras ||
-      !camaras.length
-    ) {
-
-      throw new Error(
-        "No se encontró ninguna cámara disponible."
-      );
-
-    }
-
-    /*
-       Preferimos una cámara trasera cuando el navegador
-       expone un nombre identificable.
-    */
-    const patronesTrasera = [
-      /back/i,
-      /rear/i,
-      /environment/i,
-      /trasera/i,
-      /posterior/i,
-      /trasero/i
-    ];
-
-    let camara =
-      camaras.find(
-        function(dispositivo) {
-
-          const etiqueta =
-            String(
-              dispositivo.label || ""
+            seleccionarEstudiante(
+              estudiante
             );
 
-          return patronesTrasera.some(
-            function(patron) {
-              return patron.test(
-                etiqueta
-              );
-            }
-          );
+          }
+        );
 
-        }
-      );
 
-    /*
-       Si no podemos identificarla por nombre, usamos la
-       primera cámara disponible. En móviles normalmente
-       el navegador ya devuelve una cámara utilizable.
-    */
-    if (!camara) {
-      camara = camaras[0];
-    }
-
-    console.info(
-      "CET34: cámaras disponibles:",
-      camaras
-    );
-
-    console.info(
-      "CET34: cámara seleccionada:",
-      camara
-    );
-
-    await scanner.start(
-
-      camara.id,
-
-      configuracion,
-
-      qrDetectado,
-
-      function() {
-        /*
-           Errores normales de lectura: no hay QR en el
-           fotograma actual. No los mostramos en consola
-           para evitar miles de mensajes por segundo.
-        */
-      }
-
-    );
-
-    /*
-       Ajustamos el vídeo una vez creado por la librería.
-    */
-    const video =
-      reader.querySelector(
-        "video"
-      );
-
-    if (video) {
-
-      video.setAttribute(
-        "playsinline",
-        "true"
-      );
-
-      video.setAttribute(
-        "autoplay",
-        "true"
-      );
-
-      video.muted =
-        true;
-
-      video.playsInline =
-        true;
-
-      video.style.width =
-        "100%";
-
-      video.style.height =
-        "100%";
-
-      video.style.minHeight =
-        "320px";
-
-      video.style.objectFit =
-        "cover";
-
-    }
-
-    console.info(
-      "CET34: cámara iniciada correctamente."
-    );
-
-  } catch (error) {
-
-    console.error(
-      "CET34: error iniciando cámara:",
-      error
-    );
-
-    /*
-       Como respaldo probamos facingMode. Esto ayuda en
-       navegadores que entregan información limitada sobre
-       los dispositivos.
-    */
-    try {
-
-      if (
-        scanner &&
-        typeof scanner.isScanning === "boolean" &&
-        scanner.isScanning
-      ) {
-
-        await scanner.stop();
+        contenedor.appendChild(
+          boton
+        );
 
       }
+    );
 
-    } catch (_) {}
 
-    try {
-
-      scanner =
-        new Html5Qrcode(
-          "reader"
-        );
-
-      await scanner.start(
-
-        {
-          facingMode:
-            "environment"
-        },
-
-        configuracion,
-
-        qrDetectado,
-
-        function() {}
-
-      );
-
-      const video =
-        reader.querySelector(
-          "video"
-        );
-
-      if (video) {
-
-        video.setAttribute(
-          "playsinline",
-          "true"
-        );
-
-        video.setAttribute(
-          "autoplay",
-          "true"
-        );
-
-        video.muted =
-          true;
-
-        video.playsInline =
-          true;
-
-        video.style.width =
-          "100%";
-
-        video.style.height =
-          "100%";
-
-        video.style.minHeight =
-          "320px";
-
-        video.style.objectFit =
-          "cover";
-
-      }
-
-      console.info(
-        "CET34: cámara iniciada mediante facingMode."
-      );
-
-      return;
-
-    } catch (errorFallback) {
-
-      console.error(
-        "CET34: también falló el modo facingMode:",
-        errorFallback
-      );
-
-      mostrarErrorCamara(
-        obtenerMensajeCamara(
-          errorFallback
-        )
-      );
-
-    }
+    contenedor.classList.add(
+      "visible"
+    );
 
   }
 
-}
 
+  /* =====================================================
+     SELECCIONAR ESTUDIANTE
+  ===================================================== */
 
-function obtenerMensajeCamara(
-  error
-) {
-
-  const nombre =
-    String(
-      error &&
-      error.name
-        ? error.name
-        : ""
-    );
-
-  if (nombre) {
-
-    return "No se pudo iniciar la cámara. Revisa el permiso de cámara del navegador.";
-
-  }
-
-  const texto =
-    String(
-      error &&
-      error.message
-        ? error.message
-        : error || ""
-    ).toLowerCase();
-
-  if (
-    texto.includes(
-      "permission"
-    ) ||
-    texto.includes(
-      "notallowed"
-    ) ||
-    texto.includes(
-      "denied"
-    )
+  function seleccionarEstudiante(
+    estudiante
   ) {
 
-    return "El navegador bloqueó la cámara. Permite el acceso a la cámara y vuelve a intentarlo.";
-
-  }
-
-  if (
-    texto.includes(
-      "notfound"
-    ) ||
-    texto.includes(
-      "no camera"
-    ) ||
-    texto.includes(
-      "camera not found"
-    )
-  ) {
-
-    return "No se encontró una cámara disponible en este dispositivo.";
-
-  }
-
-  return "No se pudo iniciar la cámara. Pulsa «Reintentar cámara» y verifica los permisos.";
-
-}
+    estudianteSeleccionado =
+      estudiante;
 
 
-function mostrarErrorCamara(
-  mensaje
-) {
+    const formulario =
+      document.getElementById(
+        "formularioIndividual"
+      );
 
-  const reader =
+
+    const seleccionado =
+      document.getElementById(
+        "estudianteSeleccionado"
+      );
+
+
+    seleccionado.innerHTML = `
+      👤 Estudiante seleccionado:
+      <strong>
+        ${escapeHTML(estudiante.estudiante)}
+      </strong>
+      · ${escapeHTML(estudiante.grado || "")}
+      · Sección ${escapeHTML(estudiante.seccion || "")}
+    `;
+
+
+    formulario.style.display =
+      "block";
+
+
     document.getElementById(
-      "reader"
+      "resultadoEstudiante"
+    ).classList.remove(
+      "visible"
     );
 
-  if (!reader) {
-    return;
+
+    formulario.scrollIntoView({
+      behavior: "smooth",
+      block: "center"
+    });
+
   }
 
-  reader.innerHTML = `
-    <div
-      style="
-        width:100%;
-        min-height:320px;
-        display:flex;
-        flex-direction:column;
-        align-items:center;
-        justify-content:center;
-        gap:12px;
-        padding:24px;
-        box-sizing:border-box;
-        text-align:center;
-        color:#e2e8f0;
-      "
-    >
-      <div
-        style="
-          font-size:40px;
-          line-height:1;
-        "
-      >
-        📷
-      </div>
 
-      <div
-        style="
-          font-size:14px;
-          font-weight:800;
-        "
-      >
-        CÁMARA NO DISPONIBLE
-      </div>
+  /* =====================================================
+     GENERAR REPORTE INDIVIDUAL
+  ===================================================== */
 
-      <div
-        style="
-          max-width:420px;
-          color:#94a3b8;
-          font-size:12px;
-          line-height:1.5;
-        "
-      >
-        ${escaparHTML(
-          mensaje ||
-          "No se pudo iniciar la cámara."
-        )}
-      </div>
-
-      <button
-        type="button"
-        onclick="iniciarScanner()"
-        style="
-          margin-top:4px;
-          border:1px solid rgba(255,255,255,.18);
-          border-radius:10px;
-          padding:10px 16px;
-          background:#fff;
-          color:#334155;
-          font-weight:800;
-          cursor:pointer;
-        "
-      >
-        ↻ Reintentar cámara
-      </button>
-    </div>
-  `;
-
-}
-
-
-/* =====================================================
-   INICIO
-   ===================================================== */
-
-window.addEventListener(
-  "load",
-  function() {
-
-    /*
-       FASE 1:
-       Toda la aplicación privada usa el módulo auth.js.
-       Cuando la cuenta queda autorizada, recién entonces
-       inicializamos estadísticas y scanner.
-    */
+  async function generarReporteEstudiante() {
 
     if (
-      !window.CET34Auth
+      !estudianteSeleccionado
     ) {
 
-      mostrarPantallaAcceso(
-        "No se pudo cargar el módulo de seguridad.",
-        true
+      alert(
+        "Primero selecciona un estudiante."
       );
 
       return;
     }
 
-    CET34Auth
-      .requireAuth({
-        roles: [
-          "ADMINISTRADOR",
-          "DOCENTE"
-        ],
-        mensaje:
-          "Verificando tu cuenta de Google..."
-      })
 
-      .then(
-        function (datosUsuario) {
+    const fechaInicio =
+      document.getElementById(
+        "fechaInicioEstudiante"
+      ).value;
 
-          usuarioAutorizado =
-            datosUsuario;
 
-          try {
-            googleIdToken =
-              CET34Auth.getToken();
-          } catch (_) {
-            googleIdToken = null;
-          }
+    const fechaFin =
+      document.getElementById(
+        "fechaFinEstudiante"
+      ).value;
 
-          cargarEstadisticas();
 
-          iniciarScanner();
-
-          activarAudio();
-
-        }
+    if (
+      !validarRango(
+        fechaInicio,
+        fechaFin
       )
+    ) {
 
-      .catch(
-        function (error) {
+      return;
+    }
 
-          console.warn(
-            "CET34: acceso no completado.",
-            error
-          );
 
-        }
+    const boton =
+      document.getElementById(
+        "btnGenerarIndividual"
       );
 
+
+    const cargando =
+      document.getElementById(
+        "cargandoIndividual"
+      );
+
+
+    const mensaje =
+      document.getElementById(
+        "mensajeIndividual"
+      );
+
+
+    boton.disabled = true;
+
+    cargando.classList.add(
+      "visible"
+    );
+
+    ocultarMensaje(
+      mensaje
+    );
+
+
+    try {
+
+      /*
+        Esta acción será implementada
+        en doGet():
+
+        action=reporteEstudiante
+      */
+
+
+      const url =
+        API_URL +
+        "?action=reporteEstudiante" +
+        "&codigo=" +
+        encodeURIComponent(
+          estudianteSeleccionado.codigo
+        ) +
+        "&fechaInicio=" +
+        encodeURIComponent(
+          fechaInicio
+        ) +
+        "&fechaFin=" +
+        encodeURIComponent(
+          fechaFin
+        );
+
+
+      const respuesta =
+        await fetch(url);
+
+
+      if (!respuesta.ok) {
+
+        throw new Error(
+          "No fue posible conectar con el servidor."
+        );
+
+      }
+
+
+      const datos =
+        await respuesta.json();
+
+
+      if (!datos.exito) {
+
+        throw new Error(
+          datos.mensaje ||
+          "No fue posible generar el reporte individual."
+        );
+
+      }
+
+
+      mostrarReporteEstudiante(
+        datos
+      );
+
+
+      mostrarMensaje(
+        mensaje,
+        "✓ Reporte individual generado correctamente.",
+        "exito"
+      );
+
+
+    } catch(error) {
+
+      mostrarMensaje(
+        mensaje,
+        "✕ " + error.message,
+        "error"
+      );
+
+    } finally {
+
+      boton.disabled = false;
+
+      cargando.classList.remove(
+        "visible"
+      );
+
+    }
+
   }
-);
+
+
+  /* =====================================================
+     MOSTRAR REPORTE INDIVIDUAL
+  ===================================================== */
+
+  function mostrarReporteEstudiante(
+    datos
+  ) {
+
+    const contenedor = document.getElementById("resultadoEstudiante");
+    const estudiante = normalizarEstudianteIndividual(datos);
+    const historial = obtenerHistorial(datos);
+
+    const presentes = Number(datos.presentes || 0);
+    const tardanzas = Number(datos.tardanzas || 0);
+    const faltas = Number(datos.faltas ?? datos.faltantes ?? 0);
+    const pendientes = Number(datos.pendientes || 0);
+    const porcentaje = Number(datos.porcentaje || 0);
+    const totalJornadas = Number(datos.totalJornadas || historial.length || 0);
+
+    let historialHTML = "";
+
+    if (historial.length === 0) {
+      historialHTML = `<div style="padding:30px;text-align:center;color:#64748b;">No existen jornadas configuradas para el periodo seleccionado.</div>`;
+    } else {
+      historialHTML = historial.map(registro => {
+        const horario = textoHorario(registro);
+        return `
+          <div class="dia-registro">
+            <div class="dia-identificacion">
+              <div class="fecha-dia">📅 ${escapeHTML(formatoFechaUniversal(registro.fecha))}</div>
+              <div class="dia-nombre">${escapeHTML(registro.dia || "")}</div>
+            </div>
+            <div class="dia-detalles-hora">
+              <div class="hora-dia">🕐 ${escapeHTML(textoHora(registro))}</div>
+              ${horario ? `<div class="dia-horario"><strong>Horario:</strong> ${escapeHTML(horario)}</div>` : ""}
+            </div>
+            <div class="estado ${obtenerEstadoClase(registro.estado)}">${escapeHTML(registro.estado || "Pendiente")}</div>
+          </div>`;
+      }).join("");
+    }
+
+    contenedor.innerHTML = `
+      <div class="perfil-estudiante">
+        <div class="perfil-cabecera">
+          <div>
+            <h2>${escapeHTML(estudiante.estudiante)}</h2>
+            <div class="perfil-meta">
+              <span class="meta-grado">${escapeHTML(estudiante.grado)} · Sección ${escapeHTML(estudiante.seccion)}</span>
+              <span class="meta-periodo">Periodo: ${escapeHTML(formatoFechaUniversal(datos.fechaInicio))} <span class="meta-flecha">→</span> ${escapeHTML(formatoFechaUniversal(datos.fechaFin))}</span>
+            </div>
+            <div class="rango-resumen">
+              ${totalJornadas} jornada${totalJornadas === 1 ? "" : "s"} configurada${totalJornadas === 1 ? "" : "s"}
+            </div>
+          </div>
+          <div class="porcentaje-individual">${porcentaje}%</div>
+        </div>
+
+        <div class="estadisticas-individual">
+          <div class="estadistica"><div class="numero verde">${presentes}</div><div class="etiqueta"><span class="punto punto-verde"></span>Presentes</div></div>
+          <div class="estadistica"><div class="numero amarillo">${tardanzas}</div><div class="etiqueta"><span class="punto punto-amarillo"></span>Tardanzas</div></div>
+          <div class="estadistica"><div class="numero azul">${pendientes}</div><div class="etiqueta"><span class="punto punto-azul"></span>Pendientes</div></div>
+          <div class="estadistica"><div class="numero rojo">${faltas}</div><div class="etiqueta"><span class="punto punto-rojo"></span>Faltas</div></div>
+        </div>
+
+        <div class="historial historial-individual-mejorado">
+          <h3>📅 Historial día por día</h3>
+          ${historialHTML}
+        </div>
+      </div>`;
+
+    contenedor.classList.add("visible");
+    contenedor.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+
+  /* =====================================================
+     FECHA ISO → DD/MM/YYYY
+  ===================================================== */
+
+  function formatoFechaUniversal(fecha) {
+    if (!fecha) return "—";
+
+    const texto = String(fecha).trim();
+
+    if (/^\d{4}-\d{2}-\d{2}$/.test(texto)) {
+      const partes = texto.split("-");
+      return `${partes[2]}/${partes[1]}/${partes[0]}`;
+    }
+
+    if (/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(texto)) {
+      const partes = texto.split("/");
+      return `${String(partes[0]).padStart(2, "0")}/${String(partes[1]).padStart(2, "0")}/${partes[2]}`;
+    }
+
+    return texto;
+  }
+
+  // Compatibilidad con versiones anteriores.
+  function formatoFechaISO(fecha) {
+    return formatoFechaUniversal(fecha);
+  }
+
+
+  /* =====================================================
+     INICIO
+  ===================================================== */
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+      configurarFechas();
+
+    }
+  );
+
 </script>
-
 </body>
-
 </html>
