@@ -49,6 +49,8 @@
   --rojo-bg: #fef2f2;
   --azul: #2563eb;
   --azul-bg: #eff6ff;
+  --justificada: #7c3aed;
+  --justificada-bg: #f5f3ff;
 
   --sombra: 0 12px 30px rgba(15, 23, 42, .07);
   --sombra-fuerte: 0 18px 45px rgba(15, 23, 42, .12);
@@ -429,7 +431,7 @@ body {
 
 .estadisticas {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
 }
 
@@ -480,8 +482,10 @@ body {
 .punto-tardanza { background: #f59e0b; }
 .punto-pendiente { background: #3b82f6; }
 .punto-faltante { background: #ef4444; }
+.punto-justificada { background: #8b5cf6; }
 
 .numero-pendiente { color: var(--azul); }
+.numero-justificada { color: var(--justificada); }
 
 .total-general {
   display: flex;
@@ -706,7 +710,7 @@ details[open] > summary .chevron {
 
 .grupo-estadisticas {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 10px;
   padding-top: 14px;
 }
@@ -788,6 +792,11 @@ details[open] > summary .chevron {
 .lista-panel.faltante > summary {
   background: var(--rojo-bg);
   color: #991b1b;
+}
+
+.lista-panel.justificada > summary {
+  background: var(--justificada-bg);
+  color: #6d28d9;
 }
 
 .lista-estudiantes {
@@ -1120,6 +1129,11 @@ details[open] > summary .chevron {
     <div class="estadistica">
       <div id="faltantesGeneral" class="numero numero-faltante">0</div>
       <div class="etiqueta"><span class="estado-punto punto-faltante"></span> Faltas</div>
+    </div>
+
+    <div class="estadistica">
+      <div id="justificadasGeneral" class="numero numero-justificada">0</div>
+      <div class="etiqueta"><span class="estado-punto punto-justificada"></span> Justificadas</div>
     </div>
 
   </div>
@@ -1849,6 +1863,12 @@ function mostrarEstadosDelGrupo(
       grupo.faltas || 0
     );
 
+  const justificadas =
+    Number(
+      grupo &&
+      grupo.justificadas || 0
+    );
+
   const estudiantesPendientes =
     Array.isArray(
       grupo &&
@@ -1865,6 +1885,14 @@ function mostrarEstadosDelGrupo(
       ? grupo.estudiantesFaltas
       : [];
 
+  const estudiantesJustificadas =
+    Array.isArray(
+      grupo &&
+      grupo.estudiantesJustificadas
+    )
+      ? grupo.estudiantesJustificadas
+      : [];
+
   return {
     jornadaCerrada:
       jornadaCerrada,
@@ -1875,11 +1903,17 @@ function mostrarEstadosDelGrupo(
     faltas:
       faltas,
 
+    justificadas:
+      justificadas,
+
     estudiantesPendientes:
       estudiantesPendientes,
 
     estudiantesFaltas:
-      estudiantesFaltas
+      estudiantesFaltas,
+
+    estudiantesJustificadas:
+      estudiantesJustificadas
   };
 
 }
@@ -1931,6 +1965,13 @@ function mostrarEstadisticas(
       data.faltasGeneral ??
       data.faltantesGeneral ??
       0
+    );
+
+  document.getElementById(
+    "justificadasGeneral"
+  ).textContent =
+    Number(
+      data.justificadasGeneral || 0
     );
 
 
@@ -2541,6 +2582,30 @@ function mostrarGrupos(
             </div>
 
 
+            <div
+              class="grupo-estado">
+
+              <div
+                class="numero
+                       numero-justificada">
+
+                ${estados.justificadas}
+
+              </div>
+
+              <div class="etiqueta">
+
+                <span
+                  class="estado-punto punto-justificada">
+                </span>
+
+                Justificadas
+
+              </div>
+
+            </div>
+
+
           </div>
 
 
@@ -2646,6 +2711,14 @@ function mostrarGrupos(
             "faltante",
             "Faltas",
             "🔴"
+          )}
+
+
+          ${crearLista(
+            estados.estudiantesJustificadas,
+            "justificada",
+            "Justificadas",
+            "🟣"
           )}
 
 
