@@ -1,1 +1,3086 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <title>CET 34 - Justificaciones</title>
+
+  <!-- Google Identity Services -->
+  <script
+    src="https://accounts.google.com/gsi/client"
+    async
+    defer>
+  </script>
+
+  <!-- Seguridad común CET 34 -->
+  <script
+    src="https://stevenpq95.github.io/cet34-asistencia/auth.js">
+  </script>
+
+  <!-- Encabezado + menú común -->
+  <script
+    src="https://stevenpq95.github.io/cet34-asistencia/menu.js">
+  </script>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    :root {
+      --vino:#8d183f;
+      --vino-oscuro:#650f2f;
+      --vino-suave:#f9edf2;
+
+      --azul:#2563eb;
+      --azul-suave:#eff6ff;
+
+      --verde:#16a34a;
+      --verde-suave:#ecfdf3;
+
+      --amarillo:#d97706;
+      --amarillo-suave:#fffbeb;
+
+      --rojo:#dc2626;
+      --rojo-suave:#fef2f2;
+
+      --morado:#7c3aed;
+      --morado-suave:#f5f3ff;
+
+      --texto:#0f172a;
+      --texto-sec:#64748b;
+
+      --fondo:#eef3f8;
+      --blanco:#fff;
+      --borde:#dbe4ef;
+
+      --sombra:0 10px 28px rgba(15,23,42,.07);
+      --sombra-grande:0 18px 45px rgba(15,23,42,.10);
+    }
+
+    html,
+    body {
+      width:100%;
+      max-width:100%;
+      min-height:100%;
+      overflow-x:hidden;
+    }
+
+    body {
+      margin:0;
+      background:var(--fondo);
+      color:var(--texto);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    button,
+    input,
+    select,
+    textarea {
+      font:inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color:transparent;
+    }
+
+    .contenido-privado {
+      display:none;
+    }
+
+    .contenido-privado.autorizado {
+      display:block;
+    }
+
+    .contenedor {
+      width:min(1180px,calc(100% - 32px));
+      margin:24px auto 55px;
+    }
+
+    /* =====================================================
+       ENCABEZADO
+    ====================================================== */
+
+    .encabezado {
+      margin-bottom:18px;
+    }
+
+    .encabezado h1 {
+      margin:0;
+      font-size:30px;
+      line-height:1.12;
+      font-weight:900;
+      letter-spacing:-.7px;
+    }
+
+    .encabezado p {
+      margin:7px 0 0;
+      color:var(--texto-sec);
+      font-size:14px;
+      line-height:1.45;
+    }
+
+    /* =====================================================
+       TARJETAS
+    ====================================================== */
+
+    .tarjeta {
+      background:var(--blanco);
+      border:1px solid var(--borde);
+      border-radius:22px;
+      padding:22px;
+      margin-bottom:18px;
+      box-shadow:var(--sombra);
+    }
+
+    .titulo-seccion {
+      display:flex;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .titulo-icono {
+      width:44px;
+      height:44px;
+      flex:0 0 44px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:13px;
+      background:var(--vino-suave);
+      font-size:22px;
+    }
+
+    .titulo-seccion h2 {
+      margin:0;
+      font-size:21px;
+      font-weight:900;
+    }
+
+    .titulo-seccion p {
+      margin:4px 0 0;
+      color:var(--texto-sec);
+      font-size:13px;
+      line-height:1.4;
+    }
+
+    /* =====================================================
+       RESUMEN
+    ====================================================== */
+
+    .resumen {
+      display:grid;
+      grid-template-columns:repeat(3,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .resumen-item {
+      min-height:94px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      border:1px solid #e5ebf2;
+      border-radius:15px;
+      background:#f8fafc;
+      text-align:center;
+    }
+
+    .resumen-numero {
+      font-size:30px;
+      line-height:1;
+      font-weight:900;
+      margin-bottom:7px;
+    }
+
+    .resumen-etiqueta {
+      color:var(--texto-sec);
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .pendiente {
+      color:var(--amarillo);
+    }
+
+    .aprobada {
+      color:var(--verde);
+    }
+
+    .rechazada {
+      color:var(--rojo);
+    }
+
+    /* =====================================================
+       FILTROS
+    ====================================================== */
+
+    .filtros {
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 170px 155px auto;
+      gap:11px;
+      align-items:end;
+    }
+
+    .campo {
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+      min-width:0;
+    }
+
+    .campo label {
+      color:#334155;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select,
+    textarea {
+      width:100%;
+      min-width:0;
+      border:1px solid #cbd5e1;
+      border-radius:12px;
+      background:#fff;
+      color:var(--texto);
+      outline:none;
+    }
+
+    input[type="text"],
+    input[type="date"],
+    select {
+      height:50px;
+      padding:0 13px;
+      font-size:14px;
+    }
+
+    textarea {
+      min-height:96px;
+      resize:vertical;
+      padding:12px 13px;
+      line-height:1.45;
+      font-size:14px;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color:var(--azul);
+      box-shadow:0 0 0 4px rgba(37,99,235,.10);
+    }
+
+    .boton {
+      min-height:50px;
+      border:0;
+      border-radius:12px;
+      padding:0 17px;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:900;
+      transition:
+        transform .18s ease,
+        filter .18s ease,
+        opacity .18s ease;
+    }
+
+    .boton:hover {
+      transform:translateY(-1px);
+      filter:brightness(.98);
+    }
+
+    .boton:active {
+      transform:none;
+    }
+
+    .boton:disabled {
+      opacity:.55;
+      cursor:not-allowed;
+      transform:none;
+    }
+
+    .boton-vino {
+      background:var(--vino);
+      color:#fff;
+    }
+
+    .boton-azul {
+      background:var(--azul);
+      color:#fff;
+    }
+
+    .boton-verde {
+      background:var(--verde);
+      color:#fff;
+    }
+
+    .boton-rojo {
+      background:var(--rojo);
+      color:#fff;
+    }
+
+    .boton-secundario {
+      background:#e2e8f0;
+      color:#334155;
+    }
+
+    .mensaje {
+      display:none;
+      margin-top:14px;
+      padding:13px 15px;
+      border-radius:13px;
+      text-align:center;
+      line-height:1.45;
+      font-size:13px;
+      font-weight:800;
+    }
+
+    .mensaje.visible {
+      display:block;
+    }
+
+    .mensaje.info {
+      background:var(--azul-suave);
+      color:var(--azul);
+    }
+
+    .mensaje.exito {
+      background:var(--verde-suave);
+      color:var(--verde);
+    }
+
+    .mensaje.error {
+      background:var(--rojo-suave);
+      color:var(--rojo);
+    }
+
+    /* =====================================================
+       REGISTRO RÁPIDO DE JUSTIFICACIÓN
+    ====================================================== */
+
+    .registro-grid {
+      display:grid;
+      grid-template-columns:160px minmax(0,1fr);
+      gap:12px;
+      margin-top:14px;
+    }
+
+    .estudiante-seleccionado {
+      display:none;
+      margin-top:14px;
+      padding:15px;
+      border:1px solid #dbeafe;
+      border-radius:15px;
+      background:linear-gradient(135deg,#f8fbff,#eff6ff);
+    }
+
+    .estudiante-seleccionado.visible {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .seleccionado-nombre {
+      font-size:15px;
+      font-weight:900;
+      overflow-wrap:anywhere;
+    }
+
+    .seleccionado-datos {
+      margin-top:3px;
+      color:var(--texto-sec);
+      font-size:12px;
+    }
+
+    .codigo-pill {
+      flex:0 0 auto;
+      padding:7px 10px;
+      border:1px solid #dbeafe;
+      border-radius:999px;
+      background:#fff;
+      color:var(--azul);
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .busqueda-resultados {
+      display:none;
+      margin-top:12px;
+    }
+
+    .busqueda-resultados.visible {
+      display:block;
+    }
+
+    .resultado-estudiante {
+      width:100%;
+      display:grid;
+      grid-template-columns:40px minmax(0,1fr) auto;
+      gap:10px;
+      align-items:center;
+      padding:12px;
+      margin-bottom:7px;
+      border:1px solid var(--borde);
+      border-radius:14px;
+      background:#fff;
+      text-align:left;
+      cursor:pointer;
+    }
+
+    .resultado-estudiante:hover {
+      background:var(--azul-suave);
+      border-color:#bfdbfe;
+    }
+
+    .resultado-icono {
+      width:40px;
+      height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:11px;
+      background:var(--azul-suave);
+      color:var(--azul);
+      font-size:12px;
+      font-weight:900;
+    }
+
+    .resultado-nombre {
+      display:block;
+      font-size:14px;
+      font-weight:900;
+      overflow-wrap:anywhere;
+    }
+
+    .resultado-datos {
+      display:block;
+      margin-top:3px;
+      color:var(--texto-sec);
+      font-size:11px;
+    }
+
+    .resultado-accion {
+      color:var(--azul);
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    /* =====================================================
+       LISTA DE JUSTIFICACIONES
+    ====================================================== */
+
+    .lista {
+      display:grid;
+      gap:9px;
+    }
+
+    .justificacion {
+      border:1px solid var(--borde);
+      border-radius:16px;
+      overflow:hidden;
+      background:#fff;
+    }
+
+    .justificacion-cabecera {
+      width:100%;
+      min-height:76px;
+      display:grid;
+      grid-template-columns:42px minmax(0,1fr) auto 30px;
+      align-items:center;
+      gap:10px;
+      padding:11px 13px;
+      border:0;
+      background:#fff;
+      text-align:left;
+      cursor:pointer;
+    }
+
+    .justificacion-cabecera:hover {
+      background:#f8fafc;
+    }
+
+    .estado-icono {
+      width:40px;
+      height:40px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:12px;
+      font-size:18px;
+    }
+
+    .estado-icono-pendiente {
+      background:var(--amarillo-suave);
+    }
+
+    .estado-icono-aprobada {
+      background:var(--verde-suave);
+    }
+
+    .estado-icono-rechazada {
+      background:var(--rojo-suave);
+    }
+
+    .justificacion-nombre {
+      min-width:0;
+      font-size:14px;
+      font-weight:900;
+      overflow-wrap:anywhere;
+    }
+
+    .justificacion-meta {
+      margin-top:3px;
+      color:var(--texto-sec);
+      font-size:11px;
+      line-height:1.35;
+    }
+
+    .estado-pill {
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:10px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    .pill-pendiente {
+      background:var(--amarillo-suave);
+      color:var(--amarillo);
+    }
+
+    .pill-aprobada {
+      background:var(--verde-suave);
+      color:var(--verde);
+    }
+
+    .pill-rechazada {
+      background:var(--rojo-suave);
+      color:var(--rojo);
+    }
+
+    .flecha {
+      width:30px;
+      height:30px;
+      border-radius:9px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:#94a3b8;
+      background:transparent;
+      transition:
+        background .22s ease,
+        color .22s ease;
+    }
+
+    .flecha-icono {
+      width:10px;
+      height:10px;
+      border-right:2.5px solid currentColor;
+      border-bottom:2.5px solid currentColor;
+      transform:rotate(45deg);
+      transition:
+        transform .25s cubic-bezier(.4,0,.2,1);
+    }
+
+    .justificacion.abierto .flecha {
+      background:var(--azul-suave);
+      color:var(--azul);
+    }
+
+    .justificacion.abierto .flecha-icono {
+      transform:rotate(225deg);
+    }
+
+    .detalle {
+      display:none;
+      padding:0 13px 14px;
+      border-top:1px solid #edf2f7;
+    }
+
+    .justificacion.abierto .detalle {
+      display:block;
+    }
+
+    .detalle-grid {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:9px;
+      padding-top:13px;
+    }
+
+    .detalle-item {
+      min-width:0;
+      padding:12px;
+      border:1px solid #e2e8f0;
+      border-radius:13px;
+      background:#fbfdff;
+    }
+
+    .detalle-label {
+      color:var(--texto-sec);
+      font-size:10px;
+      font-weight:800;
+      text-transform:uppercase;
+      letter-spacing:.45px;
+    }
+
+    .detalle-valor {
+      margin-top:4px;
+      color:#1e293b;
+      font-size:13px;
+      font-weight:900;
+      line-height:1.4;
+      overflow-wrap:anywhere;
+    }
+
+    .acciones-detalle {
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+      margin-top:12px;
+    }
+
+    .acciones-detalle .boton {
+      min-height:44px;
+      font-size:12px;
+    }
+
+    .sin-resultados {
+      padding:28px 16px;
+      border:1px dashed #cbd5e1;
+      border-radius:15px;
+      background:#f8fafc;
+      color:var(--texto-sec);
+      text-align:center;
+      font-size:13px;
+      line-height:1.55;
+    }
+
+    /* =====================================================
+       MODAL
+    ====================================================== */
+
+    .modal-fondo {
+      position:fixed;
+      z-index:20000;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(15,23,42,.42);
+      backdrop-filter:blur(4px);
+      -webkit-backdrop-filter:blur(4px);
+    }
+
+    .modal-fondo.visible {
+      display:flex;
+    }
+
+    .modal {
+      width:min(520px,100%);
+      max-height:min(720px,calc(100vh - 30px));
+      overflow:auto;
+      border:1px solid var(--borde);
+      border-radius:22px;
+      background:#fff;
+      box-shadow:var(--sombra-grande);
+    }
+
+    .modal-cabecera {
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:19px 20px;
+      border-bottom:1px solid #edf2f7;
+    }
+
+    .modal-cabecera h2 {
+      margin:0;
+      font-size:20px;
+      font-weight:900;
+    }
+
+    .modal-cabecera p {
+      margin:4px 0 0;
+      color:var(--texto-sec);
+      font-size:12px;
+    }
+
+    .cerrar-modal {
+      width:38px;
+      height:38px;
+      border:0;
+      border-radius:11px;
+      background:#f1f5f9;
+      color:#475569;
+      font-size:20px;
+      cursor:pointer;
+    }
+
+    .modal-cuerpo {
+      padding:20px;
+    }
+
+    .modal-fila {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:11px;
+      margin-bottom:13px;
+    }
+
+    .modal-acciones {
+      display:flex;
+      justify-content:flex-end;
+      gap:8px;
+      margin-top:16px;
+    }
+
+    /* =====================================================
+       CARGANDO
+    ====================================================== */
+
+    .cargando {
+      display:none;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      padding:17px;
+      color:var(--azul);
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .cargando.visible {
+      display:flex;
+    }
+
+    .spinner {
+      width:20px;
+      height:20px;
+      border:3px solid #dbeafe;
+      border-top-color:var(--azul);
+      border-radius:50%;
+      animation:girar .8s linear infinite;
+    }
+
+    @keyframes girar {
+      to {
+        transform:rotate(360deg);
+      }
+    }
+
+    /* =====================================================
+       RESPONSIVE
+    ====================================================== */
+
+    @media (max-width:950px) {
+
+      .filtros {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+      }
+
+      .filtros .boton {
+        width:100%;
+      }
+
+    }
+
+    @media (max-width:650px) {
+
+      .contenedor {
+        width:calc(100% - 16px);
+        margin:12px auto 35px;
+      }
+
+      .encabezado h1 {
+        font-size:25px;
+      }
+
+      .encabezado p {
+        font-size:12px;
+      }
+
+      .tarjeta {
+        padding:16px;
+        border-radius:18px;
+        margin-bottom:13px;
+      }
+
+      .titulo-seccion {
+        gap:9px;
+      }
+
+      .titulo-icono {
+        width:39px;
+        height:39px;
+        flex-basis:39px;
+        border-radius:11px;
+        font-size:19px;
+      }
+
+      .titulo-seccion h2 {
+        font-size:19px;
+      }
+
+      .titulo-seccion p {
+        font-size:11px;
+      }
+
+      .resumen {
+        gap:8px;
+      }
+
+      .resumen-item {
+        min-height:82px;
+      }
+
+      .resumen-numero {
+        font-size:25px;
+      }
+
+      .filtros {
+        grid-template-columns:1fr;
+      }
+
+      .registro-grid {
+        grid-template-columns:1fr;
+      }
+
+      .estudiante-seleccionado.visible {
+        align-items:flex-start;
+        flex-direction:column;
+      }
+
+      .codigo-pill {
+        align-self:flex-start;
+      }
+
+      .justificacion-cabecera {
+        grid-template-columns:36px minmax(0,1fr) auto 28px;
+        gap:7px;
+        padding:10px;
+      }
+
+      .estado-icono {
+        width:36px;
+        height:36px;
+      }
+
+      .justificacion-nombre {
+        font-size:13px;
+      }
+
+      .justificacion-meta {
+        font-size:10px;
+      }
+
+      .estado-pill {
+        max-width:76px;
+        overflow:hidden;
+        text-overflow:ellipsis;
+        padding:6px 8px;
+      }
+
+      .flecha {
+        width:28px;
+        height:28px;
+      }
+
+      .detalle-grid {
+        grid-template-columns:1fr;
+      }
+
+      .modal-fondo {
+        align-items:flex-end;
+        padding:8px;
+      }
+
+      .modal {
+        border-radius:20px 20px 16px 16px;
+        max-height:90vh;
+      }
+
+      .modal-fila {
+        grid-template-columns:1fr;
+      }
+
+      .modal-acciones {
+        display:grid;
+        grid-template-columns:1fr;
+      }
+
+      .modal-acciones .boton {
+        width:100%;
+      }
+
+      .resultado-estudiante {
+        grid-template-columns:36px minmax(0,1fr) auto;
+        gap:8px;
+      }
+
+      .resultado-icono {
+        width:36px;
+        height:36px;
+      }
+
+      .resultado-nombre {
+        font-size:13px;
+      }
+
+    }
+
+    @media (max-width:380px) {
+
+      .contenedor {
+        width:calc(100% - 12px);
+      }
+
+      .justificacion-cabecera {
+        grid-template-columns:34px minmax(0,1fr) auto 25px;
+      }
+
+      .resultado-accion {
+        display:none;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Menú común -->
+  <cet34-menu></cet34-menu>
+
+  <!-- =====================================================
+       CONTENIDO PRIVADO
+  ====================================================== -->
+
+  <div
+    id="contenidoPrivado"
+    class="contenido-privado"
+  >
+
+    <main class="contenedor">
+
+      <header class="encabezado">
+        <h1>📝 Justificaciones</h1>
+        <p>
+          Registro, revisión y resolución de inasistencias justificadas.
+        </p>
+      </header>
+
+
+      <!-- =================================================
+           RESUMEN
+      ================================================== -->
+
+      <section class="tarjeta">
+
+        <div class="titulo-seccion">
+          <div class="titulo-icono">📊</div>
+          <div>
+            <h2>Estado de las justificaciones</h2>
+            <p>
+              Resumen de solicitudes registradas en el sistema.
+            </p>
+          </div>
+        </div>
+
+        <div class="resumen">
+
+          <div class="resumen-item">
+            <div
+              id="totalPendientes"
+              class="resumen-numero pendiente"
+            >0</div>
+            <div class="resumen-etiqueta">
+              🟡 Pendientes
+            </div>
+          </div>
+
+          <div class="resumen-item">
+            <div
+              id="totalAprobadas"
+              class="resumen-numero aprobada"
+            >0</div>
+            <div class="resumen-etiqueta">
+              🟢 Aprobadas
+            </div>
+          </div>
+
+          <div class="resumen-item">
+            <div
+              id="totalRechazadas"
+              class="resumen-numero rechazada"
+            >0</div>
+            <div class="resumen-etiqueta">
+              🔴 Rechazadas
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           NUEVA JUSTIFICACIÓN
+      ================================================== -->
+
+      <section class="tarjeta">
+
+        <div class="titulo-seccion">
+          <div class="titulo-icono">➕</div>
+          <div>
+            <h2>Registrar justificación</h2>
+            <p>
+              Selecciona un estudiante, la fecha de la inasistencia
+              y registra el motivo.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="registro-grid">
+
+          <div class="campo">
+            <label for="fechaNueva">
+              Fecha de asistencia
+            </label>
+
+            <input
+              type="date"
+              id="fechaNueva"
+            >
+          </div>
+
+
+          <div class="campo">
+            <label for="buscarNuevo">
+              Estudiante
+            </label>
+
+            <input
+              type="text"
+              id="buscarNuevo"
+              placeholder="Nombre, apellido o código..."
+              autocomplete="off"
+            >
+          </div>
+
+        </div>
+
+
+        <div
+          id="resultadosNuevo"
+          class="busqueda-resultados"
+        ></div>
+
+
+        <div
+          id="estudianteNuevo"
+          class="estudiante-seleccionado"
+        >
+
+          <div>
+            <div
+              id="nuevoNombre"
+              class="seleccionado-nombre"
+            ></div>
+
+            <div
+              id="nuevoDatos"
+              class="seleccionado-datos"
+            ></div>
+          </div>
+
+          <div
+            id="nuevoCodigo"
+            class="codigo-pill"
+          ></div>
+
+        </div>
+
+
+        <div
+          id="formNuevaJustificacion"
+          style="display:none;margin-top:14px;"
+        >
+
+          <div class="registro-grid">
+
+            <div class="campo">
+
+              <label for="motivoNueva">
+                Motivo
+              </label>
+
+              <select id="motivoNueva">
+
+                <option value="">
+                  Seleccionar motivo
+                </option>
+
+                <option value="Enfermedad">
+                  🤒 Enfermedad
+                </option>
+
+                <option value="Cita médica">
+                  🏥 Cita médica
+                </option>
+
+                <option value="Motivo familiar">
+                  👨‍👩‍👦 Motivo familiar
+                </option>
+
+                <option value="Actividad institucional">
+                  🏫 Actividad institucional
+                </option>
+
+                <option value="Emergencia">
+                  🚨 Emergencia
+                </option>
+
+                <option value="Problema de transporte">
+                  🚌 Problema de transporte
+                </option>
+
+                <option value="Otro">
+                  📝 Otro
+                </option>
+
+              </select>
+
+            </div>
+
+
+            <div class="campo">
+
+              <label for="observacionNueva">
+                Observación
+              </label>
+
+              <textarea
+                id="observacionNueva"
+                placeholder="Ejemplo: La madre se acercó a justificar la inasistencia..."
+                rows="3"
+              ></textarea>
+
+            </div>
+
+          </div>
+
+
+          <div
+            id="mensajeNueva"
+            class="mensaje"
+          ></div>
+
+
+          <div style="display:flex;justify-content:flex-end;margin-top:12px;">
+
+            <button
+              type="button"
+              id="btnRegistrar"
+              class="boton boton-vino"
+            >
+              📝 Registrar justificación
+            </button>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           LISTADO
+      ================================================== -->
+
+      <section class="tarjeta">
+
+        <div class="titulo-seccion">
+          <div class="titulo-icono">📋</div>
+          <div>
+            <h2>Justificaciones registradas</h2>
+            <p>
+              Consulta, revisa y resuelve las solicitudes.
+            </p>
+          </div>
+        </div>
+
+
+        <div class="filtros">
+
+          <div class="campo">
+            <label for="filtroCodigo">
+              Estudiante / código
+            </label>
+
+            <input
+              type="text"
+              id="filtroCodigo"
+              placeholder="Nombre o código"
+            >
+          </div>
+
+
+          <div class="campo">
+            <label for="filtroFecha">
+              Fecha
+            </label>
+
+            <input
+              type="date"
+              id="filtroFecha"
+            >
+          </div>
+
+
+          <div class="campo">
+            <label for="filtroEstado">
+              Estado
+            </label>
+
+            <select id="filtroEstado">
+
+              <option value="">
+                Todos
+              </option>
+
+              <option value="PENDIENTE">
+                Pendientes
+              </option>
+
+              <option value="APROBADA">
+                Aprobadas
+              </option>
+
+              <option value="RECHAZADA">
+                Rechazadas
+              </option>
+
+            </select>
+
+          </div>
+
+
+          <button
+            type="button"
+            id="btnFiltrar"
+            class="boton boton-azul"
+          >
+            🔎 Consultar
+          </button>
+
+        </div>
+
+
+        <div
+          id="mensajeListado"
+          class="mensaje"
+        ></div>
+
+
+        <div
+          id="cargandoListado"
+          class="cargando"
+        >
+          <div class="spinner"></div>
+          Consultando justificaciones...
+        </div>
+
+
+        <div
+          id="lista"
+          class="lista"
+          style="margin-top:15px;"
+        ></div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- =====================================================
+       MODAL PARA RESOLVER
+  ====================================================== -->
+
+  <div
+    id="modalFondo"
+    class="modal-fondo"
+    aria-hidden="true"
+  >
+
+    <div class="modal">
+
+      <div class="modal-cabecera">
+
+        <div>
+          <h2 id="modalTitulo">
+            Resolver justificación
+          </h2>
+
+          <p id="modalSubtitulo">
+            Revisa la información antes de resolver.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="cerrar-modal"
+          id="btnCerrarModal"
+          aria-label="Cerrar"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <div class="modal-cuerpo">
+
+        <div class="modal-fila">
+
+          <div class="campo">
+            <label>Estudiante</label>
+            <div
+              id="modalEstudiante"
+              style="padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;font-weight:900;"
+            ></div>
+          </div>
+
+          <div class="campo">
+            <label>Fecha</label>
+            <div
+              id="modalFecha"
+              style="padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;font-weight:900;"
+            ></div>
+          </div>
+
+        </div>
+
+
+        <div class="modal-fila">
+
+          <div class="campo">
+            <label>Motivo</label>
+            <div
+              id="modalMotivo"
+              style="padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;font-weight:900;"
+            ></div>
+          </div>
+
+          <div class="campo">
+            <label>Registrado por</label>
+            <div
+              id="modalRegistradoPor"
+              style="padding:12px 13px;border:1px solid #e2e8f0;border-radius:12px;background:#f8fafc;font-weight:900;"
+            ></div>
+          </div>
+
+        </div>
+
+
+        <div class="campo">
+
+          <label for="observacionResolucion">
+            Observación de resolución
+          </label>
+
+          <textarea
+            id="observacionResolucion"
+            placeholder="Escribe una observación opcional..."
+            rows="4"
+          ></textarea>
+
+        </div>
+
+
+        <div
+          id="mensajeModal"
+          class="mensaje"
+        ></div>
+
+
+        <div class="modal-acciones">
+
+          <button
+            type="button"
+            id="btnRechazar"
+            class="boton boton-rojo"
+          >
+            ❌ Rechazar
+          </button>
+
+          <button
+            type="button"
+            id="btnAprobar"
+            class="boton boton-verde"
+          >
+            ✅ Aprobar
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <script>
+
+    "use strict";
+
+
+    /* =====================================================
+       VARIABLES
+    ====================================================== */
+
+    let nuevoEstudiante = null;
+    let justificacionSeleccionada = null;
+
+
+    /* =====================================================
+       UTILIDADES
+    ====================================================== */
+
+    function escaparHTML(valor) {
+
+      if (
+        valor === null ||
+        valor === undefined
+      ) {
+        return "";
+      }
+
+      return String(valor)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+    }
+
+
+    function hoyISO() {
+
+      const ahora =
+        new Date();
+
+      const anio =
+        ahora.getFullYear();
+
+      const mes =
+        String(
+          ahora.getMonth() + 1
+        ).padStart(2, "0");
+
+      const dia =
+        String(
+          ahora.getDate()
+        ).padStart(2, "0");
+
+      return `${anio}-${mes}-${dia}`;
+
+    }
+
+
+    function formatoFecha(
+      fecha
+    ) {
+
+      if (!fecha) {
+        return "—";
+      }
+
+      const texto =
+        String(fecha);
+
+      if (
+        /^\d{4}-\d{2}-\d{2}$/.test(texto)
+      ) {
+
+        const p =
+          texto.split("-");
+
+        return `${p[2]}/${p[1]}/${p[0]}`;
+
+      }
+
+      return texto;
+
+    }
+
+
+    function normalizarEstado(
+      estado
+    ) {
+
+      return String(
+        estado || ""
+      )
+        .trim()
+        .toUpperCase();
+
+    }
+
+
+    function estadoTexto(
+      estado
+    ) {
+
+      const e =
+        normalizarEstado(estado);
+
+      if (e === "PENDIENTE") {
+        return "Pendiente";
+      }
+
+      if (e === "APROBADA") {
+        return "Aprobada";
+      }
+
+      if (e === "RECHAZADA") {
+        return "Rechazada";
+      }
+
+      return estado || "—";
+
+    }
+
+
+    function estadoClase(
+      estado
+    ) {
+
+      const e =
+        normalizarEstado(estado);
+
+      if (e === "APROBADA") {
+        return {
+          pill:"pill-aprobada",
+          icono:"🟢",
+          iconoClase:"estado-icono-aprobada"
+        };
+      }
+
+      if (e === "RECHAZADA") {
+        return {
+          pill:"pill-rechazada",
+          icono:"🔴",
+          iconoClase:"estado-icono-rechazada"
+        };
+      }
+
+      return {
+        pill:"pill-pendiente",
+        icono:"🟡",
+        iconoClase:"estado-icono-pendiente"
+      };
+
+    }
+
+
+    function mostrarMensaje(
+      id,
+      texto,
+      tipo
+    ) {
+
+      const elemento =
+        document.getElementById(id);
+
+      if (!elemento) {
+        return;
+      }
+
+      elemento.textContent =
+        texto;
+
+      elemento.className =
+        "mensaje visible " +
+        tipo;
+
+    }
+
+
+    function ocultarMensaje(id) {
+
+      const elemento =
+        document.getElementById(id);
+
+      if (!elemento) {
+        return;
+      }
+
+      elemento.textContent =
+        "";
+
+      elemento.className =
+        "mensaje";
+
+    }
+
+
+    /* =====================================================
+       API SEGURA
+    ====================================================== */
+
+    async function solicitar(
+      action,
+      payload
+    ) {
+
+      if (
+        !window.CET34Auth ||
+        typeof CET34Auth.request !== "function"
+      ) {
+
+        throw new Error(
+          "El módulo de seguridad no está disponible."
+        );
+
+      }
+
+      return await CET34Auth.request(
+        action,
+        payload || {}
+      );
+
+    }
+
+
+    /* =====================================================
+       RESUMEN
+    ====================================================== */
+
+    async function cargarResumen() {
+
+      try {
+
+        const datos =
+          await solicitar(
+            "resumenjustificaciones"
+          );
+
+        if (
+          !datos ||
+          datos.exito === false
+        ) {
+
+          throw new Error(
+            datos &&
+            datos.mensaje
+              ? datos.mensaje
+              : "No fue posible obtener el resumen."
+          );
+
+        }
+
+        document.getElementById(
+          "totalPendientes"
+        ).textContent =
+          Number(datos.pendientes || 0);
+
+        document.getElementById(
+          "totalAprobadas"
+        ).textContent =
+          Number(datos.aprobadas || 0);
+
+        document.getElementById(
+          "totalRechazadas"
+        ).textContent =
+          Number(datos.rechazadas || 0);
+
+      }
+
+      catch(error) {
+
+        console.warn(
+          "CET34 JUSTIFICACIONES: resumen:",
+          error
+        );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       BUSCAR ESTUDIANTE PARA NUEVA JUSTIFICACIÓN
+    ====================================================== */
+
+    let temporizadorBusqueda = null;
+
+    document
+      .getElementById("buscarNuevo")
+      .addEventListener(
+        "input",
+        function() {
+
+          clearTimeout(
+            temporizadorBusqueda
+          );
+
+          const texto =
+            this.value.trim();
+
+          if (
+            texto.length < 2
+          ) {
+
+            ocultarResultadosNuevo();
+
+            return;
+
+          }
+
+          temporizadorBusqueda =
+            setTimeout(
+              buscarEstudiantesNuevo,
+              350
+            );
+
+        }
+      );
+
+
+    async function buscarEstudiantesNuevo() {
+
+      const texto =
+        document.getElementById(
+          "buscarNuevo"
+        ).value.trim();
+
+      if (
+        texto.length < 2
+      ) {
+
+        return;
+
+      }
+
+      const contenedor =
+        document.getElementById(
+          "resultadosNuevo"
+        );
+
+      try {
+
+        const datos =
+          await solicitar(
+            "buscarestudiante",
+            {
+              q:texto
+            }
+          );
+
+        if (
+          !datos ||
+          datos.exito !== true
+        ) {
+
+          throw new Error(
+            datos &&
+            datos.mensaje
+              ? datos.mensaje
+              : "No se pudo buscar estudiantes."
+          );
+
+        }
+
+        renderizarResultadosNuevo(
+          Array.isArray(
+            datos.estudiantes
+          )
+            ? datos.estudiantes
+            : []
+        );
+
+      }
+
+      catch(error) {
+
+        contenedor.innerHTML = `
+          <div class="sin-resultados">
+            ✕ ${escaparHTML(error.message)}
+          </div>
+        `;
+
+        contenedor.classList.add(
+          "visible"
+        );
+
+      }
+
+    }
+
+
+    function ocultarResultadosNuevo() {
+
+      const contenedor =
+        document.getElementById(
+          "resultadosNuevo"
+        );
+
+      contenedor.innerHTML =
+        "";
+
+      contenedor.classList.remove(
+        "visible"
+      );
+
+    }
+
+
+    function renderizarResultadosNuevo(
+      estudiantes
+    ) {
+
+      const contenedor =
+        document.getElementById(
+          "resultadosNuevo"
+        );
+
+      contenedor.innerHTML =
+        "";
+
+      if (
+        estudiantes.length === 0
+      ) {
+
+        contenedor.innerHTML = `
+          <div class="sin-resultados">
+            🔎 No se encontraron estudiantes.
+          </div>
+        `;
+
+        contenedor.classList.add(
+          "visible"
+        );
+
+        return;
+
+      }
+
+
+      estudiantes.forEach(
+        function(
+          estudiante,
+          indice
+        ) {
+
+          const boton =
+            document.createElement(
+              "button"
+            );
+
+          boton.type =
+            "button";
+
+          boton.className =
+            "resultado-estudiante";
+
+          boton.innerHTML = `
+
+            <span class="resultado-icono">
+              ${String(indice + 1).padStart(2,"0")}
+            </span>
+
+            <span>
+
+              <span class="resultado-nombre">
+                ${escaparHTML(
+                  estudiante.estudiante
+                )}
+              </span>
+
+              <span class="resultado-datos">
+                ${escaparHTML(
+                  estudiante.grado || ""
+                )}
+                · Sección
+                ${escaparHTML(
+                  estudiante.seccion || ""
+                )}
+                ·
+                ${escaparHTML(
+                  estudiante.codigo || ""
+                )}
+              </span>
+
+            </span>
+
+            <span class="resultado-accion">
+              Seleccionar →
+            </span>
+
+          `;
+
+          boton.addEventListener(
+            "click",
+            function() {
+
+              seleccionarNuevoEstudiante(
+                estudiante
+              );
+
+            }
+          );
+
+          contenedor.appendChild(
+            boton
+          );
+
+        }
+      );
+
+      contenedor.classList.add(
+        "visible"
+      );
+
+    }
+
+
+    function seleccionarNuevoEstudiante(
+      estudiante
+    ) {
+
+      nuevoEstudiante =
+        estudiante;
+
+      ocultarResultadosNuevo();
+
+      document.getElementById(
+        "buscarNuevo"
+      ).value =
+        estudiante.estudiante || "";
+
+      document.getElementById(
+        "nuevoNombre"
+      ).textContent =
+        estudiante.estudiante || "";
+
+      document.getElementById(
+        "nuevoDatos"
+      ).textContent =
+        `${estudiante.grado || ""} · Sección ${estudiante.seccion || ""}`;
+
+      document.getElementById(
+        "nuevoCodigo"
+      ).textContent =
+        estudiante.codigo || "—";
+
+      document.getElementById(
+        "estudianteNuevo"
+      ).classList.add(
+        "visible"
+      );
+
+      document.getElementById(
+        "formNuevaJustificacion"
+      ).style.display =
+        "block";
+
+      document.getElementById(
+        "motivoNueva"
+      ).focus();
+
+    }
+
+
+    /* =====================================================
+       REGISTRAR JUSTIFICACIÓN
+    ====================================================== */
+
+    document
+      .getElementById("btnRegistrar")
+      .addEventListener(
+        "click",
+        registrarNuevaJustificacion
+      );
+
+
+    async function registrarNuevaJustificacion() {
+
+      if (!nuevoEstudiante) {
+
+        mostrarMensaje(
+          "mensajeNueva",
+          "Selecciona primero un estudiante.",
+          "info"
+        );
+
+        return;
+
+      }
+
+
+      const fecha =
+        document.getElementById(
+          "fechaNueva"
+        ).value;
+
+      const motivo =
+        document.getElementById(
+          "motivoNueva"
+        ).value;
+
+      const observacion =
+        document.getElementById(
+          "observacionNueva"
+        ).value.trim();
+
+
+      if (!fecha) {
+
+        mostrarMensaje(
+          "mensajeNueva",
+          "Selecciona la fecha de la inasistencia.",
+          "info"
+        );
+
+        return;
+
+      }
+
+
+      if (!motivo) {
+
+        mostrarMensaje(
+          "mensajeNueva",
+          "Selecciona el motivo de la justificación.",
+          "info"
+        );
+
+        return;
+
+      }
+
+
+      const boton =
+        document.getElementById(
+          "btnRegistrar"
+        );
+
+      boton.disabled =
+        true;
+
+
+      try {
+
+        const datos =
+          await solicitar(
+            "registrarjustificacion",
+            {
+              codigoEstudiante:
+                nuevoEstudiante.codigo,
+
+              fecha:
+                fecha,
+
+              motivo:
+                motivo,
+
+              observacion:
+                observacion
+            }
+          );
+
+
+        if (
+          !datos ||
+          datos.exito !== true
+        ) {
+
+          throw new Error(
+            datos &&
+            datos.mensaje
+              ? datos.mensaje
+              : "No fue posible registrar la justificación."
+          );
+
+        }
+
+
+        mostrarMensaje(
+          "mensajeNueva",
+          "✓ " +
+          (
+            datos.mensaje ||
+            "Justificación registrada correctamente."
+          ),
+          "exito"
+        );
+
+
+        document.getElementById(
+          "motivoNueva"
+        ).value =
+          "";
+
+        document.getElementById(
+          "observacionNueva"
+        ).value =
+          "";
+
+
+        await cargarResumen();
+
+        await cargarListado();
+
+      }
+
+      catch(error) {
+
+        mostrarMensaje(
+          "mensajeNueva",
+          "✕ " +
+          (
+            error.message ||
+            "No fue posible registrar la justificación."
+          ),
+          "error"
+        );
+
+      }
+
+      finally {
+
+        boton.disabled =
+          false;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       FILTRAR / LISTAR
+    ====================================================== */
+
+    document
+      .getElementById("btnFiltrar")
+      .addEventListener(
+        "click",
+        cargarListado
+      );
+
+
+    async function cargarListado() {
+
+      const contenedor =
+        document.getElementById(
+          "lista"
+        );
+
+      const cargando =
+        document.getElementById(
+          "cargandoListado"
+        );
+
+      const codigo =
+        document.getElementById(
+          "filtroCodigo"
+        ).value.trim();
+
+      const fecha =
+        document.getElementById(
+          "filtroFecha"
+        ).value;
+
+      const estado =
+        document.getElementById(
+          "filtroEstado"
+        ).value;
+
+
+      cargando.classList.add(
+        "visible"
+      );
+
+      ocultarMensaje(
+        "mensajeListado"
+      );
+
+      contenedor.innerHTML =
+        "";
+
+
+      try {
+
+        const datos =
+          await solicitar(
+            "obtenerjustificaciones",
+            {
+              codigo:
+                codigo,
+
+              fecha:
+                fecha,
+
+              estado:
+                estado
+            }
+          );
+
+
+        if (
+          !datos ||
+          datos.exito !== true
+        ) {
+
+          throw new Error(
+            datos &&
+            datos.mensaje
+              ? datos.mensaje
+              : "No fue posible consultar las justificaciones."
+          );
+
+        }
+
+
+        renderizarListado(
+          Array.isArray(
+            datos.justificaciones
+          )
+            ? datos.justificaciones
+            : []
+        );
+
+
+      }
+
+      catch(error) {
+
+        mostrarMensaje(
+          "mensajeListado",
+          "✕ " +
+          (
+            error.message ||
+            "No fue posible consultar las justificaciones."
+          ),
+          "error"
+        );
+
+      }
+
+      finally {
+
+        cargando.classList.remove(
+          "visible"
+        );
+
+      }
+
+    }
+
+
+    function renderizarListado(
+      registros
+    ) {
+
+      const contenedor =
+        document.getElementById(
+          "lista"
+        );
+
+      contenedor.innerHTML =
+        "";
+
+
+      if (
+        registros.length === 0
+      ) {
+
+        contenedor.innerHTML = `
+          <div class="sin-resultados">
+            📋 No hay justificaciones que coincidan
+            con los filtros seleccionados.
+          </div>
+        `;
+
+        return;
+
+      }
+
+
+      registros
+        .slice()
+        .sort(
+          function(a,b) {
+
+            const fechaA =
+              String(a.fecha || "");
+
+            const fechaB =
+              String(b.fecha || "");
+
+            return fechaB.localeCompare(
+              fechaA
+            );
+
+          }
+        )
+        .forEach(
+          function(
+            registro,
+            indice
+          ) {
+
+            contenedor.appendChild(
+              crearTarjetaJustificacion(
+                registro,
+                indice
+              )
+            );
+
+          }
+        );
+
+    }
+
+
+    function crearTarjetaJustificacion(
+      registro,
+      indice
+    ) {
+
+      const articulo =
+        document.createElement(
+          "article"
+        );
+
+      articulo.className =
+        "justificacion";
+
+
+      const estado =
+        estadoClase(
+          registro.estado
+        );
+
+      const estadoActual =
+        normalizarEstado(
+          registro.estado
+        );
+
+
+      const permitirResolver =
+        estadoActual ===
+        "PENDIENTE";
+
+
+      const fecha =
+        formatoFecha(
+          registro.fecha
+        );
+
+
+      articulo.innerHTML = `
+
+        <button
+          type="button"
+          class="justificacion-cabecera"
+          aria-expanded="false"
+        >
+
+          <span
+            class="estado-icono ${estado.iconoClase}"
+          >
+            ${estado.icono}
+          </span>
+
+
+          <span>
+
+            <span class="justificacion-nombre">
+              ${escaparHTML(
+                registro.estudiante || "Estudiante"
+              )}
+            </span>
+
+            <span class="justificacion-meta">
+              ${escaparHTML(
+                registro.grado || ""
+              )}
+              · Sección
+              ${escaparHTML(
+                registro.seccion || ""
+              )}
+              · ${escaparHTML(
+                fecha
+              )}
+            </span>
+
+          </span>
+
+
+          <span
+            class="estado-pill ${estado.pill}"
+          >
+            ${escaparHTML(
+              estadoTexto(
+                registro.estado
+              )
+            )}
+          </span>
+
+
+          <span
+            class="flecha"
+            aria-hidden="true"
+          >
+            <span class="flecha-icono"></span>
+          </span>
+
+        </button>
+
+
+        <div class="detalle">
+
+          <div class="detalle-grid">
+
+            <div class="detalle-item">
+
+              <div class="detalle-label">
+                Motivo
+              </div>
+
+              <div class="detalle-valor">
+                ${escaparHTML(
+                  registro.motivo || "—"
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="detalle-item">
+
+              <div class="detalle-label">
+                Registrado por
+              </div>
+
+              <div class="detalle-valor">
+                ${escaparHTML(
+                  registro.registradoPor || "—"
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="detalle-item">
+
+              <div class="detalle-label">
+                Observación
+              </div>
+
+              <div class="detalle-valor">
+                ${escaparHTML(
+                  registro.observacion || "—"
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="detalle-item">
+
+              <div class="detalle-label">
+                Resolución
+              </div>
+
+              <div class="detalle-valor">
+
+                ${
+                  estadoActual === "PENDIENTE"
+                    ? "Pendiente de revisión"
+                    : (
+                      (
+                        estadoActual === "APROBADA"
+                          ? "✅ Aprobada"
+                          : "❌ Rechazada"
+                      )
+                      +
+                      (
+                        registro.resueltoPor
+                          ? " · " +
+                            escaparHTML(
+                              registro.resueltoPor
+                            )
+                          : ""
+                      )
+                    )
+                }
+
+              </div>
+
+            </div>
+
+
+            <div class="detalle-item">
+
+              <div class="detalle-label">
+                Fecha de resolución
+              </div>
+
+              <div class="detalle-valor">
+                ${escaparHTML(
+                  formatearFechaHora(
+                    registro.fechaResolucion
+                  )
+                )}
+              </div>
+
+            </div>
+
+
+            <div class="detalle-item">
+
+              <div class="detalle-label">
+                Observación de resolución
+              </div>
+
+              <div class="detalle-valor">
+                ${escaparHTML(
+                  registro.observacionResolucion || "—"
+                )}
+              </div>
+
+            </div>
+
+          </div>
+
+
+          ${
+            permitirResolver
+              ? `
+                <div class="acciones-detalle">
+
+                  <button
+                    type="button"
+                    class="boton boton-verde"
+                    data-accion="aprobar"
+                  >
+                    ✅ Aprobar
+                  </button>
+
+                  <button
+                    type="button"
+                    class="boton boton-rojo"
+                    data-accion="rechazar"
+                  >
+                    ❌ Rechazar
+                  </button>
+
+                </div>
+              `
+              : ""
+          }
+
+        </div>
+
+      `;
+
+
+      const cabecera =
+        articulo.querySelector(
+          ".justificacion-cabecera"
+        );
+
+
+      cabecera.addEventListener(
+        "click",
+        function() {
+
+          const abierto =
+            articulo.classList.toggle(
+              "abierto"
+            );
+
+          cabecera.setAttribute(
+            "aria-expanded",
+            abierto
+              ? "true"
+              : "false"
+          );
+
+        }
+      );
+
+
+      const aprobar =
+        articulo.querySelector(
+          '[data-accion="aprobar"]'
+        );
+
+      const rechazar =
+        articulo.querySelector(
+          '[data-accion="rechazar"]'
+        );
+
+
+      if (aprobar) {
+
+        aprobar.addEventListener(
+          "click",
+          function(event) {
+
+            event.stopPropagation();
+
+            abrirModal(
+              registro
+            );
+
+          }
+        );
+
+      }
+
+
+      if (rechazar) {
+
+        rechazar.addEventListener(
+          "click",
+          function(event) {
+
+            event.stopPropagation();
+
+            abrirModal(
+              registro
+            );
+
+          }
+        );
+
+      }
+
+
+      return articulo;
+
+    }
+
+
+    /* =====================================================
+       MODAL
+    ====================================================== */
+
+    function abrirModal(
+      registro
+    ) {
+
+      justificacionSeleccionada =
+        registro;
+
+
+      document.getElementById(
+        "modalEstudiante"
+      ).textContent =
+        registro.estudiante || "—";
+
+
+      document.getElementById(
+        "modalFecha"
+      ).textContent =
+        formatoFecha(
+          registro.fecha
+        );
+
+
+      document.getElementById(
+        "modalMotivo"
+      ).textContent =
+        registro.motivo || "—";
+
+
+      document.getElementById(
+        "modalRegistradoPor"
+      ).textContent =
+        registro.registradoPor || "—";
+
+
+      document.getElementById(
+        "observacionResolucion"
+      ).value =
+        "";
+
+
+      ocultarMensaje(
+        "mensajeModal"
+      );
+
+
+      document.getElementById(
+        "modalFondo"
+      ).classList.add(
+        "visible"
+      );
+
+
+      document.getElementById(
+        "modalFondo"
+      ).setAttribute(
+        "aria-hidden",
+        "false"
+      );
+
+    }
+
+
+    function cerrarModal() {
+
+      document.getElementById(
+        "modalFondo"
+      ).classList.remove(
+        "visible"
+      );
+
+
+      document.getElementById(
+        "modalFondo"
+      ).setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+
+      justificacionSeleccionada =
+        null;
+
+    }
+
+
+    document
+      .getElementById(
+        "btnCerrarModal"
+      )
+      .addEventListener(
+        "click",
+        cerrarModal
+      );
+
+
+    document
+      .getElementById(
+        "modalFondo"
+      )
+      .addEventListener(
+        "click",
+        function(event) {
+
+          if (
+            event.target ===
+            this
+          ) {
+
+            cerrarModal();
+
+          }
+
+        }
+      );
+
+
+    document.addEventListener(
+      "keydown",
+      function(event) {
+
+        if (
+          event.key === "Escape"
+        ) {
+
+          cerrarModal();
+
+        }
+
+      }
+    );
+
+
+    /* =====================================================
+       RESOLVER
+    ====================================================== */
+
+    document
+      .getElementById(
+        "btnAprobar"
+      )
+      .addEventListener(
+        "click",
+        function() {
+
+          resolverJustificacion(
+            "aprobarjustificacion"
+          );
+
+        }
+      );
+
+
+    document
+      .getElementById(
+        "btnRechazar"
+      )
+      .addEventListener(
+        "click",
+        function() {
+
+          resolverJustificacion(
+            "rechazarjustificacion"
+          );
+
+        }
+      );
+
+
+    async function resolverJustificacion(
+      action
+    ) {
+
+      if (
+        !justificacionSeleccionada
+      ) {
+
+        return;
+
+      }
+
+
+      const observacion =
+        document.getElementById(
+          "observacionResolucion"
+        ).value.trim();
+
+
+      const botonAprobar =
+        document.getElementById(
+          "btnAprobar"
+        );
+
+      const botonRechazar =
+        document.getElementById(
+          "btnRechazar"
+        );
+
+
+      botonAprobar.disabled =
+        true;
+
+      botonRechazar.disabled =
+        true;
+
+
+      try {
+
+        const datos =
+          await solicitar(
+            action,
+            {
+              id:
+                justificacionSeleccionada.id,
+
+              observacionResolucion:
+                observacion
+            }
+          );
+
+
+        if (
+          !datos ||
+          datos.exito !== true
+        ) {
+
+          throw new Error(
+            datos &&
+            datos.mensaje
+              ? datos.mensaje
+              : "No fue posible resolver la justificación."
+          );
+
+        }
+
+
+        cerrarModal();
+
+        mostrarMensaje(
+          "mensajeListado",
+          "✓ " +
+          (
+            datos.mensaje ||
+            "Justificación actualizada correctamente."
+          ),
+          "exito"
+        );
+
+
+        await cargarResumen();
+
+        await cargarListado();
+
+      }
+
+      catch(error) {
+
+        mostrarMensaje(
+          "mensajeModal",
+          "✕ " +
+          (
+            error.message ||
+            "No fue posible resolver la justificación."
+          ),
+          "error"
+        );
+
+      }
+
+      finally {
+
+        botonAprobar.disabled =
+          false;
+
+        botonRechazar.disabled =
+          false;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       FECHA/HORA
+    ====================================================== */
+
+    function formatearFechaHora(
+      valor
+    ) {
+
+      if (
+        !valor
+      ) {
+
+        return "—";
+
+      }
+
+      const texto =
+        String(valor);
+
+      if (
+        texto ===
+        "[object Object]"
+      ) {
+
+        return "—";
+
+      }
+
+      return texto;
+
+    }
+
+
+    /* =====================================================
+       INICIO
+    ====================================================== */
+
+    document.addEventListener(
+      "DOMContentLoaded",
+      async function() {
+
+        document.getElementById(
+          "fechaNueva"
+        ).value =
+          hoyISO();
+
+
+        if (
+          !window.CET34Auth ||
+          typeof CET34Auth.requireAuth !== "function"
+        ) {
+
+          console.error(
+            "CET34 JUSTIFICACIONES: auth.js no está disponible."
+          );
+
+          return;
+
+        }
+
+
+        try {
+
+          const usuario =
+            await CET34Auth.requireAuth({
+              roles:[
+                "ADMINISTRADOR",
+                "DOCENTE"
+              ],
+              mensaje:
+                "Verificando tu cuenta de Google..."
+            });
+
+
+          console.info(
+            "CET34 JUSTIFICACIONES: usuario autorizado:",
+            usuario.rol
+          );
+
+
+          document
+            .getElementById(
+              "contenidoPrivado"
+            )
+            .classList.add(
+              "autorizado"
+            );
+
+
+          await cargarResumen();
+
+          await cargarListado();
+
+        }
+
+        catch(error) {
+
+          console.warn(
+            "CET34 JUSTIFICACIONES: acceso no completado.",
+            error
+          );
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
 
