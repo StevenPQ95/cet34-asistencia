@@ -1180,18 +1180,18 @@
               </a>
 
 
-              <!-- HISTORIAL -->
+              <!-- SEGUIMIENTO -->
 
               <a
                 class="menu-enlace"
-                data-pagina="historial"
-                href="./historial.html"
+                data-pagina="seguimiento"
+                href="./seguimiento.html"
               >
 
                 <span
                   class="menu-icono"
                 >
-                  🕘
+                  🚨
                 </span>
 
                 <span
@@ -1201,13 +1201,53 @@
                   <span
                     class="menu-titulo"
                   >
-                    Historial
+                    Seguimiento
                   </span>
 
                   <span
                     class="menu-descripcion"
                   >
-                    Consulta de registros
+                    Casos que requieren atención
+                  </span>
+
+                </span>
+
+                <span
+                  class="indicador"
+                  aria-hidden="true"
+                ></span>
+
+              </a>
+
+
+              <!-- JUSTIFICACIONES -->
+
+              <a
+                class="menu-enlace"
+                data-pagina="justificaciones"
+                href="./justificaciones.html"
+              >
+
+                <span
+                  class="menu-icono"
+                >
+                  📝
+                </span>
+
+                <span
+                  class="menu-texto"
+                >
+
+                  <span
+                    class="menu-titulo"
+                  >
+                    Justificaciones
+                  </span>
+
+                  <span
+                    class="menu-descripcion"
+                  >
+                    Gestionar ausencias justificadas
                   </span>
 
                 </span>
@@ -1538,11 +1578,20 @@
       }
 
       else if (
-        archivo === "historial.html"
+        archivo === "seguimiento.html"
       ) {
 
         paginaActual =
-          "historial";
+          "seguimiento";
+
+      }
+
+      else if (
+        archivo === "justificaciones.html"
+      ) {
+
+        paginaActual =
+          "justificaciones";
 
       }
 
