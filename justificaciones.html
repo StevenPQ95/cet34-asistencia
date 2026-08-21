@@ -1677,43 +1677,90 @@
        RESUMEN
     ====================================================== */
 
+    /*
+     * El resumen se calcula a partir de la misma consulta que
+     * alimenta "Justificaciones registradas".
+     *
+     * Esto evita que el contador y el listado puedan quedar
+     * desincronizados si la función independiente de resumen
+     * del servidor utiliza un mapa/caché diferente.
+     */
+    function actualizarResumenDesdeListado(
+      registros
+    ) {
+
+      let pendientes = 0;
+      let aprobadas = 0;
+      let rechazadas = 0;
+
+      (Array.isArray(registros) ? registros : [])
+        .forEach(function(registro) {
+
+          const estado =
+            normalizarEstado(
+              registro.estado
+            );
+
+          if (estado === "PENDIENTE") {
+            pendientes++;
+          }
+          else if (estado === "APROBADA") {
+            aprobadas++;
+          }
+          else if (estado === "RECHAZADA") {
+            rechazadas++;
+          }
+
+        });
+
+      document.getElementById(
+        "totalPendientes"
+      ).textContent = pendientes;
+
+      document.getElementById(
+        "totalAprobadas"
+      ).textContent = aprobadas;
+
+      document.getElementById(
+        "totalRechazadas"
+      ).textContent = rechazadas;
+
+    }
+
+
     async function cargarResumen() {
 
+      /*
+       * Mantenemos esta función como punto de actualización,
+       * pero el valor real se obtiene desde cargarListado().
+       * Así el resumen siempre representa exactamente los
+       * registros que aparecen en pantalla.
+       */
       try {
 
         const datos =
           await solicitar(
-            "resumenjustificaciones"
+            "obtenerjustificaciones",
+            {}
           );
 
         if (
           !datos ||
-          datos.exito === false
+          datos.exito !== true
         ) {
 
           throw new Error(
             datos &&
             datos.mensaje
               ? datos.mensaje
-              : "No fue posible obtener el resumen."
+              : "No fue posible obtener las justificaciones."
           );
 
         }
 
-        document.getElementById(
-          "totalPendientes"
-        ).textContent =
-          Number(datos.pendientes || 0);
-
-        document.getElementById(
-          "totalAprobadas"
-        ).textContent =
-          Number(datos.aprobadas || 0);
-
-        document.getElementById(
-          "totalRechazadas"
-        ).textContent =
-          Number(datos.rechazadas || 0);
+        actualizarResumenDesdeListado(
+          datos.justificaciones || []
+        );
 
       }
 
@@ -2148,8 +2195,6 @@
           "";
 
 
-        await cargarResumen();
-
         await cargarListado();
 
       }
@@ -2263,12 +2308,19 @@
         }
 
 
-        renderizarListado(
+        const registros =
           Array.isArray(
             datos.justificaciones
           )
             ? datos.justificaciones
-            : []
+            : [];
+
+        renderizarListado(
+          registros
+        );
+
+        actualizarResumenDesdeListado(
+          registros
         );
 
 
@@ -2938,8 +2990,6 @@
         );
 
 
-        await cargarResumen();
-
         await cargarListado();
 
       }
@@ -3083,4 +3133,3 @@
 </body>
 
 </html>
-
