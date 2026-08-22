@@ -442,8 +442,8 @@ body {
 
 .estadistica {
   min-width: 0;
-  min-height: 92px;
-  padding: 13px 8px;
+  min-height: 78px;
+  padding: 8px 8px;
   border: 1px solid var(--borde);
   border-radius: 15px;
   background: #f8fafc;
@@ -727,8 +727,8 @@ details[open] > summary .chevron {
 }
 
 .grupo-estado {
-  min-height: 82px;
-  padding: 11px 7px;
+  min-height: 70px;
+  padding: 8px 7px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -979,6 +979,18 @@ details[open] > summary .chevron {
 
   .etiqueta {
     font-size: 9px;
+  }
+
+  /* Cajas de estados más compactas en celular.
+     El tamaño de los textos permanece igual. */
+  .estadistica {
+    min-height: 74px;
+    padding: 7px 8px;
+  }
+
+  .grupo-estado {
+    min-height: 66px;
+    padding: 7px 7px;
   }
 
   .grupo > summary {
