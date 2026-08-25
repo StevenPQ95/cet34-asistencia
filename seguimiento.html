@@ -1,1 +1,618 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CET 34 - Seguimiento de Asistencia</title>
 
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://stevenpq95.github.io/cet34-asistencia/auth.js"></script>
+<script src="https://stevenpq95.github.io/cet34-asistencia/menu.js"></script>
+
+<style>
+*{box-sizing:border-box}
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+:root{
+  --azul:#2563eb;--azul-suave:#eff6ff;
+  --verde:#16a34a;--verde-suave:#ecfdf3;
+  --amarillo:#d97706;--amarillo-suave:#fffbeb;
+  --rojo:#dc2626;--rojo-suave:#fef2f2;
+  --pendiente:#2563eb;--pendiente-suave:#eff6ff;
+  --justificada:#7c3aed;--justificada-suave:#f5f3ff;
+  --morado:#6d1f5b;--texto:#0f172a;--sec:#64748b;
+  --fondo:#eef3f8;--blanco:#fff;--borde:#dbe4ef;
+  --sombra:0 10px 28px rgba(15,23,42,.07);
+}
+body{margin:0;background:var(--fondo);color:var(--texto);font-family:Arial,Helvetica,sans-serif}
+button,input,select{font:inherit}
+button{-webkit-tap-highlight-color:transparent}
+.contenedor{width:min(1280px,calc(100% - 32px));margin:24px auto 50px}
+.encabezado{margin-bottom:18px}
+.encabezado h1{margin:0;font-size:30px;font-weight:900;letter-spacing:-.6px}
+.encabezado p{margin:6px 0 0;color:var(--sec);font-size:14px}
+
+.seccion,.panel{background:#fff;border:1px solid var(--borde);border-radius:20px;padding:24px;margin-bottom:20px;box-shadow:var(--sombra);min-width:0}
+.titulo-seccion{display:flex;align-items:center;gap:12px;margin-bottom:20px;min-width:0}
+.titulo-seccion .icono{width:44px;height:44px;flex:0 0 44px;border-radius:13px;display:flex;align-items:center;justify-content:center;background:var(--azul-suave);font-size:22px}
+.titulo-seccion h2{margin:0;font-size:22px;font-weight:900}
+.titulo-seccion p{margin:3px 0 0;color:var(--sec);font-size:13px;line-height:1.35}
+
+.form-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.campo{display:flex;flex-direction:column;gap:7px;min-width:0}
+.campo label{font-size:13px;font-weight:800;color:#334155}
+input,select{width:100%;min-width:0;height:52px;border:1px solid #cbd5e1;border-radius:12px;background:#fff;color:var(--texto);padding:0 14px;font-size:15px;outline:none}
+input:focus,select:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(37,99,235,.10)}
+.acciones{display:flex;justify-content:flex-end;margin-top:18px}
+.btn{border:0;border-radius:12px;min-height:52px;padding:0 22px;font-size:15px;font-weight:900;cursor:pointer;transition:transform .18s ease,filter .18s ease,opacity .18s ease}
+.btn:hover{transform:translateY(-1px);filter:brightness(.98)}
+.btn:active{transform:none}
+.btn:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.btn-principal{background:#8d183f;color:#fff}
+.btn-secundario{background:#e2e8f0;color:#334155}
+.mensaje{display:none;margin-top:16px;padding:14px 16px;border-radius:13px;font-weight:800;text-align:center;line-height:1.35}
+.mensaje.exito{display:block;background:var(--verde-suave);color:var(--verde)}
+.mensaje.error{display:block;background:var(--rojo-suave);color:var(--rojo)}
+.mensaje.info{display:block;background:var(--azul-suave);color:var(--azul)}
+
+.cargando{display:none;align-items:center;justify-content:center;gap:9px;padding:20px;color:var(--azul);font-weight:900}
+.cargando.visible{display:flex}
+.spinner{width:21px;height:21px;border:3px solid #dbeafe;border-top-color:var(--azul);border-radius:50%;animation:girar .8s linear infinite}
+@keyframes girar{to{transform:rotate(360deg)}}
+
+.resultado{display:none}
+.resultado.visible{display:block}
+.cabecera-resultado{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:18px;margin-bottom:18px}
+.cabecera-resultado h2{margin:0;font-size:24px;line-height:1.2;overflow-wrap:anywhere}
+.cabecera-resultado p{margin:6px 0 0;color:var(--sec);font-size:14px}
+.porcentaje{min-width:82px;height:60px;padding:0 12px;border-radius:16px;background:var(--azul-suave);color:var(--azul);display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900}
+
+.estadisticas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.estadistica{min-height:92px;border-radius:16px;background:#f8fafc;border:1px solid #e5ebf2;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0}
+.estadistica:nth-child(5){grid-column:1/-1}
+.estadistica-total{grid-column:1/-1;flex-direction:row;gap:10px;min-height:64px}
+.numero{font-size:31px;font-weight:900;line-height:1;margin-bottom:7px}
+.estadistica-total .numero{margin-bottom:0}
+.etiqueta{color:var(--sec);font-size:14px;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+.verde{color:var(--verde)}.amarillo{color:var(--amarillo)}.rojo{color:var(--rojo)}.azul{color:var(--pendiente)}.morado{color:var(--morado)}
+.punto{width:12px;height:12px;border-radius:50%;display:inline-block;flex:0 0 12px}
+.punto-verde{background:#4ade80}.punto-amarillo{background:#fbbf24}.punto-rojo{background:#f43f5e}.punto-azul{background:#3b82f6}.punto-justificada{background:#8b5cf6}
+
+.barra{width:100%;height:12px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-bottom:24px}
+.barra-progreso{height:100%;background:#22c55e;border-radius:inherit;transition:width .5s ease}
+
+.subtitulo{display:flex;align-items:center;gap:9px;margin:0 0 12px}
+.subtitulo h3{margin:0;font-size:21px}
+.filtros-lista{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px}
+.filtro-chip{border:1px solid var(--borde);background:#fff;color:#475569;border-radius:999px;padding:8px 12px;font-size:12px;font-weight:900;cursor:pointer}
+.filtro-chip.activo{background:var(--azul-suave);border-color:#bfdbfe;color:var(--azul)}
+
+.estudiante{border:1px solid var(--borde);border-radius:16px;margin-bottom:10px;overflow:hidden;background:#fff;min-width:0}
+.cabecera-estudiante{width:100%;min-width:0;min-height:66px;border:0;background:#fff;padding:10px 14px;display:grid;grid-template-columns:40px minmax(0,1fr) auto 30px;align-items:center;gap:10px;cursor:pointer;text-align:left}
+.cabecera-estudiante:hover{background:#f8fafc}
+.numero-estudiante{width:40px;color:#94a3b8;font-size:16px;font-weight:900;text-align:center}
+.nombre-estudiante{min-width:0;font-size:15px;line-height:1.2;font-weight:900;overflow-wrap:anywhere}
+.mini-estados{display:flex;gap:5px;align-items:center;justify-content:flex-end;flex-wrap:wrap;min-width:0}
+.mini{padding:6px 9px;border-radius:999px;font-size:12px;font-weight:900;white-space:nowrap}
+.mini-presente{background:var(--verde-suave);color:var(--verde)}
+.mini-tardanza{background:var(--amarillo-suave);color:var(--amarillo)}
+.mini-falta{background:var(--rojo-suave);color:var(--rojo)}
+.mini-pendiente{background:var(--pendiente-suave);color:var(--pendiente)}
+.mini-justificada{background:var(--justificada-suave);color:var(--justificada)}
+.flecha{width:30px;height:30px;border-radius:9px;display:flex;align-items:center;justify-content:center;color:#94a3b8;background:transparent;justify-self:end;transition:background .22s ease,color .22s ease}
+.flecha-icono{width:10px;height:10px;border-right:2.5px solid currentColor;border-bottom:2.5px solid currentColor;transform:rotate(45deg);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+.estudiante.abierto .flecha{background:var(--azul-suave);color:var(--azul)}
+.estudiante.abierto .flecha-icono{transform:rotate(225deg)}
+
+.detalle{display:none;padding:0 14px 16px;border-top:1px solid #edf2f7;min-width:0}
+.estudiante.abierto .detalle{display:block}
+.resumen{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding-top:12px}
+.resumen-item{min-width:0;min-height:55px;padding:5px 7px;border:1px solid #e2e8f0;border-radius:13px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.resumen-item:nth-child(5){grid-column:1/-1}
+.resumen-item strong{display:block;font-size:21px;margin-bottom:4px}
+.resumen-item span{font-size:11px;color:var(--sec)}
+
+.alerta{margin-top:14px;border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.4;font-weight:800}
+.alerta.critica{background:var(--rojo-suave);color:#b91c1c}
+.alerta.observacion{background:var(--amarillo-suave);color:#a16207}
+.alerta.ok{background:var(--verde-suave);color:#15803d}
+
+.historial{margin-top:14px;border-top:1px solid #edf2f7;padding-top:14px}
+.historial h4{margin:0 0 10px;font-size:17px}
+.registro-dia{display:grid;grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:6px 9px;align-items:center;padding:11px 12px;border:1px solid #e2e8f0;border-bottom:0;background:#fbfdff;font-size:13px;min-width:0}
+.registro-dia:first-child{border-radius:12px 12px 0 0}
+.registro-dia:last-child{border-bottom:1px solid #e2e8f0;border-radius:0 0 12px 12px}
+.identificacion{grid-column:1/-1;grid-row:1;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center;min-width:0}
+.detalles-hora{grid-column:1;grid-row:2;min-width:0}
+.fecha{font-weight:900;white-space:nowrap;overflow-wrap:anywhere}
+.dia{color:#475569;font-weight:800;text-align:right;white-space:nowrap}
+.hora{color:#475569}
+.horario{color:#64748b;font-size:11px;line-height:1.3;margin-top:3px}
+.estado{grid-column:2;grid-row:2;justify-self:end;align-self:center;width:max-content;max-width:100%;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:900;white-space:nowrap}
+.estado-presente{background:var(--verde-suave);color:var(--verde)}
+.estado-tardanza{background:var(--amarillo-suave);color:var(--amarillo)}
+.estado-falta{background:var(--rojo-suave);color:var(--rojo)}
+.estado-pendiente{background:var(--pendiente-suave);color:var(--pendiente)}
+.estado-justificada{background:var(--justificada-suave);color:var(--justificada)}
+.justificacion{margin-top:5px;color:var(--justificada);font-size:11px;font-weight:800}
+
+.sin-resultados{padding:30px;text-align:center;color:var(--sec);background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px}
+.oculto{display:none!important}
+
+@media(max-width:1000px){
+  .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:700px){
+  .contenedor{width:calc(100% - 16px);margin:12px auto 34px}
+  .encabezado{padding:0 3px;margin-bottom:14px}
+  .encabezado h1{font-size:25px;line-height:1.15}
+  .encabezado p{font-size:12px}
+  .seccion,.panel{padding:14px;border-radius:17px;margin-bottom:14px}
+  .titulo-seccion{gap:9px;margin-bottom:16px}
+  .titulo-seccion .icono{width:38px;height:38px;flex-basis:38px;border-radius:11px;font-size:19px}
+  .titulo-seccion h2{font-size:19px}.titulo-seccion p{font-size:11px}
+  .form-grid{grid-template-columns:1fr;gap:11px}
+  .campo{gap:6px}.campo label{font-size:12px}
+  input,select{height:47px;font-size:14px;border-radius:11px}
+  .acciones{margin-top:14px}.btn{width:100%;min-height:48px;font-size:14px;border-radius:11px;padding:0 14px}
+  .mensaje{margin-top:13px;padding:12px 13px;font-size:13px}
+  .cabecera-resultado{grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;margin-bottom:15px}
+  .cabecera-resultado h2{font-size:19px}.cabecera-resultado p{font-size:12px}
+  .porcentaje{min-width:70px;height:52px;font-size:22px;border-radius:14px}
+  .estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:16px}
+  .estadistica{min-height:55px;padding:5px 7px;border-radius:14px}
+  .estadistica:nth-child(5){grid-column:1/-1}
+  .estadistica-total{min-height:55px;padding:5px 7px;gap:9px}
+  .numero{font-size:28px;margin-bottom:6px}.estadistica-total .numero{margin-bottom:0}
+  .etiqueta{font-size:12px;gap:5px}
+  .barra{height:10px;margin-bottom:20px}
+  .subtitulo h3{font-size:19px}
+  .cabecera-estudiante{grid-template-columns:30px minmax(0,1fr) auto 28px;gap:7px;padding:10px 10px;min-height:64px}
+  .numero-estudiante{width:30px;font-size:14px}.nombre-estudiante{font-size:13px}
+  .mini-estados{max-width:180px;gap:3px}.mini{padding:5px 7px;font-size:11px}
+  .flecha{width:28px;height:28px}
+  .detalle{padding:0 10px 12px}
+  .resumen{gap:8px;padding-top:11px}
+  .resumen-item{min-height:55px;padding:5px 7px;border-radius:13px}
+  .resumen-item strong{font-size:21px}.resumen-item span{font-size:11px}
+  .registro-dia{grid-template-columns:minmax(0,1fr) auto;grid-template-rows:auto auto;gap:6px 8px;padding:11px 10px}
+  .identificacion{grid-column:1/-1;grid-row:1;grid-template-columns:minmax(0,1fr) auto;gap:8px}
+  .detalles-hora{grid-column:1;grid-row:2}.estado{grid-column:2;grid-row:2;font-size:11px;padding:6px 9px}
+  .fecha{font-size:13px}.dia{font-size:12px}.hora{font-size:12px}.horario{font-size:10px}
+}
+@media(max-width:380px){
+  .contenedor{width:calc(100% - 12px)}
+  .cabecera-estudiante{grid-template-columns:28px minmax(0,1fr) auto 25px;padding-left:8px;padding-right:8px}
+  .numero-estudiante{width:28px}.mini-estados{max-width:135px}
+  .mini{padding:4px 6px;font-size:10px}.nombre-estudiante{font-size:12px}
+}
+</style>
+</head>
+
+<body>
+<cet34-menu></cet34-menu>
+
+<div class="contenedor">
+  <header class="encabezado">
+    <h1>📋 Seguimiento de asistencia</h1>
+    <p>Identifica estudiantes que requieren atención y revisa su evolución · CET 34</p>
+  </header>
+
+  <section class="seccion">
+    <div class="titulo-seccion">
+      <div class="icono">📋</div>
+      <div>
+        <h2>Seleccionar periodo y aula</h2>
+        <p>Consulta el comportamiento de asistencia de un salón durante un periodo determinado.</p>
+      </div>
+    </div>
+
+    <div class="form-grid">
+      <div class="campo">
+        <label for="fechaInicio">Fecha de inicio</label>
+        <input type="date" id="fechaInicio">
+      </div>
+      <div class="campo">
+        <label for="fechaFin">Fecha de fin</label>
+        <input type="date" id="fechaFin">
+      </div>
+      <div class="campo">
+        <label for="grado">Grado</label>
+        <select id="grado">
+          <option value="">Seleccionar grado</option>
+          <option value="1°">1°</option><option value="2°">2°</option>
+          <option value="3°">3°</option><option value="4°">4°</option>
+          <option value="5°">5°</option>
+        </select>
+      </div>
+      <div class="campo">
+        <label for="seccion">Sección</label>
+        <select id="seccion">
+          <option value="">Seleccionar sección</option>
+          <option value="A">A</option><option value="B">B</option>
+          <option value="C">C</option><option value="D">D</option>
+          <option value="E">E</option><option value="F">F</option>
+          <option value="G">G</option><option value="H">H</option>
+          <option value="I">I</option><option value="J">J</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="acciones">
+      <button class="btn btn-principal" id="btnGenerar" onclick="generarSeguimiento()">📋 Generar seguimiento</button>
+    </div>
+
+    <div id="mensaje" class="mensaje"></div>
+    <div id="cargando" class="cargando"><div class="spinner"></div>Analizando asistencia...</div>
+  </section>
+
+  <section id="resultado" class="panel resultado">
+    <div class="cabecera-resultado">
+      <div>
+        <h2 id="tituloResultado">Seguimiento de asistencia</h2>
+        <p id="periodoResultado">Periodo:</p>
+      </div>
+      <div id="porcentaje" class="porcentaje">0%</div>
+    </div>
+
+    <div class="estadisticas">
+      <div class="estadistica"><div id="totalPresentes" class="numero verde">0</div><div class="etiqueta"><span class="punto punto-verde"></span>Presentes</div></div>
+      <div class="estadistica"><div id="totalTardanzas" class="numero amarillo">0</div><div class="etiqueta"><span class="punto punto-amarillo"></span>Tardanzas</div></div>
+      <div class="estadistica"><div id="totalPendientes" class="numero azul">0</div><div class="etiqueta"><span class="punto punto-azul"></span>Pendientes</div></div>
+      <div class="estadistica"><div id="totalFaltas" class="numero rojo">0</div><div class="etiqueta"><span class="punto punto-rojo"></span>Faltas</div></div>
+      <div class="estadistica"><div id="totalJustificadas" class="numero" style="color:var(--justificada)">0</div><div class="etiqueta"><span class="punto punto-justificada"></span>Justificadas</div></div>
+      <div class="estadistica estadistica-total"><div id="totalEstudiantes" class="numero morado">0</div><div class="etiqueta">👥 Estudiantes</div></div>
+    </div>
+
+    <div class="barra"><div id="barra" class="barra-progreso" style="width:0%"></div></div>
+
+    <div class="subtitulo">
+      <span style="font-size:23px">🎯</span>
+      <h3>Estudiantes para seguimiento</h3>
+    </div>
+
+    <div class="filtros-lista">
+      <button type="button" class="filtro-chip activo" data-filtro="todos" onclick="aplicarFiltro('todos',this)">Todos</button>
+      <button type="button" class="filtro-chip" data-filtro="atencion" onclick="aplicarFiltro('atencion',this)">⚠️ Requieren atención</button>
+      <button type="button" class="filtro-chip" data-filtro="faltas" onclick="aplicarFiltro('faltas',this)">🔴 Faltas</button>
+      <button type="button" class="filtro-chip" data-filtro="tardanzas" onclick="aplicarFiltro('tardanzas',this)">🟡 Tardanzas</button>
+      <button type="button" class="filtro-chip" data-filtro="justificadas" onclick="aplicarFiltro('justificadas',this)">🟣 Justificadas</button>
+      <button type="button" class="filtro-chip" data-filtro="pendientes" onclick="aplicarFiltro('pendientes',this)">🔵 Pendientes</button>
+    </div>
+
+    <div class="campo" style="margin-bottom:14px">
+      <label for="buscarLocal">Buscar estudiante dentro del aula</label>
+      <input type="search" id="buscarLocal" placeholder="Nombre o código..." autocomplete="off" oninput="filtrarLista()">
+    </div>
+
+    <div id="listaEstudiantes"></div>
+  </section>
+</div>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbwKwnUGpCtVSqCPMkFgaq3ho3e1Z12-xVjzKwl_bwfzOwV7SYHmB9tuSBuOnGJglb7x/exec";
+
+let datosActuales = null;
+let filtroActual = "todos";
+
+function escapeHTML(texto){
+  if(texto===null||texto===undefined)return "";
+  return String(texto).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+
+function fechaHoy(){
+  const ahora=new Date();
+  return `${ahora.getFullYear()}-${String(ahora.getMonth()+1).padStart(2,"0")}-${String(ahora.getDate()).padStart(2,"0")}`;
+}
+
+function formatoFecha(valor){
+  if(!valor)return "—";
+  const t=String(valor).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(t)){
+    const p=t.split("-");
+    return `${p[2]}/${p[1]}/${p[0]}`;
+  }
+  if(/^\d{1,2}\/\d{1,2}\/\d{4}$/.test(t)){
+    const p=t.split("/");
+    return `${String(p[0]).padStart(2,"0")}/${String(p[1]).padStart(2,"0")}/${p[2]}`;
+  }
+  return t;
+}
+
+function normalizarEstado(estado){
+  const t=String(estado||"").toLowerCase().trim();
+  if(t==="presente")return"Presente";
+  if(t==="tardanza")return"Tardanza";
+  if(t==="falta"||t==="faltante")return"Falta";
+  if(t==="justificada"||t==="justificado"||t==="justificadas"||t==="justificados")return"Justificada";
+  return"Pendiente";
+}
+
+function estadoClase(estado){
+  const e=normalizarEstado(estado).toLowerCase();
+  if(e==="presente")return"estado-presente";
+  if(e==="tardanza")return"estado-tardanza";
+  if(e==="falta")return"estado-falta";
+  if(e==="justificada")return"estado-justificada";
+  return"estado-pendiente";
+}
+
+function miniClase(estado){
+  const e=normalizarEstado(estado).toLowerCase();
+  if(e==="presente")return"mini-presente";
+  if(e==="tardanza")return"mini-tardanza";
+  if(e==="falta")return"mini-falta";
+  if(e==="justificada")return"mini-justificada";
+  return"mini-pendiente";
+}
+
+function formatearHora(valor){
+  if(valor===null||valor===undefined||valor==="")return"—";
+  const texto=String(valor).trim();
+
+  if(/^\d+(?:\.\d+)?$/.test(texto)){
+    const n=Number(texto);
+    if(Number.isFinite(n)&&n>=0&&n<86400){
+      let h=Math.floor(n/3600),m=Math.floor((n%3600)/60),s=Math.floor(n%60);
+      const periodo=h>=12?"PM":"AM";
+      h=h%12;if(h===0)h=12;
+      return `${h}:${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")} ${periodo}`;
+    }
+  }
+
+  return texto;
+}
+
+function textoHorario(r){
+  const entrada=formatearHora(r?.horaEntrada??r?.horaIngreso??"");
+  const salida=formatearHora(r?.horaSalida??"");
+  if((!entrada||entrada==="—")&&(!salida||salida==="—"))return"";
+  if(entrada&&salida)return`${entrada} → ${salida}`;
+  if(entrada)return`Ingreso: ${entrada}`;
+  return`Salida: ${salida}`;
+}
+
+function historialEstudiante(estudiante){
+  if(Array.isArray(estudiante?.asistencia))return estudiante.asistencia;
+  if(Array.isArray(estudiante?.historial))return estudiante.historial;
+  return[];
+}
+
+function analizarEstudiante(estudiante){
+  const historial=historialEstudiante(estudiante);
+  const c={Presente:0,Tardanza:0,Pendiente:0,Falta:0,Justificada:0};
+  historial.forEach(r=>c[normalizarEstado(r.estado)]++);
+  return {historial,...c,total:historial.length};
+}
+
+function alertaSeguimiento(c){
+  if(c.Falta>=2)return{tipo:"critica",texto:`⚠️ Requiere atención prioritaria: registra ${c.Falta} falta${c.Falta===1?"":"s"} en el periodo.`};
+  if(c.Tardanza>=3)return{tipo:"observacion",texto:`🟡 Se recomienda seguimiento: registra ${c.Tardanza} tardanzas en el periodo.`};
+  if(c.Pendiente>=2)return{tipo:"observacion",texto:`🔵 Tiene ${c.Pendiente} jornadas pendientes de regularización.`};
+  if(c.Justificada>0)return{tipo:"ok",texto:`🟣 Cuenta con ${c.Justificada} jornada${c.Justificada===1?" justificada":"s justificadas"} aprobada${c.Justificada===1?"":"s"}.`};
+  return{tipo:"ok",texto:"🟢 No presenta indicadores de atención prioritaria en este periodo."};
+}
+
+function prioridad(c){
+  return c.Falta*100+c.Tardanza*10+c.Pendiente*3;
+}
+
+function mensaje(texto,tipo){
+  const el=document.getElementById("mensaje");
+  el.textContent=texto;
+  el.className="mensaje "+tipo;
+}
+
+function ocultarMensaje(){
+  const el=document.getElementById("mensaje");
+  el.textContent="";
+  el.className="mensaje";
+}
+
+function validarRango(inicio,fin){
+  if(!inicio||!fin){alert("Selecciona la fecha de inicio y la fecha de fin.");return false}
+  if(inicio>fin){alert("La fecha de inicio no puede ser posterior a la fecha de fin.");return false}
+  return true;
+}
+
+async function generarSeguimiento(){
+  const fechaInicio=document.getElementById("fechaInicio").value;
+  const fechaFin=document.getElementById("fechaFin").value;
+  const grado=document.getElementById("grado").value;
+  const seccion=document.getElementById("seccion").value;
+
+  if(!validarRango(fechaInicio,fechaFin))return;
+  if(!grado||!seccion){alert("Selecciona el grado y la sección.");return}
+
+  const btn=document.getElementById("btnGenerar");
+  const cargando=document.getElementById("cargando");
+  btn.disabled=true;
+  cargando.classList.add("visible");
+  ocultarMensaje();
+
+  try{
+    const resultado=await CET34Auth.request("reporte",{
+      fechaInicio,fechaFin,grado,seccion
+    });
+
+    if(!resultado||resultado.exito!==true){
+      throw new Error(resultado?.mensaje||"No fue posible generar el seguimiento.");
+    }
+
+    datosActuales=resultado;
+    filtroActual="todos";
+    document.getElementById("buscarLocal").value="";
+    renderizar(resultado);
+    mensaje("✓ Seguimiento generado correctamente.","exito");
+  }catch(error){
+    mensaje("✕ "+(error?.message||"No fue posible consultar la información."),"error");
+  }finally{
+    btn.disabled=false;
+    cargando.classList.remove("visible");
+  }
+}
+
+function renderizar(datos){
+  document.getElementById("resultado").classList.add("visible");
+
+  document.getElementById("tituloResultado").textContent=
+    `Seguimiento de asistencia · ${datos.grado||""} · Sección ${datos.seccion||""}`;
+
+  document.getElementById("periodoResultado").textContent=
+    `Periodo: ${formatoFecha(datos.fechaInicio)} → ${formatoFecha(datos.fechaFin)}`;
+
+  const estudiantes=Array.isArray(datos.estudiantes)?datos.estudiantes:[];
+  const analizados=estudiantes.map((estudiante,index)=>({
+    estudiante,
+    indice:index,
+    conteo:analizarEstudiante(estudiante)
+  }));
+
+  const presentes=Number(datos.presentes||analizados.reduce((s,x)=>s+x.conteo.Presente,0));
+  const tardanzas=Number(datos.tardanzas||analizados.reduce((s,x)=>s+x.conteo.Tardanza,0));
+  const faltas=Number(datos.faltas??datos.faltantes??analizados.reduce((s,x)=>s+x.conteo.Falta,0));
+  const pendientes=Number(datos.pendientes||analizados.reduce((s,x)=>s+x.conteo.Pendiente,0));
+  const justificadas=Number(datos.justificadas??datos.justificados??analizados.reduce((s,x)=>s+x.conteo.Justificada,0));
+  const total=Number(datos.totalEstudiantes||estudiantes.length);
+  const porcentaje=Number(datos.porcentaje||0);
+
+  document.getElementById("porcentaje").textContent=porcentaje+"%";
+  document.getElementById("totalPresentes").textContent=presentes;
+  document.getElementById("totalTardanzas").textContent=tardanzas;
+  document.getElementById("totalPendientes").textContent=pendientes;
+  document.getElementById("totalFaltas").textContent=faltas;
+  document.getElementById("totalJustificadas").textContent=justificadas;
+  document.getElementById("totalEstudiantes").textContent=total;
+  document.getElementById("barra").style.width=Math.max(0,Math.min(100,porcentaje))+"%";
+
+  datosActuales._analizados=analizados;
+  pintarLista();
+}
+
+function aplicarFiltro(filtro,boton){
+  filtroActual=filtro;
+  document.querySelectorAll(".filtro-chip").forEach(b=>b.classList.remove("activo"));
+  if(boton)boton.classList.add("activo");
+  pintarLista();
+}
+
+function filtrarLista(){
+  pintarLista();
+}
+
+function cumpleFiltro(c,filtro){
+  if(filtro==="faltas")return c.Falta>0;
+  if(filtro==="tardanzas")return c.Tardanza>0;
+  if(filtro==="pendientes")return c.Pendiente>0;
+  if(filtro==="justificadas")return c.Justificada>0;
+  if(filtro==="atencion")return c.Falta>0||c.Tardanza>=3||c.Pendiente>=2;
+  return true;
+}
+
+function pintarLista(){
+  const cont=document.getElementById("listaEstudiantes");
+  cont.innerHTML="";
+
+  if(!datosActuales||!Array.isArray(datosActuales._analizados)){
+    cont.innerHTML='<div class="sin-resultados">Genera un seguimiento para visualizar estudiantes.</div>';
+    return;
+  }
+
+  const texto=document.getElementById("buscarLocal").value.trim().toLowerCase();
+
+  const lista=datosActuales._analizados
+    .filter(x=>cumpleFiltro(x.conteo,filtroActual))
+    .filter(x=>{
+      if(!texto)return true;
+      const e=x.estudiante;
+      return String(e.estudiante||"").toLowerCase().includes(texto)||
+             String(e.codigo||"").toLowerCase().includes(texto);
+    })
+    .sort((a,b)=>prioridad(b.conteo)-prioridad(a.conteo)||String(a.estudiante.estudiante||"").localeCompare(String(b.estudiante.estudiante||"")));
+
+  if(lista.length===0){
+    cont.innerHTML='<div class="sin-resultados">No hay estudiantes que coincidan con el filtro seleccionado.</div>';
+    return;
+  }
+
+  lista.forEach((item,pos)=>{
+    cont.appendChild(crearTarjeta(item,pos));
+  });
+}
+
+function crearTarjeta(item,pos){
+  const e=item.estudiante,c=item.conteo;
+  const articulo=document.createElement("div");
+  articulo.className="estudiante";
+
+  const mini=[];
+  if(c.Presente>0)mini.push(`<span class="mini mini-presente">🟢 ${c.Presente}</span>`);
+  if(c.Tardanza>0)mini.push(`<span class="mini mini-tardanza">🟡 ${c.Tardanza}</span>`);
+  if(c.Pendiente>0)mini.push(`<span class="mini mini-pendiente">🔵 ${c.Pendiente}</span>`);
+  if(c.Falta>0)mini.push(`<span class="mini mini-falta">🔴 ${c.Falta}</span>`);
+  if(c.Justificada>0)mini.push(`<span class="mini mini-justificada">🟣 ${c.Justificada}</span>`);
+
+  const alerta=alertaSeguimiento(c);
+
+  const historial=c.historial.length?c.historial.map(r=>{
+    const estado=normalizarEstado(r.estado);
+    const horario=textoHorario(r);
+    const just=r.justificacion?.motivo?`<div class="justificacion">📝 ${escapeHTML(r.justificacion.motivo)}</div>`:"";
+    return `
+      <div class="registro-dia">
+        <div class="identificacion">
+          <div class="fecha">📅 ${escapeHTML(formatoFecha(r.fecha))}</div>
+          <div class="dia">${escapeHTML(r.dia||"")}</div>
+        </div>
+        <div class="detalles-hora">
+          <div class="hora">🕐 ${escapeHTML(formatearHora(r.hora))}</div>
+          ${horario?`<div class="horario"><strong>Horario:</strong> ${escapeHTML(horario)}</div>`:""}
+          ${just}
+        </div>
+        <div class="estado ${estadoClase(estado)}">${escapeHTML(estado)}</div>
+      </div>`;
+  }).join(""):`<div class="sin-resultados">No existen jornadas configuradas en el periodo.</div>`;
+
+  articulo.innerHTML=`
+    <button class="cabecera-estudiante" type="button" aria-expanded="false">
+      <span class="numero-estudiante">${String(pos+1).padStart(2,"0")}</span>
+      <span class="nombre-estudiante">${escapeHTML(e.estudiante)}</span>
+      <span class="mini-estados">${mini.join("")}</span>
+      <span class="flecha" aria-hidden="true"><span class="flecha-icono"></span></span>
+    </button>
+
+    <div class="detalle">
+      <div class="resumen">
+        <div class="resumen-item"><strong class="verde">${c.Presente}</strong><span>Presentes</span></div>
+        <div class="resumen-item"><strong class="amarillo">${c.Tardanza}</strong><span>Tardanzas</span></div>
+        <div class="resumen-item"><strong class="azul">${c.Pendiente}</strong><span>Pendientes</span></div>
+        <div class="resumen-item"><strong class="rojo">${c.Falta}</strong><span>Faltas</span></div>
+        <div class="resumen-item"><strong style="color:var(--justificada)">${c.Justificada}</strong><span>Justificadas</span></div>
+      </div>
+
+      <div class="alerta ${alerta.tipo}">${alerta.texto}</div>
+
+      <div class="historial">
+        <h4>📅 Historial día por día</h4>
+        ${historial}
+      </div>
+    </div>`;
+
+  const boton=articulo.querySelector(".cabecera-estudiante");
+  boton.addEventListener("click",()=>{
+    const abierto=articulo.classList.toggle("abierto");
+    boton.setAttribute("aria-expanded",abierto?"true":"false");
+  });
+
+  return articulo;
+}
+
+function configurarFechas(){
+  const hoy=fechaHoy();
+  document.getElementById("fechaInicio").value=hoy;
+  document.getElementById("fechaFin").value=hoy;
+}
+
+configurarFechas();
+</script>
+</body>
+</html>
