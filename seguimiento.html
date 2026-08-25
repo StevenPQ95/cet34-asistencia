@@ -450,6 +450,8 @@ function estadoEfectivoRegistro(registro){
   const hoy=new Date();
   hoy.setHours(0,0,0,0);
 
+  // Pendiente significa que la jornada todavía no ha terminado
+  // y el estudiante aún no tiene un registro de asistencia.
   if(fecha.getTime()<hoy.getTime())return"Falta";
   if(fecha.getTime()>hoy.getTime())return"Pendiente";
 
@@ -490,9 +492,10 @@ function analizarEstudiante(estudiante){
 }
 
 function alertaSeguimiento(c){
-  if(c.Falta>=2)return{tipo:"critica",texto:`⚠️ Requiere atención prioritaria: registra ${c.Falta} falta${c.Falta===1?"":"s"} en el periodo.`};
-  if(c.Tardanza>=3)return{tipo:"observacion",texto:`🟡 Se recomienda seguimiento: registra ${c.Tardanza} tardanzas en el periodo.`};
-  if(c.Pendiente>=2)return{tipo:"observacion",texto:`🔵 Tiene ${c.Pendiente} jornadas pendientes de regularización.`};
+  // Requiere atención SOLO cuando alcanza los umbrales definidos:
+  // 3 o más faltas, o 4 o más tardanzas.
+  if(c.Falta>=3)return{tipo:"critica",texto:`⚠️ Requiere atención prioritaria: registra ${c.Falta} falta${c.Falta===1?"":"s"} en el periodo.`};
+  if(c.Tardanza>=4)return{tipo:"observacion",texto:`🟡 Requiere seguimiento: registra ${c.Tardanza} tardanzas en el periodo.`};
   if(c.Justificada>0)return{tipo:"ok",texto:`🟣 Cuenta con ${c.Justificada} jornada${c.Justificada===1?" justificada":"s justificadas"} aprobada${c.Justificada===1?"":"s"}.`};
   return{tipo:"ok",texto:"🟢 No presenta indicadores de atención prioritaria en este periodo."};
 }
@@ -609,7 +612,9 @@ function cumpleFiltro(c,filtro){
   if(filtro==="tardanzas")return c.Tardanza>0;
   if(filtro==="pendientes")return c.Pendiente>0;
   if(filtro==="justificadas")return c.Justificada>0;
-  if(filtro==="atencion")return c.Falta>0||c.Tardanza>=3||c.Pendiente>=2;
+  // "Requieren atención" NO incluye pendientes.
+  // Solo muestra estudiantes con 3 o más faltas o 4 o más tardanzas.
+  if(filtro==="atencion")return c.Falta>=3||c.Tardanza>=4;
   return true;
 }
 
