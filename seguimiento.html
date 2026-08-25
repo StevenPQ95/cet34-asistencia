@@ -238,7 +238,7 @@ input:focus,select:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(37,9
     </div>
 
     <div class="acciones">
-      <button class="btn btn-principal" id="btnGenerar" onclick="generarSeguimiento()">📋 Generar seguimiento</button>
+      <button class="btn btn-principal" id="btnGenerar" onclick="generarSeguimiento()" disabled>📋 Generar seguimiento</button>
     </div>
 
     <div id="mensaje" class="mensaje"></div>
@@ -291,6 +291,7 @@ input:focus,select:focus{border-color:var(--azul);box-shadow:0 0 0 4px rgba(37,9
 <script>
 const API_URL = "https://script.google.com/macros/s/AKfycbwKwnUGpCtVSqCPMkFgaq3ho3e1Z12-xVjzKwl_bwfzOwV7SYHmB9tuSBuOnGJglb7x/exec";
 
+let usuarioAutorizado = null;
 let datosActuales = null;
 let filtroActual = "todos";
 
@@ -612,7 +613,62 @@ function configurarFechas(){
   document.getElementById("fechaFin").value=hoy;
 }
 
-configurarFechas();
+/*
+ * ==========================================================
+ * INICIO SEGURO DE LA PÁGINA
+ * ==========================================================
+ *
+ * Importante:
+ * Cargar auth.js NO inicia el login por sí solo.
+ * Esta página debe llamar explícitamente a requireAuth()
+ * antes de permitir consultas privadas.
+ *
+ * Es el mismo patrón utilizado por reportes.html.
+ */
+document.addEventListener("DOMContentLoaded", async function () {
+  configurarFechas();
+
+  const boton = document.getElementById("btnGenerar");
+
+  if (!window.CET34Auth) {
+    console.error("CET34: auth.js no está disponible.");
+    mensaje("✕ No se pudo cargar el sistema de autenticación.", "error");
+    return;
+  }
+
+  try {
+    const usuario = await CET34Auth.requireAuth({
+      roles: [
+        "ADMINISTRADOR",
+        "DOCENTE"
+      ],
+      mensaje: "Verificando tu cuenta de Google..."
+    });
+
+    usuarioAutorizado = usuario;
+
+    console.info(
+      "CET34 SEGUIMIENTO: usuario autorizado:",
+      usuario.rol
+    );
+
+    // Solo después de autenticar se habilita la consulta privada.
+    boton.disabled = false;
+
+  } catch (error) {
+    console.warn(
+      "CET34 SEGUIMIENTO: acceso no completado.",
+      error
+    );
+
+    boton.disabled = true;
+
+    /*
+     * Si el usuario cancela, no tiene permisos o expira
+     * la autenticación, auth.js ya muestra el panel correspondiente.
+     */
+  }
+});
 </script>
 </body>
 </html>
