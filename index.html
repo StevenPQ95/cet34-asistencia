@@ -1460,7 +1460,7 @@ function mostrarResultadoTemporal(
           "";
 
       },
-      2500
+      3000
     );
 
 }
@@ -2905,7 +2905,7 @@ function registrarAsistencia(
 
         setTimeout(
           iniciarScanner,
-          2500
+          3000
         );
 
       }
@@ -2969,7 +2969,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      2500
+      3000
     );
 
 
@@ -2996,7 +2996,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      2500
+      3000
     );
 
 
@@ -3050,7 +3050,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      2500
+      3000
     );
 
 
@@ -3101,7 +3101,7 @@ function procesarRespuesta(
 
   setTimeout(
     iniciarScanner,
-    2500
+    3000
   );
 
 }
@@ -3545,9 +3545,15 @@ function iniciarScanner() {
     );
 
 
+  /*
+     CET 34 · ESCÁNER OPTIMIZADO
+     - 15 FPS para detectar antes sin exigir demasiado al celular.
+     - Área de lectura al 65% para reducir trabajo de decodificación.
+     - Si la librería expone la enumeración de formatos, se procesa solo QR.
+  */
   const configuracion = {
 
-    fps: 10,
+    fps: 15,
 
     qrbox:
       function(
@@ -3559,7 +3565,7 @@ function iniciarScanner() {
           Math.min(
             width,
             height
-          ) * .70;
+          ) * .65;
 
 
         return {
@@ -3570,7 +3576,16 @@ function iniciarScanner() {
 
         };
 
-      }
+      },
+
+    ...(typeof Html5QrcodeSupportedFormats !==
+      "undefined"
+      ? {
+          formatsToSupport: [
+            Html5QrcodeSupportedFormats.QR_CODE
+          ]
+        }
+      : {})
 
   };
 
