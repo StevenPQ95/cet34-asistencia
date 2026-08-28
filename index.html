@@ -1304,6 +1304,48 @@ let audioContext = null;
 
 let resultadoTimer = null;
 
+/* =====================================================
+   DIAGNÓSTICO DE TIEMPOS
+   ===================================================== */
+let diagnosticoQR = {
+  detectado: 0,
+  stopInicio: 0,
+  stopFin: 0,
+  registroInicio: 0,
+  respuesta: 0,
+  resultado: 0
+};
+
+function marcaDiagnostico(nombre) {
+  diagnosticoQR[nombre] = performance.now();
+}
+
+function resumenDiagnostico() {
+  const d = diagnosticoQR;
+  const diff = (a, b) =>
+    d[a] && d[b] ? Math.round(d[b] - d[a]) : null;
+
+  return {
+    deteccion_a_stop: diff("detectado", "stopInicio"),
+    detener_camara: diff("stopInicio", "stopFin"),
+    peticion_servidor: diff("registroInicio", "respuesta"),
+    respuesta_a_resultado: diff("respuesta", "resultado"),
+    total: diff("detectado", "resultado")
+  };
+}
+
+function mostrarDiagnosticoConsola() {
+  const r = resumenDiagnostico();
+  console.log("===== CET34 DIAGNÓSTICO QR =====");
+  console.log("QR detectado → inicio stop:", r.deteccion_a_stop, "ms");
+  console.log("Detener cámara:", r.detener_camara, "ms");
+  console.log("Petición al servidor:", r.peticion_servidor, "ms");
+  console.log("Respuesta → resultado:", r.respuesta_a_resultado, "ms");
+  console.log("TOTAL QR → resultado:", r.total, "ms");
+  console.table(r);
+}
+
+
 /*
    La autenticación ya no se gestiona aquí.
    auth.js mantiene el ID Token en memoria y el servidor
@@ -1460,7 +1502,7 @@ function mostrarResultadoTemporal(
           "";
 
       },
-      3000
+      2500
     );
 
 }
@@ -1794,6 +1836,8 @@ function cargarEstadisticas() {
 
     .then(
       function(data) {
+        marcaDiagnostico("respuesta");
+
 
         if (
           !data ||
@@ -2782,6 +2826,8 @@ function qrDetectado(
   procesando =
     true;
 
+  marcaDiagnostico("detectado");
+
 
   if (scanner) {
 
@@ -2856,6 +2902,8 @@ function registrarAsistencia(
 
   }
 
+  marcaDiagnostico("registroInicio");
+
   CET34Auth
     .request(
       "registrarasistencia",
@@ -2905,7 +2953,7 @@ function registrarAsistencia(
 
         setTimeout(
           iniciarScanner,
-          3000
+          2500
         );
 
       }
@@ -2956,6 +3004,9 @@ function procesarRespuesta(
     }
 
 
+    marcaDiagnostico("resultado");
+    mostrarDiagnosticoConsola();
+
     mostrarAsistencia(
       data
     );
@@ -2996,7 +3047,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      3000
+      2500
     );
 
 
@@ -3050,7 +3101,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      3000
+      2500
     );
 
 
@@ -3101,7 +3152,7 @@ function procesarRespuesta(
 
   setTimeout(
     iniciarScanner,
-    3000
+    2500
   );
 
 }
@@ -3545,12 +3596,6 @@ function iniciarScanner() {
     );
 
 
-  /*
-     CET 34 · ESCÁNER OPTIMIZADO
-     - 15 FPS para detectar antes sin exigir demasiado al celular.
-     - Área de lectura al 65% para reducir trabajo de decodificación.
-     - Si la librería expone la enumeración de formatos, se procesa solo QR.
-  */
   const configuracion = {
 
     fps: 15,
@@ -3576,16 +3621,7 @@ function iniciarScanner() {
 
         };
 
-      },
-
-    ...(typeof Html5QrcodeSupportedFormats !==
-      "undefined"
-      ? {
-          formatsToSupport: [
-            Html5QrcodeSupportedFormats.QR_CODE
-          ]
-        }
-      : {})
+      }
 
   };
 
