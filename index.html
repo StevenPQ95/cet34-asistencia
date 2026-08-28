@@ -1303,46 +1303,50 @@ let procesando = false;
 let audioContext = null;
 
 let resultadoTimer = null;
-
 /* =====================================================
-   DIAGNÓSTICO DE TIEMPOS
+   CET34 - DIAGNÓSTICO PRECISO DE TIEMPOS
    ===================================================== */
-let diagnosticoQR = {
-  detectado: 0,
-  stopInicio: 0,
-  stopFin: 0,
-  registroInicio: 0,
-  respuesta: 0,
-  resultado: 0
-};
+let diagnosticoQR = null;
 
-function marcaDiagnostico(nombre) {
-  diagnosticoQR[nombre] = performance.now();
-}
-
-function resumenDiagnostico() {
-  const d = diagnosticoQR;
-  const diff = (a, b) =>
-    d[a] && d[b] ? Math.round(d[b] - d[a]) : null;
-
-  return {
-    deteccion_a_stop: diff("detectado", "stopInicio"),
-    detener_camara: diff("stopInicio", "stopFin"),
-    peticion_servidor: diff("registroInicio", "respuesta"),
-    respuesta_a_resultado: diff("respuesta", "resultado"),
-    total: diff("detectado", "resultado")
+function iniciarDiagnosticoQR() {
+  diagnosticoQR = {
+    detectado: performance.now(),
+    stopInicio: null,
+    stopFin: null,
+    registroInicio: null,
+    respuesta: null,
+    resultado: null
   };
 }
 
-function mostrarDiagnosticoConsola() {
-  const r = resumenDiagnostico();
+function marcarDiagnosticoQR(campo) {
+  if (diagnosticoQR) {
+    diagnosticoQR[campo] = performance.now();
+  }
+}
+
+function tiempoQR(a, b) {
+  if (!diagnosticoQR ||
+      diagnosticoQR[a] === null ||
+      diagnosticoQR[b] === null) {
+    return null;
+  }
+  return Math.round(diagnosticoQR[b] - diagnosticoQR[a]);
+}
+
+function mostrarDiagnosticoQR() {
+  const datos = {
+    "1. Detección → inicio stop": tiempoQR("detectado", "stopInicio"),
+    "2. Detener cámara": tiempoQR("stopInicio", "stopFin"),
+    "3. Petición al servidor": tiempoQR("registroInicio", "respuesta"),
+    "4. Respuesta → resultado": tiempoQR("respuesta", "resultado"),
+    "5. TOTAL": tiempoQR("detectado", "resultado")
+  };
+
   console.log("===== CET34 DIAGNÓSTICO QR =====");
-  console.log("QR detectado → inicio stop:", r.deteccion_a_stop, "ms");
-  console.log("Detener cámara:", r.detener_camara, "ms");
-  console.log("Petición al servidor:", r.peticion_servidor, "ms");
-  console.log("Respuesta → resultado:", r.respuesta_a_resultado, "ms");
-  console.log("TOTAL QR → resultado:", r.total, "ms");
-  console.table(r);
+  console.table(datos);
+  console.log("Marcas internas:", diagnosticoQR);
+  console.log("================================");
 }
 
 
@@ -1836,8 +1840,6 @@ function cargarEstadisticas() {
 
     .then(
       function(data) {
-        marcaDiagnostico("respuesta");
-
 
         if (
           !data ||
@@ -2815,6 +2817,7 @@ function mostrarGrupos(
 function qrDetectado(
   codigo
 ) {
+  iniciarDiagnosticoQR();
 
   if (procesando) {
 
@@ -2826,15 +2829,17 @@ function qrDetectado(
   procesando =
     true;
 
-  marcaDiagnostico("detectado");
-
 
   if (scanner) {
+
+    marcarDiagnosticoQR("stopInicio");
 
     scanner.stop()
 
       .then(
         function() {
+
+          marcarDiagnosticoQR("stopFin");
 
           registrarAsistencia(
             codigo
@@ -2902,7 +2907,7 @@ function registrarAsistencia(
 
   }
 
-  marcaDiagnostico("registroInicio");
+  marcarDiagnosticoQR("registroInicio");
 
   CET34Auth
     .request(
@@ -2914,6 +2919,8 @@ function registrarAsistencia(
 
     .then(
       function(data) {
+
+        marcarDiagnosticoQR("respuesta");
 
         procesarRespuesta(
           data
@@ -3004,8 +3011,8 @@ function procesarRespuesta(
     }
 
 
-    marcaDiagnostico("resultado");
-    mostrarDiagnosticoConsola();
+    marcarDiagnosticoQR("resultado");
+    mostrarDiagnosticoQR();
 
     mostrarAsistencia(
       data
@@ -3020,7 +3027,7 @@ function procesarRespuesta(
 
     setTimeout(
       iniciarScanner,
-      3000
+      2500
     );
 
 
