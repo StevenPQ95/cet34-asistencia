@@ -68,6 +68,21 @@
   let loginEnCurso = null;
   let contador = 0;
 
+  /*
+     OPTIMIZACIÓN 3 · PUENTE PERSISTENTE
+     -----------------------------------
+     Antes: cada petición creaba un iframe + formulario POST nuevo.
+     Ahora: se mantiene un único iframe del puente Apps Script
+     y las peticiones se envían mediante postMessage().
+
+     Se conserva un transporte POST de respaldo para que, si el
+     puente persistente no carga en algún navegador, el sistema
+     siga funcionando de la forma anterior.
+  */
+  let puenteIframe = null;
+  let puenteListo = false;
+  let puenteInicializacion = false;
+
   const pendientes = new Map();
 
 
@@ -654,7 +669,126 @@
      TRANSPORTE POST + IFRAME
      ========================================================== */
 
-  function enviarPOST(
+  /* ==========================================================
+     OPTIMIZACIÓN 3 · PUENTE PERSISTENTE
+     ========================================================== */
+
+  function iniciarPuentePersistente_() {
+
+    if (
+      puenteIframe &&
+      puenteListo
+    ) {
+      return;
+    }
+
+    if (puenteInicializacion) {
+      return;
+    }
+
+    /*
+       auth.js se carga en el <head>. Si todavía no existe <body>,
+       esperamos a que el DOM esté disponible antes de crear el iframe.
+    */
+    if (!document.body) {
+      document.addEventListener(
+        "DOMContentLoaded",
+        function() {
+          iniciarPuentePersistente_();
+        },
+        { once: true }
+      );
+      return;
+    }
+
+    puenteInicializacion = true;
+
+    try {
+
+      const iframe =
+        document.createElement(
+          "iframe"
+        );
+
+      iframe.title =
+        "Puente seguro CET 34";
+
+      iframe.setAttribute(
+        "aria-hidden",
+        "true"
+      );
+
+      iframe.style.cssText = `
+        position:fixed;
+        width:1px;
+        height:1px;
+        left:-9999px;
+        top:-9999px;
+        border:0;
+        opacity:0;
+        pointer-events:none;
+      `;
+
+      /*
+         El parámetro _cet34puente evita que un navegador o
+         intermediario reutilice una respuesta antigua.
+      */
+      iframe.src =
+        CONFIG.APP_URL +
+        "?action=puente&_cet34puente=3";
+
+      document.body.appendChild(
+        iframe
+      );
+
+      puenteIframe =
+        iframe;
+
+      console.info(
+        "CET34 OPT3: iniciando puente persistente..."
+      );
+
+      /*
+         Si después de unos segundos no está listo, no bloqueamos
+         la aplicación: las peticiones utilizarán el transporte
+         POST tradicional hasta que el puente quede disponible.
+      */
+      setTimeout(
+        function() {
+
+          if (
+            !puenteListo
+          ) {
+
+            puenteInicializacion =
+              false;
+
+            console.warn(
+              "CET34 OPT3: puente persistente aún no está listo; se mantiene respaldo POST."
+            );
+
+          }
+
+        },
+        4000
+      );
+
+    } catch (error) {
+
+      puenteInicializacion =
+        false;
+
+      console.warn(
+        "CET34 OPT3: no se pudo iniciar el puente persistente.",
+        error
+      );
+
+    }
+
+  }
+
+
+  function enviarPOSTLegacy_(
     action,
     parametros
   ) {
@@ -808,7 +942,10 @@
               form,
 
             iframe:
-              iframe
+              iframe,
+
+            transporte:
+              "legacy"
           }
         );
 
@@ -843,6 +980,124 @@
   }
 
 
+  function enviarPOST(
+    action,
+    parametros
+  ) {
+
+    /*
+       Si el puente ya está listo, no creamos ningún iframe nuevo.
+       Esta es la optimización principal.
+    */
+    if (
+      puenteListo &&
+      puenteIframe &&
+      puenteIframe.contentWindow
+    ) {
+
+      return new Promise(
+        function (resolve, reject) {
+
+          const id =
+            crearId();
+
+          const temporizador =
+            setTimeout(
+              function () {
+
+                pendientes.delete(
+                  id
+                );
+
+                reject(
+                  new Error(
+                    "El servidor tardó demasiado en responder."
+                  )
+                );
+
+              },
+              CONFIG.TIMEOUT
+            );
+
+          pendientes.set(
+            id,
+            {
+              resolve:
+                resolve,
+
+              reject:
+                reject,
+
+              temporizador:
+                temporizador,
+
+              form:
+                null,
+
+              iframe:
+                null,
+
+              transporte:
+                "puente"
+            }
+          );
+
+          try {
+
+            puenteIframe.contentWindow.postMessage(
+              {
+                canal:
+                  "CET34",
+
+                tipo:
+                  "llamada",
+
+                id:
+                  id,
+
+                action:
+                  String(
+                    action || ""
+                  ),
+
+                parametros:
+                  parametros || {}
+              },
+              "*"
+            );
+
+          } catch (error) {
+
+            clearTimeout(
+              temporizador
+            );
+
+            pendientes.delete(
+              id
+            );
+
+            reject(
+              error
+            );
+
+          }
+
+        }
+      );
+
+    }
+
+    /*
+       Respaldo: si el puente persistente todavía no está listo,
+       usamos exactamente el mecanismo anterior.
+    */
+    return enviarPOSTLegacy_(
+      action,
+      parametros
+    );
+
+  }
+
   window.addEventListener(
     "message",
     function (event) {
@@ -857,6 +1112,36 @@
 
       const datos =
         event.data || {};
+
+      /*
+         El puente persistente se identifica por el origen
+         Apps Script + la ventana del iframe que nosotros creamos.
+      */
+      if (
+        datos.canal === "CET34" &&
+        datos.tipo === "puente_listo"
+      ) {
+
+        if (
+          puenteIframe &&
+          event.source ===
+            puenteIframe.contentWindow
+        ) {
+
+          puenteListo =
+            true;
+
+          puenteInicializacion =
+            true;
+
+          console.info(
+            "CET34 OPT3: PUENTE PERSISTENTE LISTO."
+          );
+
+        }
+
+        return;
+      }
 
       if (
         datos.canal !== "CET34" ||
@@ -883,10 +1168,21 @@
         datos.id
       );
 
-      limpiar(
-        pendiente.form,
-        pendiente.iframe
-      );
+      /*
+         Solo el transporte legacy utiliza un iframe/form
+         temporal. El puente persistente se conserva.
+      */
+      if (
+        pendiente.transporte ===
+        "legacy"
+      ) {
+
+        limpiar(
+          pendiente.form,
+          pendiente.iframe
+        );
+
+      }
 
       if (
         datos.ok === true
@@ -909,6 +1205,12 @@
 
     }
   );
+
+  /*
+     El listener ya está instalado. Iniciamos el puente en paralelo
+     con la carga de Google Identity Services.
+  */
+  iniciarPuentePersistente_();
 
 
   /* ==========================================================
