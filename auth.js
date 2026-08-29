@@ -651,45 +651,34 @@
 
 
   /* ==========================================================
-     CET34 · OPTIMIZACIÓN 2
-     PUENTE APPS SCRIPT PERSISTENTE
+     TRANSPORTE POST + IFRAME
      ========================================================== */
 
-  /*
-   * Antes:
-   *   Cada petición creaba un iframe + formulario nuevo.
-   *
-   * Ahora:
-   *   Se crea un único iframe puente y se reutiliza durante
-   *   toda la sesión de la página.
-   */
-  let puenteIframe = null;
-  let puenteListoPromise = null;
-  let puenteListo = false;
+  function enviarPOST(
+    action,
+    parametros
+  ) {
 
+    return new Promise(
+      function (resolve, reject) {
 
-  /* ==========================================================
-     INICIAR PUENTE PERSISTENTE
-     ========================================================== */
-  function iniciarPuente() {
+        const id =
+          crearId();
 
-    if (puenteListo) {
-      return Promise.resolve();
-    }
-
-    if (puenteListoPromise) {
-      return puenteListoPromise;
-    }
-
-    puenteListoPromise =
-      new Promise(function (resolve, reject) {
-
-        console.log(
-          "CET34 OPT2: iniciando puente persistente..."
-        );
+        const nombreIframe =
+          "cet34_auth_" +
+          id.replace(
+            /[^a-zA-Z0-9_]/g,
+            ""
+          );
 
         const iframe =
-          document.createElement("iframe");
+          document.createElement(
+            "iframe"
+          );
+
+        iframe.name =
+          nombreIframe;
 
         iframe.title =
           "Comunicación segura CET 34";
@@ -710,194 +699,136 @@
           pointer-events:none;
         `;
 
-        puenteIframe = iframe;
-
-        const temporizador =
-          setTimeout(function () {
-
-            console.error(
-              "CET34 OPT2: el puente no respondió."
-            );
-
-            puenteListoPromise = null;
-            puenteIframe = null;
-            puenteListo = false;
-
-            try {
-              iframe.remove();
-            } catch (_) {}
-
-            reject(
-              new Error(
-                "No se pudo iniciar el puente CET 34."
-              )
-            );
-
-          }, 10000);
-
-        iframe.onload =
-          function () {
-
-            console.log(
-              "CET34 OPT2: iframe puente cargado."
-            );
-
-          };
-
-        iframe.src =
-          CONFIG.APP_URL +
-          "?action=puente";
-
         document.body.appendChild(
           iframe
         );
 
-        iframe._resolver =
-          function () {
+        const form =
+          document.createElement(
+            "form"
+          );
 
-            clearTimeout(
-              temporizador
+        form.method =
+          "POST";
+
+        form.action =
+          CONFIG.APP_URL;
+
+        form.target =
+          nombreIframe;
+
+        form.acceptCharset =
+          "UTF-8";
+
+        form.style.display =
+          "none";
+
+        const agregar =
+          function (nombre, valor) {
+
+            const input =
+              document.createElement(
+                "input"
+              );
+
+            input.type =
+              "hidden";
+
+            input.name =
+              nombre;
+
+            input.value =
+              String(
+                valor ?? ""
+              );
+
+            form.appendChild(
+              input
             );
-
-            puenteListo = true;
-
-            console.log(
-              "CET34 OPT2: PUENTE LISTO."
-            );
-
-            resolve();
 
           };
 
-        iframe._rechazar =
-          function (error) {
+        agregar(
+          "action",
+          action
+        );
 
-            clearTimeout(
-              temporizador
-            );
+        agregar(
+          "requestId",
+          id
+        );
 
-            puenteListoPromise = null;
-            puenteListo = false;
+        agregar(
+          "payload",
+          JSON.stringify(
+            parametros || {}
+          )
+        );
 
-            reject(
-              error
-            );
+        document.body.appendChild(
+          form
+        );
 
-          };
+        const temporizador =
+          setTimeout(
+            function () {
 
-      });
+              pendientes.delete(
+                id
+              );
 
-    return puenteListoPromise;
-  }
+              limpiar(
+                form,
+                iframe
+              );
 
+              reject(
+                new Error(
+                  "El servidor tardó demasiado en responder."
+                )
+              );
 
-  /* ==========================================================
-     TRANSPORTE POST + PUENTE PERSISTENTE
-     ========================================================== */
-  function enviarPOST(
-    action,
-    parametros
-  ) {
+            },
+            CONFIG.TIMEOUT
+          );
 
-    return new Promise(
-      async function (resolve, reject) {
+        pendientes.set(
+          id,
+          {
+            resolve:
+              resolve,
+
+            reject:
+              reject,
+
+            temporizador:
+              temporizador,
+
+            form:
+              form,
+
+            iframe:
+              iframe
+          }
+        );
 
         try {
 
-          /*
-           * El primer POST crea el puente si todavía no existe.
-           * Las siguientes peticiones reutilizan el mismo iframe.
-           */
-          await iniciarPuente();
+          form.submit();
 
-          if (
-            !puenteIframe ||
-            !puenteListo ||
-            !puenteIframe.contentWindow
-          ) {
+        } catch (error) {
 
-            throw new Error(
-              "El puente CET 34 no está disponible."
-            );
+          clearTimeout(
+            temporizador
+          );
 
-          }
-
-          const id =
-            crearId();
-
-          console.log(
-            "CET34 OPT2: enviando petición:",
-            action,
+          pendientes.delete(
             id
           );
 
-          const temporizador =
-            setTimeout(
-              function () {
-
-                pendientes.delete(
-                  id
-                );
-
-                console.error(
-                  "CET34 OPT2: timeout:",
-                  id
-                );
-
-                reject(
-                  new Error(
-                    "El servidor tardó demasiado en responder."
-                  )
-                );
-
-              },
-              CONFIG.TIMEOUT
-            );
-
-          pendientes.set(
-            id,
-            {
-              resolve:
-                resolve,
-
-              reject:
-                reject,
-
-              temporizador:
-                temporizador
-            }
-          );
-
-          /*
-           * El puente ya está cargado. Solo enviamos el mensaje.
-           * No creamos iframe, formulario ni hacemos form.submit().
-           */
-          puenteIframe.contentWindow.postMessage(
-            {
-              canal:
-                "CET34",
-
-              tipo:
-                "llamada",
-
-              id:
-                id,
-
-              action:
-                action,
-
-              parametros:
-                parametros || {}
-            },
-            "*"
-          );
-
-        }
-        catch (error) {
-
-          console.error(
-            "CET34 OPT2: error transporte:",
-            error
+          limpiar(
+            form,
+            iframe
           );
 
           reject(
@@ -908,19 +839,14 @@
 
       }
     );
+
   }
 
 
-  /* ==========================================================
-     MENSAJES DEL PUENTE
-     ========================================================== */
   window.addEventListener(
     "message",
     function (event) {
 
-      /*
-       * Solo aceptamos respuestas procedentes de Apps Script.
-       */
       if (
         !origenAppsScriptValido(
           event.origin
@@ -932,69 +858,13 @@
       const datos =
         event.data || {};
 
-
-      /* ========================================================
-         PUENTE LISTO
-         ======================================================== */
-      if (
-        datos.canal === "CET34" &&
-        datos.tipo === "puente_listo"
-      ) {
-
-        console.log(
-          "CET34 OPT2: puente_listo recibido."
-        );
-
-        if (
-          puenteIframe &&
-          typeof puenteIframe._resolver ===
-            "function"
-        ) {
-
-          puenteIframe._resolver();
-
-          puenteIframe._resolver =
-            null;
-
-          puenteIframe._rechazar =
-            null;
-
-        }
-
-        return;
-      }
-
-
-      /* ========================================================
-         RESPUESTA NORMAL
-         ======================================================== */
       if (
         datos.canal !== "CET34" ||
         datos.tipo !== "respuesta" ||
         !datos.id
       ) {
-
         return;
       }
-
-
-      /*
-       * La respuesta debe proceder del iframe puente que
-       * nosotros mismos creamos.
-       */
-      if (
-        puenteIframe &&
-        event.source !==
-          puenteIframe.contentWindow
-      ) {
-
-        console.warn(
-          "CET34 OPT2: respuesta ignorada; ventana no reconocida."
-        );
-
-        return;
-      }
-
 
       const pendiente =
         pendientes.get(
@@ -1005,7 +875,6 @@
         return;
       }
 
-
       clearTimeout(
         pendiente.temporizador
       );
@@ -1014,11 +883,10 @@
         datos.id
       );
 
-      console.log(
-        "CET34 OPT2: respuesta recibida:",
-        datos.id
+      limpiar(
+        pendiente.form,
+        pendiente.iframe
       );
-
 
       if (
         datos.ok === true
@@ -1028,8 +896,7 @@
           datos.datos
         );
 
-      }
-      else {
+      } else {
 
         pendiente.reject(
           new Error(
