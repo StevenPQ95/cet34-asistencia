@@ -69,7 +69,7 @@
   let contador = 0;
 
   /*
-     OPTIMIZACIÓN 3 · PUENTE PERSISTENTE
+     OPTIMIZACIÓN 4.1 · PUENTE PERSISTENTE CON HANDSHAKE
      -----------------------------------
      Antes: cada petición creaba un iframe + formulario POST nuevo.
      Ahora: se mantiene un único iframe del puente Apps Script
@@ -82,6 +82,8 @@
   let puenteIframe = null;
   let puenteListo = false;
   let puenteInicializacion = false;
+  let puentePingEnviado = false;
+  let puenteIntentos = 0;
 
   const pendientes = new Map();
 
@@ -670,11 +672,31 @@
      ========================================================== */
 
   /* ==========================================================
-     OPTIMIZACIÓN 3 · PUENTE PERSISTENTE
+     OPTIMIZACIÓN 4.1 · PUENTE PERSISTENTE CON HANDSHAKE
+     ========================================================== */
+
+  /* ==========================================================
+     OPTIMIZACIÓN 4.1 · PUENTE PERSISTENTE CON HANDSHAKE
+     ----------------------------------------------------------
+     OPT3:
+     - crea el iframe
+     - espera "puente_listo"
+
+     OPT4.1:
+     - crea el iframe una sola vez
+     - espera su carga
+     - envía PING
+     - espera PONG
+     - solo entonces considera el puente realmente listo
+     - mantiene POST tradicional como respaldo
      ========================================================== */
 
   function iniciarPuentePersistente_() {
 
+    /*
+       Si ya tenemos un puente confirmado,
+       no hacemos absolutamente nada.
+    */
     if (
       puenteIframe &&
       puenteListo
@@ -682,33 +704,40 @@
       return;
     }
 
+    /*
+       Evita crear varios iframes simultáneamente.
+    */
     if (puenteInicializacion) {
       return;
     }
 
     /*
-       auth.js se carga en el <head>. Si todavía no existe <body>,
-       esperamos a que el DOM esté disponible antes de crear el iframe.
+       auth.js puede cargarse antes de <body>.
+       Esperamos al DOM.
     */
     if (!document.body) {
+
       document.addEventListener(
         "DOMContentLoaded",
         function() {
+
           iniciarPuentePersistente_();
+
         },
         { once: true }
       );
+
       return;
     }
 
     puenteInicializacion = true;
+    puentePingEnviado = false;
+    puenteIntentos++;
 
     try {
 
       const iframe =
-        document.createElement(
-          "iframe"
-        );
+        document.createElement("iframe");
 
       iframe.title =
         "Puente seguro CET 34";
@@ -730,12 +759,76 @@
       `;
 
       /*
-         El parámetro _cet34puente evita que un navegador o
-         intermediario reutilice una respuesta antigua.
+         Cada creación utiliza una marca diferente
+         para evitar respuestas antiguas.
       */
+      const cacheBuster =
+        Date.now() +
+        "_" +
+        puenteIntentos;
+
       iframe.src =
         CONFIG.APP_URL +
-        "?action=puente&_cet34puente=3";
+        "?action=puente&_cet34puente=4_1_" +
+        cacheBuster;
+
+      /*
+         Cuando el iframe termina de cargar,
+         comprobamos que realmente responde.
+      */
+      iframe.addEventListener(
+        "load",
+        function() {
+
+          console.info(
+            "CET34 OPT4.1: iframe del puente cargado."
+          );
+
+          /*
+             Pequeño margen para que el listener
+             interno de Apps Script quede instalado.
+          */
+          setTimeout(
+            function() {
+
+              if (
+                puenteListo ||
+                !puenteIframe
+              ) {
+                return;
+              }
+
+              try {
+
+                puentePingEnviado = true;
+
+                console.info(
+                  "CET34 OPT4.1: enviando PING al puente..."
+                );
+
+                puenteIframe.contentWindow.postMessage(
+                  {
+                    canal: "CET34",
+                    tipo: "ping"
+                  },
+                  "*"
+                );
+
+              } catch (error) {
+
+                console.warn(
+                  "CET34 OPT4.1: no se pudo enviar PING.",
+                  error
+                );
+
+              }
+
+            },
+            150
+          );
+
+        }
+      );
 
       document.body.appendChild(
         iframe
@@ -745,13 +838,16 @@
         iframe;
 
       console.info(
-        "CET34 OPT3: iniciando puente persistente..."
+        "CET34 OPT4.1: iniciando puente persistente..."
       );
 
       /*
-         Si después de unos segundos no está listo, no bloqueamos
-         la aplicación: las peticiones utilizarán el transporte
-         POST tradicional hasta que el puente quede disponible.
+         El puente tiene hasta 8 segundos para
+         demostrar que realmente funciona.
+
+         IMPORTANTE:
+         esto NO bloquea la aplicación.
+         Si no responde, seguimos usando POST.
       */
       setTimeout(
         function() {
@@ -763,14 +859,17 @@
             puenteInicializacion =
               false;
 
+            puentePingEnviado =
+              false;
+
             console.warn(
-              "CET34 OPT3: puente persistente aún no está listo; se mantiene respaldo POST."
+              "CET34 OPT4.1: puente no confirmado; se mantiene respaldo POST."
             );
 
           }
 
         },
-        4000
+        8000
       );
 
     } catch (error) {
@@ -778,15 +877,17 @@
       puenteInicializacion =
         false;
 
+      puentePingEnviado =
+        false;
+
       console.warn(
-        "CET34 OPT3: no se pudo iniciar el puente persistente.",
+        "CET34 OPT4.1: no se pudo iniciar el puente persistente.",
         error
       );
 
     }
 
   }
-
 
   function enviarPOSTLegacy_(
     action,
@@ -1117,11 +1218,24 @@
          El puente persistente se identifica por el origen
          Apps Script + la ventana del iframe que nosotros creamos.
       */
+      /*
+         ==========================================================
+         OPT4.1 · HANDSHAKE DEL PUENTE
+         ==========================================================
+      */
+
       if (
         datos.canal === "CET34" &&
-        datos.tipo === "puente_listo"
+        (
+          datos.tipo === "puente_listo" ||
+          datos.tipo === "pong"
+        )
       ) {
 
+        /*
+           La respuesta debe proceder exactamente
+           del iframe que creó esta página.
+        */
         if (
           puenteIframe &&
           event.source ===
@@ -1134,8 +1248,15 @@
           puenteInicializacion =
             true;
 
+          puentePingEnviado =
+            false;
+
           console.info(
-            "CET34 OPT3: PUENTE PERSISTENTE LISTO."
+            "CET34 OPT4.1: PUENTE PERSISTENTE LISTO.",
+            {
+              tipo: datos.tipo,
+              origen: event.origin
+            }
           );
 
         }
