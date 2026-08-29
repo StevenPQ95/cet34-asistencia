@@ -1686,32 +1686,17 @@
 
       loginBtn.addEventListener(
         "click",
-        async () => {
+        () => {
+
           this.cerrar();
 
-          if (
-            window.CET34Auth &&
-            typeof CET34Auth.login === "function"
-          ) {
-            try {
-              await CET34Auth.login(false);
-            } catch (error) {
-              console.warn(
-                "CET34 MENÚ: no se pudo iniciar sesión.",
-                error
-              );
-            }
+          // Unificamos el acceso en una sola pantalla.
+          // Así "Ingresar" muestra login.html tanto en PC
+          // como en celular. Si ya existe una sesión,
+          // login.html mostrará "Sesión activa".
+          window.location.href =
+            "./login.html";
 
-            // requireAuth() es quien confirma la sesión
-            // cuando una página privada se carga.
-            setTimeout(
-              () => this.actualizarSesion(),
-              500
-            );
-          } else {
-            window.location.href =
-              "./login.html";
-          }
         }
       );
 
