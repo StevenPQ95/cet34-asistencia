@@ -760,6 +760,94 @@
 
 
           /* ==================================================
+             SESIÓN CET34
+             ================================================== */
+          .menu-sesion {
+            margin-top: 8px;
+            padding: 12px;
+            border-top: 1px solid var(--borde);
+          }
+
+          .menu-sesion-usuario {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            border-radius: 14px;
+            background: #f8fafc;
+            border: 1px solid var(--borde);
+          }
+
+          .menu-sesion-icono {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: var(--vino-claro);
+            font-size: 18px;
+          }
+
+          .menu-sesion-datos {
+            min-width: 0;
+            flex: 1;
+          }
+
+          .menu-sesion-nombre {
+            font-size: 12px;
+            font-weight: 900;
+            color: var(--texto);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          .menu-sesion-rol {
+            margin-top: 2px;
+            font-size: 10px;
+            color: var(--texto-sec);
+          }
+
+          .menu-sesion-accion {
+            width: 100%;
+            margin-top: 8px;
+            min-height: 42px;
+            border: 0;
+            border-radius: 12px;
+            padding: 9px 12px;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 900;
+            cursor: pointer;
+            transition: transform .18s ease, background .18s ease;
+          }
+
+          .menu-sesion-accion:active {
+            transform: scale(.98);
+          }
+
+          .menu-login {
+            background: var(--vino-700);
+            color: #fff;
+          }
+
+          .menu-login:hover {
+            background: var(--vino-800);
+          }
+
+          .menu-logout {
+            background: #f1f5f9;
+            color: var(--texto);
+            border: 1px solid var(--borde);
+          }
+
+          .menu-logout:hover {
+            background: #e2e8f0;
+          }
+
+          /* ==================================================
              ACCESIBILIDAD
              ================================================== */
 
@@ -1301,6 +1389,52 @@
 
             </div>
 
+              <!-- SESIÓN CET34 -->
+              <div
+                class="menu-sesion"
+                id="cet34MenuSesion"
+              >
+                <div
+                  class="menu-sesion-usuario"
+                  id="cet34MenuUsuario"
+                >
+                  <div class="menu-sesion-icono">🔐</div>
+
+                  <div class="menu-sesion-datos">
+                    <div
+                      class="menu-sesion-nombre"
+                      id="cet34MenuNombre"
+                    >
+                      No has iniciado sesión
+                    </div>
+
+                    <div
+                      class="menu-sesion-rol"
+                      id="cet34MenuRol"
+                    >
+                      Acceso al sistema
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="menu-sesion-accion menu-login"
+                  id="cet34MenuLogin"
+                >
+                  🔑 Ingresar
+                </button>
+
+                <button
+                  type="button"
+                  class="menu-sesion-accion menu-logout"
+                  id="cet34MenuLogout"
+                  style="display:none;"
+                >
+                  🚪 Cerrar sesión
+                </button>
+              </div>
+
           </nav>
 
         </header>
@@ -1335,6 +1469,9 @@
         this.shadowRoot.querySelectorAll(
           ".menu-enlace"
         );
+
+      this.inicializarSesion();
+
 
 
       /* -----------------------------------------------
@@ -1423,6 +1560,11 @@
          ----------------------------------------------- */
 
       this.marcarPaginaActual();
+
+      window.addEventListener(
+        "cet34:sesion-cambio",
+        () => this.actualizarSesion()
+      );
 
     }
 
@@ -1520,6 +1662,173 @@
         "Abrir menú"
       );
 
+    }
+
+
+    /* ========================================================
+       SESIÓN CET34
+       ======================================================== */
+
+    inicializarSesion() {
+      const loginBtn =
+        this.shadowRoot.getElementById(
+          "cet34MenuLogin"
+        );
+
+      const logoutBtn =
+        this.shadowRoot.getElementById(
+          "cet34MenuLogout"
+        );
+
+      if (!loginBtn || !logoutBtn) {
+        return;
+      }
+
+      loginBtn.addEventListener(
+        "click",
+        async () => {
+          this.cerrar();
+
+          if (
+            window.CET34Auth &&
+            typeof CET34Auth.login === "function"
+          ) {
+            try {
+              await CET34Auth.login(false);
+            } catch (error) {
+              console.warn(
+                "CET34 MENÚ: no se pudo iniciar sesión.",
+                error
+              );
+            }
+
+            // requireAuth() es quien confirma la sesión
+            // cuando una página privada se carga.
+            setTimeout(
+              () => this.actualizarSesion(),
+              500
+            );
+          } else {
+            window.location.href =
+              "./login.html";
+          }
+        }
+      );
+
+      logoutBtn.addEventListener(
+        "click",
+        async () => {
+          this.cerrar();
+
+          if (
+            window.CET34Auth &&
+            typeof CET34Auth.logout === "function"
+          ) {
+            await CET34Auth.logout(true);
+          } else {
+            window.location.href =
+              "./login.html";
+          }
+        }
+      );
+
+      this.actualizarSesion();
+
+      // auth.js puede terminar de recuperar la sesión
+      // después de que el menú ya se haya renderizado.
+      setTimeout(
+        () => this.actualizarSesion(),
+        250
+      );
+
+      setTimeout(
+        () => this.actualizarSesion(),
+        1000
+      );
+    }
+
+
+    actualizarSesion() {
+      const nombreEl =
+        this.shadowRoot.getElementById(
+          "cet34MenuNombre"
+        );
+
+      const rolEl =
+        this.shadowRoot.getElementById(
+          "cet34MenuRol"
+        );
+
+      const loginBtn =
+        this.shadowRoot.getElementById(
+          "cet34MenuLogin"
+        );
+
+      const logoutBtn =
+        this.shadowRoot.getElementById(
+          "cet34MenuLogout"
+        );
+
+      if (
+        !nombreEl ||
+        !rolEl ||
+        !loginBtn ||
+        !logoutBtn
+      ) {
+        return;
+      }
+
+      let usuario = null;
+
+      try {
+        if (
+          window.CET34Auth &&
+          typeof CET34Auth.getUser === "function"
+        ) {
+          usuario =
+            CET34Auth.getUser();
+        }
+      } catch (_) {
+        usuario = null;
+      }
+
+      if (
+        usuario &&
+        usuario.rol
+      ) {
+        nombreEl.textContent =
+          usuario.nombre ||
+          usuario.correo ||
+          "Usuario autenticado";
+
+        rolEl.textContent =
+          usuario.rol +
+          (
+            usuario.correo
+              ? " · " + usuario.correo
+              : ""
+          );
+
+        loginBtn.style.display =
+          "none";
+
+        logoutBtn.style.display =
+          "block";
+
+        return;
+      }
+
+      nombreEl.textContent =
+        "No has iniciado sesión";
+
+      rolEl.textContent =
+        "Acceso al sistema";
+
+      loginBtn.style.display =
+        "block";
+
+      logoutBtn.style.display =
+        "none";
     }
 
 
