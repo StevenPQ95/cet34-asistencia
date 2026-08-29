@@ -28,11 +28,14 @@
        {}
      );
 
-   Seguridad:
-   - El ID Token vive solo en memoria de la página.
-   - NO se guarda en localStorage ni sessionStorage.
-   - Cada petición privada vuelve a enviar el token al servidor.
-   - Apps Script valida nuevamente el token y el rol.
+   Seguridad / sesión OPT4.1-S:
+   - El ID Token de Google vive solo durante el inicio de sesión.
+   - Después de validar Google, CET34 crea una sesión propia.
+   - La sesión CET34 se guarda en sessionStorage.
+   - El ID Token NO se guarda en localStorage ni sessionStorage.
+   - Las peticiones privadas utilizan sessionId.
+   - Apps Script valida la sesión y el rol en cada petición privada.
+   - La sesión dura 4 horas o hasta cerrar la pestaña/cerrar sesión.
    ============================================================ */
 
 (function (window) {
@@ -64,9 +67,14 @@
 
   let idToken = null;
   let usuario = null;
+  let sesion = null;
+  let temporizadorExpiracionSesion = null;
+  let recuperacionSesionEnCurso = null;
   let googleInicializado = false;
   let loginEnCurso = null;
   let contador = 0;
+
+  const SESSION_STORAGE_KEY = "CET34_SESION";
 
   /*
      OPTIMIZACIÓN 4.1 · PUENTE PERSISTENTE CON HANDSHAKE
@@ -390,6 +398,238 @@
 
 
   /* ==========================================================
+     OPT4.1-S · SESIÓN CET34 EN SESSIONSTORAGE
+     ========================================================== */
+
+  function limpiarTemporizadorSesion_() {
+
+    if (temporizadorExpiracionSesion) {
+      clearTimeout(temporizadorExpiracionSesion);
+      temporizadorExpiracionSesion = null;
+    }
+
+  }
+
+
+  function limpiarSesionLocal_() {
+
+    limpiarTemporizadorSesion_();
+
+    sesion = null;
+    usuario = null;
+    idToken = null;
+
+    try {
+      sessionStorage.removeItem(
+        SESSION_STORAGE_KEY
+      );
+    } catch (_) {}
+
+  }
+
+
+  function guardarSesionLocal_(datos) {
+
+    const sessionId = String(
+      datos && datos.sessionId || ""
+    ).trim();
+
+    const expiraEn = Number(
+      datos && datos.expiraEn || 0
+    );
+
+    if (!sessionId || !expiraEn) {
+      throw new Error(
+        "RESPUESTA_SESION_INVALIDA"
+      );
+    }
+
+    sesion = Object.freeze({
+      sessionId: sessionId,
+      correo: String(datos.correo || ""),
+      nombre: String(datos.nombre || ""),
+      rol: String(datos.rol || ""),
+      estado: String(datos.estado || "ACTIVO"),
+      creadoEn: Number(datos.creadoEn || Date.now()),
+      expiraEn: expiraEn
+    });
+
+    usuario = Object.freeze({
+      correo: sesion.correo,
+      nombre: sesion.nombre,
+      rol: sesion.rol,
+      estado: sesion.estado
+    });
+
+    try {
+      sessionStorage.setItem(
+        SESSION_STORAGE_KEY,
+        JSON.stringify(sesion)
+      );
+    } catch (error) {
+      limpiarSesionLocal_();
+      throw new Error(
+        "No fue posible guardar la sesión de esta pestaña."
+      );
+    }
+
+    programarExpiracionSesion_();
+
+    return usuario;
+  }
+
+
+  function leerSesionLocal_() {
+
+    let texto = null;
+
+    try {
+      texto = sessionStorage.getItem(
+        SESSION_STORAGE_KEY
+      );
+    } catch (_) {
+      return null;
+    }
+
+    if (!texto) {
+      return null;
+    }
+
+    try {
+      const datos = JSON.parse(texto);
+
+      if (
+        !datos ||
+        !datos.sessionId ||
+        !datos.expiraEn
+      ) {
+        return null;
+      }
+
+      return datos;
+
+    } catch (_) {
+      return null;
+    }
+  }
+
+
+  function sesionExpiradaLocal_() {
+
+    if (!sesion) {
+      return true;
+    }
+
+    return Date.now() >= Number(
+      sesion.expiraEn || 0
+    );
+  }
+
+
+  function programarExpiracionSesion_() {
+
+    limpiarTemporizadorSesion_();
+
+    if (!sesion) {
+      return;
+    }
+
+    const restante = Math.max(
+      0,
+      Number(sesion.expiraEn || 0) - Date.now()
+    );
+
+    temporizadorExpiracionSesion = setTimeout(
+      function() {
+
+        limpiarSesionLocal_();
+
+        mostrarAcceso(
+          "Tu sesión CET34 ha expirado. Vuelve a iniciar sesión para continuar.",
+          true
+        );
+
+      },
+      restante
+    );
+  }
+
+
+  async function recuperarSesion_() {
+
+    if (recuperacionSesionEnCurso) {
+      return recuperacionSesionEnCurso;
+    }
+
+    recuperacionSesionEnCurso = (async function() {
+
+      const datosLocal = leerSesionLocal_();
+
+      if (!datosLocal) {
+        return null;
+      }
+
+      if (
+        Date.now() >= Number(datosLocal.expiraEn || 0)
+      ) {
+        limpiarSesionLocal_();
+        return null;
+      }
+
+      try {
+
+        mostrarAcceso(
+          "Comprobando tu sesión CET34...",
+          false
+        );
+
+        const datos = await enviarPOST(
+          "validarsesioncet34",
+          {
+            sessionId:
+              String(datosLocal.sessionId)
+          }
+        );
+
+        if (
+          datos &&
+          datos.exito === true &&
+          datos.autorizado === true &&
+          datos.sesionActiva === true
+        ) {
+
+          guardarSesionLocal_(datos);
+          mostrarUsuarioEnPanel(datos);
+          ocultarAcceso();
+
+          return usuario;
+        }
+
+        limpiarSesionLocal_();
+        return null;
+
+      } catch (error) {
+
+        console.warn(
+          "CET34 AUTH: no se pudo recuperar la sesión.",
+          error
+        );
+
+        // Si el servidor no responde, NO reutilizamos ciegamente
+        // una sesión local. La sesión debe ser confirmada por el servidor.
+        limpiarSesionLocal_();
+        return null;
+      }
+
+    })().finally(function() {
+      recuperacionSesionEnCurso = null;
+    });
+
+    return recuperacionSesionEnCurso;
+  }
+
+
+  /* ==========================================================
      ESPERAR GOOGLE IDENTITY SERVICES
      ========================================================== */
 
@@ -570,7 +810,7 @@
 
       const datos =
         await enviarPOST(
-          "verificargoogletoken",
+          "crearsesioncet34",
           {
             token:
               idToken
@@ -580,23 +820,16 @@
       if (
         datos &&
         datos.exito === true &&
-        datos.autorizado === true
+        datos.autorizado === true &&
+        datos.sesionActiva === true &&
+        datos.sessionId
       ) {
 
-        usuario =
-          Object.freeze({
-            correo:
-              datos.correo || "",
+        guardarSesionLocal_(datos);
 
-            nombre:
-              datos.nombre || "",
-
-            rol:
-              datos.rol || "",
-
-            estado:
-              datos.estado || "ACTIVO"
-          });
+        // El ID Token de Google ya cumplió su función.
+        // No se conserva como credencial de sesión.
+        idToken = null;
 
         mostrarUsuarioEnPanel(
           datos
@@ -608,11 +841,8 @@
 
       }
 
-      idToken =
-        null;
-
-      usuario =
-        null;
+      idToken = null;
+      limpiarSesionLocal_();
 
       mostrarUsuarioEnPanel(
         datos || {}
@@ -637,11 +867,8 @@
 
     } catch (error) {
 
-      idToken =
-        null;
-
-      usuario =
-        null;
+      idToken = null;
+      limpiarSesionLocal_();
 
       console.error(
         "CET34 AUTH:",
@@ -654,7 +881,7 @@
       ) {
 
         mostrarAcceso(
-          "No se pudo verificar tu cuenta con el servidor. Inténtalo nuevamente.",
+          "No se pudo crear la sesión CET34. Inténtalo nuevamente.",
           true
         );
 
@@ -1333,6 +1560,27 @@
   */
   iniciarPuentePersistente_();
 
+  // Pre-carga local únicamente para que isAuthenticated() y
+  // el menú puedan conocer que existe una sesión en esta pestaña.
+  // requireAuth() hará la validación real con el servidor.
+  (function precargarSesionLocal_() {
+
+    const datosLocal = leerSesionLocal_();
+
+    if (
+      datosLocal &&
+      Number(datosLocal.expiraEn || 0) > Date.now()
+    ) {
+
+      try {
+        guardarSesionLocal_(datosLocal);
+      } catch (_) {
+        limpiarSesionLocal_();
+      }
+    }
+
+  })();
+
 
   /* ==========================================================
      API REUTILIZABLE
@@ -1355,9 +1603,13 @@
             "DOCENTE"
           ];
 
+    // =====================================================
+    // 1. SESIÓN YA CARGADA EN MEMORIA
+    // =====================================================
     if (
+      sesion &&
       usuario &&
-      idToken
+      !sesionExpiradaLocal_()
     ) {
 
       if (
@@ -1374,24 +1626,48 @@
         throw new Error(
           "ROL_NO_AUTORIZADO"
         );
-
       }
 
       return usuario;
-
     }
 
+    // =====================================================
+    // 2. RECUPERAR SESIÓN DE ESTA PESTAÑA
+    // =====================================================
+    const usuarioRecuperado =
+      await recuperarSesion_();
+
+    if (
+      usuarioRecuperado
+    ) {
+
+      if (
+        rolesPermitidos.indexOf(
+          usuarioRecuperado.rol
+        ) === -1
+      ) {
+
+        mostrarAcceso(
+          "Tu cuenta está activa, pero no tiene permiso para acceder a esta sección.",
+          false
+        );
+
+        throw new Error(
+          "ROL_NO_AUTORIZADO"
+        );
+      }
+
+      return usuarioRecuperado;
+    }
+
+    // =====================================================
+    // 3. NO HAY SESIÓN → LOGIN GOOGLE
+    // =====================================================
     await login(
       Boolean(
         opciones.cambiarCuenta
       )
     );
-
-    /*
-       El callback de Google ocurre de forma asíncrona.
-       Esperamos hasta que el usuario quede autorizado o
-       se produzca un rechazo.
-    */
 
     const limite =
       Date.now() + CONFIG.TIMEOUT;
@@ -1403,8 +1679,9 @@
           function () {
 
             if (
+              sesion &&
               usuario &&
-              idToken
+              !sesionExpiradaLocal_()
             ) {
 
               if (
@@ -1425,7 +1702,6 @@
                 );
 
                 return;
-
               }
 
               resolve(
@@ -1433,7 +1709,6 @@
               );
 
               return;
-
             }
 
             if (
@@ -1447,7 +1722,6 @@
               );
 
               return;
-
             }
 
             setTimeout(
@@ -1458,10 +1732,8 @@
           };
 
         revisar();
-
       }
     );
-
   }
 
 
@@ -1471,14 +1743,16 @@
   ) {
 
     if (
-      !idToken ||
-      !usuario
+      !sesion ||
+      !usuario ||
+      sesionExpiradaLocal_()
     ) {
+
+      limpiarSesionLocal_();
 
       throw new Error(
         "AUTENTICACION_REQUERIDA"
       );
-
     }
 
     const datos =
@@ -1486,8 +1760,8 @@
         {},
         parametros || {},
         {
-          token:
-            idToken
+          sessionId:
+            sesion.sessionId
         }
       );
 
@@ -1497,28 +1771,48 @@
         datos
       );
 
-    /*
-       El servidor puede rechazar una sesión que ya no sea
-       válida. En ese caso se limpia el estado local.
-    */
+    // El servidor es la autoridad final sobre la sesión.
     if (
       resultado &&
       resultado.autorizado === false
     ) {
 
-      logout(
-        false
-      );
+      limpiarSesionLocal_();
 
       throw new Error(
         resultado.mensaje ||
         "Acceso denegado."
       );
+    }
 
+    // Actualizamos la fecha de expiración si el servidor
+    // la devuelve al validar la sesión.
+    if (
+      resultado &&
+      resultado.expiraEn
+    ) {
+      sesion = Object.freeze(
+        Object.assign(
+          {},
+          sesion,
+          {
+            expiraEn:
+              Number(resultado.expiraEn)
+          }
+        )
+      );
+
+      try {
+        sessionStorage.setItem(
+          SESSION_STORAGE_KEY,
+          JSON.stringify(sesion)
+        );
+      } catch (_) {}
+
+      programarExpiracionSesion_();
     }
 
     return resultado;
-
   }
 
 
@@ -1529,26 +1823,39 @@
 
   function getToken() {
 
-    if (!idToken) {
-
-      throw new Error(
-        "No existe una sesión autenticada."
-      );
-
+    // Compatibilidad con código antiguo.
+    // La nueva sesión NO utiliza ni expone el ID Token de Google.
+    if (sesion && sesion.sessionId) {
+      return sesion.sessionId;
     }
 
-    return idToken;
+    throw new Error(
+      "No existe una sesión autenticada."
+    );
+  }
 
+
+  function getSession() {
+    if (
+      !sesion ||
+      sesionExpiradaLocal_()
+    ) {
+      return null;
+    }
+
+    return Object.freeze(
+      Object.assign({}, sesion)
+    );
   }
 
 
   function isAuthenticated() {
 
     return Boolean(
-      idToken &&
-      usuario
+      sesion &&
+      usuario &&
+      !sesionExpiradaLocal_()
     );
-
   }
 
 
@@ -1556,11 +1863,15 @@
     mostrar
   ) {
 
-    idToken =
-      null;
+    const sessionId =
+      sesion &&
+      sesion.sessionId
+        ? sesion.sessionId
+        : "";
 
-    usuario =
-      null;
+    // Limpiamos inmediatamente el navegador para que la sesión
+    // no pueda seguir utilizándose aunque el servidor tarde.
+    limpiarSesionLocal_();
 
     try {
 
@@ -1571,22 +1882,39 @@
       ) {
 
         google.accounts.id.disableAutoSelect();
-
       }
 
     } catch (_) {}
+
+    // Cerramos la sesión también en Apps Script.
+    if (sessionId) {
+
+      enviarPOST(
+        "cerrarsesioncet34",
+        {
+          sessionId:
+            sessionId
+        }
+      )
+      .catch(function(error) {
+        console.warn(
+          "CET34 AUTH: no se pudo cerrar la sesión en el servidor.",
+          error
+        );
+      });
+    }
 
     if (
       mostrar !== false
     ) {
 
       mostrarAcceso(
-        "Tu sesión se cerró. Selecciona una cuenta de Google para continuar.",
+        "Tu sesión se cerró. Inicia sesión nuevamente para continuar.",
         true
       );
-
     }
 
+    return true;
   }
 
 
@@ -1622,6 +1950,9 @@
 
       getToken:
         getToken,
+
+      getSession:
+        getSession,
 
       isAuthenticated:
         isAuthenticated,
