@@ -411,6 +411,45 @@
   }
 
 
+  function notificarCambioSesion_() {
+
+    try {
+
+      window.dispatchEvent(
+        new CustomEvent(
+          "cet34:sesion-cambio",
+          {
+            detail: {
+              usuario:
+                usuario
+                  ? Object.assign({}, usuario)
+                  : null,
+              sesionActiva:
+                Boolean(
+                  sesion &&
+                  usuario &&
+                  !sesionExpiradaLocal_()
+                )
+            }
+          }
+        )
+      );
+
+    } catch (_) {
+
+      // Compatibilidad con navegadores que no permitan
+      // construir CustomEvent de esta forma.
+      try {
+        window.dispatchEvent(
+          new Event("cet34:sesion-cambio")
+        );
+      } catch (_) {}
+
+    }
+
+  }
+
+
   function limpiarSesionLocal_() {
 
     limpiarTemporizadorSesion_();
@@ -424,6 +463,10 @@
         SESSION_STORAGE_KEY
       );
     } catch (_) {}
+
+    // Avisamos inmediatamente al menú y a cualquier página
+    // que necesite reflejar el cierre/expiración de sesión.
+    notificarCambioSesion_();
 
   }
 
@@ -474,6 +517,9 @@
     }
 
     programarExpiracionSesion_();
+
+    // El menú y login.html reciben inmediatamente el nuevo estado.
+    notificarCambioSesion_();
 
     return usuario;
   }
