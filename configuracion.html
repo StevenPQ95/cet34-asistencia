@@ -173,7 +173,7 @@
 
     .filtros{
       display:grid;
-      grid-template-columns:1.5fr .8fr .8fr auto;
+      grid-template-columns:1.5fr .75fr .75fr .95fr auto;
       gap:10px;
       margin-bottom:16px;
     }
@@ -447,12 +447,23 @@
             <option value="">Todos</option>
             <option value="1°">1°</option><option value="2°">2°</option>
             <option value="3°">3°</option><option value="4°">4°</option>
-            <option value="5°">5°</option><option value="6°">6°</option>
+            <option value="5°">5°</option>
           </select>
         </div>
         <div class="campo">
           <label for="filtroSeccionEst">Sección</label>
-          <input id="filtroSeccionEst" maxlength="3" placeholder="Ej. C">
+          <select id="filtroSeccionEst">
+            <option value="">Todas</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="ordenEstudiantes">Ordenar por</label>
+          <select id="ordenEstudiantes">
+            <option value="estudiante">Estudiante</option>
+            <option value="codigo">Código</option>
+            <option value="grado">Grado</option>
+            <option value="seccion">Sección</option>
+          </select>
         </div>
         <button class="btn btn-secundario" id="btnLimpiarFiltrosEst">Limpiar</button>
       </div>
@@ -505,12 +516,14 @@
             <option value="">Todos</option>
             <option value="1°">1°</option><option value="2°">2°</option>
             <option value="3°">3°</option><option value="4°">4°</option>
-            <option value="5°">5°</option><option value="6°">6°</option>
+            <option value="5°">5°</option>
           </select>
         </div>
         <div class="campo">
           <label for="filtroSeccionHorario">Sección</label>
-          <input id="filtroSeccionHorario" maxlength="3" placeholder="Ej. C">
+          <select id="filtroSeccionHorario">
+            <option value="">Todas</option>
+          </select>
         </div>
         <button class="btn btn-secundario" id="btnLimpiarFiltrosHorario">Limpiar</button>
       </div>
@@ -600,9 +613,16 @@
           <input type="hidden" id="estCodigo">
 
           <div class="form-grid">
-            <div class="campo span-2">
-              <label for="estNombre">Nombre completo</label>
-              <input id="estNombre" required minlength="3" autocomplete="off">
+            <div class="campo">
+              <label for="estApellidos">Apellidos</label>
+              <input id="estApellidos" required minlength="2" autocomplete="off"
+                     placeholder="APELLIDO PATERNO APELLIDO MATERNO">
+            </div>
+
+            <div class="campo">
+              <label for="estNombres">Nombres</label>
+              <input id="estNombres" required minlength="2" autocomplete="off"
+                     placeholder="NOMBRE(S)">
             </div>
 
             <div class="campo">
@@ -611,13 +631,15 @@
                 <option value="">Seleccionar…</option>
                 <option value="1°">1°</option><option value="2°">2°</option>
                 <option value="3°">3°</option><option value="4°">4°</option>
-                <option value="5°">5°</option><option value="6°">6°</option>
+                <option value="5°">5°</option>
               </select>
             </div>
 
             <div class="campo">
               <label for="estSeccion">Sección</label>
-              <input id="estSeccion" maxlength="3" required placeholder="Ej. C">
+              <select id="estSeccion" required>
+                <option value="">Seleccionar…</option>
+              </select>
             </div>
 
             <div class="campo span-2">
@@ -626,8 +648,8 @@
             </div>
 
             <div class="info-box span-2">
-              El código del estudiante no puede ser escrito ni modificado desde la interfaz.
-              El servidor lo genera para evitar duplicados.
+              Los apellidos y nombres se unirán automáticamente como APELLIDOS + NOMBRES y se guardarán en MAYÚSCULAS.
+              El código se genera exclusivamente en el servidor para evitar duplicados.
             </div>
           </div>
         </div>
@@ -669,7 +691,7 @@
                 <option value="">Seleccionar…</option>
                 <option value="1°">1°</option><option value="2°">2°</option>
                 <option value="3°">3°</option><option value="4°">4°</option>
-                <option value="5°">5°</option><option value="6°">6°</option>
+                <option value="5°">5°</option>
               </select>
             </div>
 
@@ -839,19 +861,142 @@
       renderEstudiantes();
     }
 
+    function poblarSecciones(){
+      const opciones = [];
+      for(let i = 65; i <= 90; i++){
+        opciones.push(String.fromCharCode(i));
+      }
+
+      ["filtroSeccionEst","filtroSeccionHorario","estSeccion"].forEach(id => {
+        const el = $(id);
+        if(!el) return;
+
+        const valorActual = el.value;
+        const primera = el.options[0] ? el.options[0].outerHTML : "";
+        el.innerHTML = primera + opciones.map(s =>
+          `<option value="${s}">${s}</option>`
+        ).join("");
+
+        if([...el.options].some(o => o.value === valorActual)){
+          el.value = valorActual;
+        }
+      });
+    }
+
+    function textoEnMayusculas(valor){
+      return String(valor || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase();
+    }
+
+    function armarNombreCompleto(){
+      const apellidos = textoEnMayusculas($("estApellidos").value);
+      const nombres = textoEnMayusculas($("estNombres").value);
+      return [apellidos, nombres].filter(Boolean).join(" ").trim();
+    }
+
+    function separarNombreRegistrado(nombre){
+      const partes = textoEnMayusculas(nombre).split(" ").filter(Boolean);
+
+      if(partes.length >= 3){
+        return {
+          apellidos: partes.slice(0, 2).join(" "),
+          nombres: partes.slice(2).join(" ")
+        };
+      }
+
+      if(partes.length === 2){
+        return {
+          apellidos: partes[0],
+          nombres: partes[1]
+        };
+      }
+
+      return {
+        apellidos: partes.join(" "),
+        nombres: ""
+      };
+    }
+
+    function ordenarEstudiantes(lista){
+      const criterio = $("ordenEstudiantes").value;
+
+      return [...lista].sort((a,b) => {
+        let resultado = 0;
+
+        if(criterio === "codigo"){
+          resultado = String(a.codigo || "").localeCompare(
+            String(b.codigo || ""), "es", {numeric:true, sensitivity:"base"}
+          );
+        }else if(criterio === "grado"){
+          const ga = Number(String(a.grado || "").match(/\d+/)?.[0] || 0);
+          const gb = Number(String(b.grado || "").match(/\d+/)?.[0] || 0);
+          resultado = ga - gb;
+
+          if(resultado === 0){
+            resultado = String(a.seccion || "").localeCompare(
+              String(b.seccion || ""), "es", {sensitivity:"base"}
+            );
+          }
+
+          if(resultado === 0){
+            resultado = String(a.estudiante || "").localeCompare(
+              String(b.estudiante || ""), "es", {sensitivity:"base"}
+            );
+          }
+        }else if(criterio === "seccion"){
+          resultado = String(a.seccion || "").localeCompare(
+            String(b.seccion || ""), "es", {sensitivity:"base"}
+          );
+
+          if(resultado === 0){
+            const ga = Number(String(a.grado || "").match(/\d+/)?.[0] || 0);
+            const gb = Number(String(b.grado || "").match(/\d+/)?.[0] || 0);
+            resultado = ga - gb;
+          }
+
+          if(resultado === 0){
+            resultado = String(a.estudiante || "").localeCompare(
+              String(b.estudiante || ""), "es", {sensitivity:"base"}
+            );
+          }
+        }else{
+          resultado = String(a.estudiante || "").localeCompare(
+            String(b.estudiante || ""), "es", {sensitivity:"base"}
+          );
+
+          if(resultado === 0){
+            resultado = String(a.codigo || "").localeCompare(
+              String(b.codigo || ""), "es", {numeric:true, sensitivity:"base"}
+            );
+          }
+        }
+
+        return resultado;
+      });
+    }
+
     function renderEstudiantes(){
       const q = normalizarTexto($("buscarEstudiante").value);
       const grado = $("filtroGradoEst").value;
       const seccion = normalizarTexto($("filtroSeccionEst").value);
 
-      const lista = estado.estudiantes.filter(e => {
+      const filtrados = estado.estudiantes.filter(e => {
         const okQ = !q ||
           normalizarTexto(e.codigo).includes(q) ||
           normalizarTexto(e.estudiante).includes(q);
-        const okG = !grado || normalizarTexto(e.grado) === normalizarTexto(grado);
-        const okS = !seccion || normalizarTexto(e.seccion) === seccion;
+
+        const okG = !grado ||
+          normalizarTexto(e.grado) === normalizarTexto(grado);
+
+        const okS = !seccion ||
+          normalizarTexto(e.seccion) === seccion;
+
         return okQ && okG && okS;
       });
+
+      const lista = ordenarEstudiantes(filtrados);
 
       $("contadorEstudiantes").textContent =
         `${lista.length} estudiante${lista.length === 1 ? "" : "s"} mostrado${lista.length === 1 ? "" : "s"} de ${estado.estudiantes.length}.`;
@@ -865,7 +1010,7 @@
       $("tablaEstudiantes").innerHTML = lista.map(e => `
         <tr>
           <td><strong>${esc(e.codigo)}</strong></td>
-          <td>${esc(e.estudiante)}</td>
+          <td style="text-transform:uppercase">${esc(e.estudiante)}</td>
           <td>${esc(e.grado)}</td>
           <td>${esc(e.seccion)}</td>
           <td>
@@ -884,20 +1029,27 @@
       $("tituloModalEstudiante").textContent = "Nuevo estudiante";
       $("btnGuardarEstudiante").textContent = "Guardar estudiante";
       abrirModal("modalEstudiante");
-      setTimeout(() => $("estNombre").focus(), 50);
+      setTimeout(() => $("estApellidos").focus(), 50);
     }
 
     function editarEstudiante(codigo){
-      const e = estado.estudiantes.find(x => normalizarTexto(x.codigo) === normalizarTexto(codigo));
+      const e = estado.estudiantes.find(
+        x => normalizarTexto(x.codigo) === normalizarTexto(codigo)
+      );
+
       if(!e) return;
+
+      const nombreSeparado = separarNombreRegistrado(e.estudiante);
 
       $("formEstudiante").reset();
       $("estModo").value = "editar";
       $("estCodigo").value = e.codigo;
       $("estCodigoVisible").value = e.codigo;
-      $("estNombre").value = e.estudiante;
+      $("estApellidos").value = nombreSeparado.apellidos;
+      $("estNombres").value = nombreSeparado.nombres;
       $("estGrado").value = e.grado;
       $("estSeccion").value = e.seccion;
+
       $("tituloModalEstudiante").textContent = "Editar estudiante";
       $("btnGuardarEstudiante").textContent = "Guardar cambios";
       abrirModal("modalEstudiante");
@@ -909,33 +1061,50 @@
       btn.disabled = true;
 
       try{
+        const nombreCompleto = armarNombreCompleto();
+
+        if(!nombreCompleto || nombreCompleto.split(" ").length < 3){
+          throw new Error("Ingresa los apellidos y los nombres completos del estudiante.");
+        }
+
         const modo = $("estModo").value;
         let r;
 
         if(modo === "nuevo"){
           r = await api("crearestudiante", {
-            nombre: $("estNombre").value.trim(),
+            nombre: nombreCompleto,
             grado: $("estGrado").value,
-            seccion: $("estSeccion").value.trim()
+            seccion: $("estSeccion").value
           });
         }else{
           r = await api("editarestudiante", {
             codigo: $("estCodigo").value,
-            nombre: $("estNombre").value.trim(),
+            nombre: nombreCompleto,
             grado: $("estGrado").value,
-            seccion: $("estSeccion").value.trim()
+            seccion: $("estSeccion").value
           });
         }
 
         if(!r || r.exito !== true){
-          throw new Error(r && r.mensaje ? r.mensaje : "No fue posible guardar el estudiante.");
+          throw new Error(
+            r && r.mensaje
+              ? r.mensaje
+              : "No fue posible guardar el estudiante."
+          );
         }
 
         cerrarModal("modalEstudiante");
-        mostrarToast(r.mensaje || "Estudiante guardado correctamente.", "ok");
+        mostrarToast(
+          r.mensaje || "Estudiante guardado correctamente.",
+          "ok"
+        );
+
         await cargarEstudiantes();
+
       }catch(error){
-        // api() ya muestra el error.
+        if(error && error.message !== "AUTENTICACION_REQUERIDA"){
+          mostrarToast(error.message || "No fue posible guardar el estudiante.", "error");
+        }
       }finally{
         btn.disabled = false;
       }
@@ -1216,11 +1385,13 @@
       $("btnRecargarEstudiantes").addEventListener("click", cargarEstudiantes);
       $("buscarEstudiante").addEventListener("input", renderEstudiantes);
       $("filtroGradoEst").addEventListener("change", renderEstudiantes);
-      $("filtroSeccionEst").addEventListener("input", renderEstudiantes);
+      $("filtroSeccionEst").addEventListener("change", renderEstudiantes);
+      $("ordenEstudiantes").addEventListener("change", renderEstudiantes);
       $("btnLimpiarFiltrosEst").addEventListener("click", () => {
         $("buscarEstudiante").value = "";
         $("filtroGradoEst").value = "";
         $("filtroSeccionEst").value = "";
+        $("ordenEstudiantes").value = "estudiante";
         renderEstudiantes();
       });
       $("formEstudiante").addEventListener("submit", guardarEstudiante);
@@ -1229,7 +1400,7 @@
       $("btnRecargarHorarios").addEventListener("click", cargarHorarios);
       $("filtroDiaHorario").addEventListener("change", renderHorarios);
       $("filtroGradoHorario").addEventListener("change", renderHorarios);
-      $("filtroSeccionHorario").addEventListener("input", renderHorarios);
+      $("filtroSeccionHorario").addEventListener("change", renderHorarios);
       $("btnLimpiarFiltrosHorario").addEventListener("click", () => {
         $("filtroDiaHorario").value = "";
         $("filtroGradoHorario").value = "";
@@ -1275,6 +1446,7 @@
         $("usuarioCorreo").textContent = usuario.correo || "";
         $("usuarioRol").textContent = usuario.rol || "ADMINISTRADOR";
 
+        poblarSecciones();
         activarEventos();
 
         await Promise.all([
