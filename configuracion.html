@@ -697,7 +697,9 @@
 
             <div class="campo">
               <label for="horSeccion">Sección</label>
-              <input id="horSeccion" maxlength="3" required placeholder="Ej. C">
+              <select id="horSeccion" required>
+                <option value="">Seleccionar…</option>
+              </select>
             </div>
 
             <div class="campo">
@@ -707,17 +709,17 @@
 
             <div class="campo">
               <label for="horIngreso">Hora de ingreso</label>
-              <input id="horIngreso" type="time" required>
+              <input id="horIngreso" type="time" step="1" required>
             </div>
 
             <div class="campo">
               <label for="horSalida">Hora de salida</label>
-              <input id="horSalida" type="time" required>
+              <input id="horSalida" type="time" step="1" required>
             </div>
 
             <div class="info-box span-2">
               No se permiten dos horarios para la misma combinación <strong>DÍA + GRADO + SECCIÓN</strong>.
-              La hora de salida debe ser posterior al ingreso.
+              La hora de salida debe ser posterior al ingreso. Las horas se guardarán como hora real en Sheets y se mostrarán como HH:mm:ss.
             </div>
           </div>
         </div>
@@ -862,10 +864,9 @@
     }
 
     function poblarSecciones(){
-      const opciones = [];
-      for(let i = 65; i <= 74; i++){
-        opciones.push(String.fromCharCode(i));
-      }
+      const opciones = [
+        "A","B","C","D","E","F","G","H","I","J"
+      ];
 
       ["filtroSeccionEst","filtroSeccionHorario","estSeccion"].forEach(id => {
         const el = $(id);
@@ -1423,6 +1424,7 @@
       $("horDiaAnterior").value = "";
       $("horGradoAnterior").value = "";
       $("horSeccionAnterior").value = "";
+      $("horSeccion").value = "";
       $("horTolerancia").value = 10;
       $("tituloModalHorario").textContent = "Nuevo horario";
       $("btnGuardarHorario").textContent = "Guardar horario";
