@@ -1524,9 +1524,66 @@
 
           enlace.addEventListener(
             "click",
-            () => {
+            event => {
 
               this.cerrar();
+
+              const href =
+                enlace.getAttribute("href");
+
+              /*
+               * Inicio es público.
+               * Las demás secciones requieren sesión.
+               */
+              if (
+                !href ||
+                href === "./inicio.html"
+              ) {
+
+                return;
+
+              }
+
+              let usuario = null;
+
+              try {
+
+                if (
+                  window.CET34Auth &&
+                  typeof CET34Auth.getUser === "function"
+                ) {
+
+                  usuario =
+                    CET34Auth.getUser();
+
+                }
+
+              } catch (_) {
+
+                usuario = null;
+
+              }
+
+              if (
+                !usuario ||
+                !usuario.rol
+              ) {
+
+                event.preventDefault();
+
+                const destino =
+                  href.replace(
+                    "./",
+                    ""
+                  );
+
+                window.location.href =
+                  "./login.html?dest=" +
+                  encodeURIComponent(
+                    destino
+                  );
+
+              }
 
             }
           );
@@ -1703,7 +1760,7 @@
            * envía al usuario a index.html.
            */
           window.location.href =
-            "./login.html";
+            "./login.html?dest=index.html";
 
         }
       );
