@@ -837,6 +837,38 @@
 
         ocultarAcceso();
 
+        /*
+         * Avisamos a la página que la autenticación
+         * de Google y la creación de la sesión CET34
+         * terminaron correctamente.
+         *
+         * menu.js utiliza este evento para enviar
+         * automáticamente al usuario a index.html
+         * cuando inició sesión desde el menú.
+         */
+        try {
+
+          window.dispatchEvent(
+            new CustomEvent(
+              "cet34-authenticated",
+              {
+                detail: {
+                  usuario: usuario,
+                  sesion: getSession()
+                }
+              }
+            )
+          );
+
+        } catch (error) {
+
+          console.warn(
+            "CET34 AUTH: no se pudo emitir el evento de autenticación.",
+            error
+          );
+
+        }
+
         return usuario;
 
       }
