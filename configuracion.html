@@ -863,7 +863,7 @@
 
     function poblarSecciones(){
       const opciones = [];
-      for(let i = 65; i <= 90; i++){
+      for(let i = 65; i <= 74; i++){
         opciones.push(String.fromCharCode(i));
       }
 
@@ -977,26 +977,217 @@
       });
     }
 
-    function renderEstudiantes(){
-      const q = normalizarTexto($("buscarEstudiante").value);
-      const grado = $("filtroGradoEst").value;
-      const seccion = normalizarTexto($("filtroSeccionEst").value);
+    function poblarSecciones(){
+      const opciones = [];
 
-      const filtrados = estado.estudiantes.filter(e => {
-        const okQ = !q ||
-          normalizarTexto(e.codigo).includes(q) ||
-          normalizarTexto(e.estudiante).includes(q);
+      // CET 34: secciones permitidas A-J.
+      for(let i = 65; i <= 74; i++){
+        opciones.push(String.fromCharCode(i));
+      }
 
-        const okG = !grado ||
-          normalizarTexto(e.grado) === normalizarTexto(grado);
+      ["filtroSeccionEst","filtroSeccionHorario","estSeccion"].forEach(id => {
+        const el = $(id);
+        if(!el) return;
 
-        const okS = !seccion ||
-          normalizarTexto(e.seccion) === seccion;
+        const valorActual = el.value;
 
-        return okQ && okG && okS;
+        if(id === "estSeccion"){
+          el.innerHTML =
+            '<option value="">Seleccionar…</option>' +
+            opciones.map(s => `<option value="${s}">${s}</option>`).join("");
+        }else{
+          el.innerHTML =
+            '<option value="">Todas</option>' +
+            opciones.map(s => `<option value="${s}">${s}</option>`).join("");
+        }
+
+        if([...el.options].some(o => o.value === valorActual)){
+          el.value = valorActual;
+        }
       });
+    }
 
-      const lista = ordenarEstudiantes(filtrados);
+    function textoEnMayusculas(valor){
+      return String(valor || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toUpperCase();
+    }
+
+    function armarNombreCompleto(){
+      const apellidos = textoEnMayusculas($("estApellidos").value);
+      const nombres = textoEnMayusculas($("estNombres").value);
+
+      return [apellidos, nombres]
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+    }
+
+    function separarNombreRegistrado(nombre){
+      const partes =
+        textoEnMayusculas(nombre)
+          .split(" ")
+          .filter(Boolean);
+
+      /*
+       * Para los registros existentes no podemos conocer con certeza
+       * cuáles son los apellidos. Separamos los dos primeros términos
+       * como apellidos para facilitar la edición.
+       */
+      if(partes.length >= 3){
+        return {
+          apellidos: partes.slice(0, 2).join(" "),
+          nombres: partes.slice(2).join(" ")
+        };
+      }
+
+      if(partes.length === 2){
+        return {
+          apellidos: partes[0],
+          nombres: partes[1]
+        };
+      }
+
+      return {
+        apellidos: partes.join(" "),
+        nombres: ""
+      };
+    }
+
+    function obtenerNumeroGrado(grado){
+      return Number(
+        String(grado || "").match(/\d+/)?.[0] || 0
+      );
+    }
+
+    function ordenarEstudiantes(lista){
+      const criterio =
+        $("ordenEstudiantes").value;
+
+      return [...lista].sort((a,b) => {
+        let resultado = 0;
+
+        if(criterio === "codigo"){
+          resultado =
+            String(a.codigo || "").localeCompare(
+              String(b.codigo || ""),
+              "es",
+              {
+                numeric:true,
+                sensitivity:"base"
+              }
+            );
+
+        } else if(criterio === "grado") {
+          resultado =
+            obtenerNumeroGrado(a.grado) -
+            obtenerNumeroGrado(b.grado);
+
+          if(resultado === 0){
+            resultado =
+              String(a.seccion || "").localeCompare(
+                String(b.seccion || ""),
+                "es",
+                {sensitivity:"base"}
+              );
+          }
+
+          if(resultado === 0){
+            resultado =
+              String(a.estudiante || "").localeCompare(
+                String(b.estudiante || ""),
+                "es",
+                {sensitivity:"base"}
+              );
+          }
+
+        } else if(criterio === "seccion") {
+          resultado =
+            String(a.seccion || "").localeCompare(
+              String(b.seccion || ""),
+              "es",
+              {sensitivity:"base"}
+            );
+
+          if(resultado === 0){
+            resultado =
+              obtenerNumeroGrado(a.grado) -
+              obtenerNumeroGrado(b.grado);
+          }
+
+          if(resultado === 0){
+            resultado =
+              String(a.estudiante || "").localeCompare(
+                String(b.estudiante || ""),
+                "es",
+                {sensitivity:"base"}
+              );
+          }
+
+        } else {
+          // Predeterminado: estudiante
+          resultado =
+            String(a.estudiante || "").localeCompare(
+              String(b.estudiante || ""),
+              "es",
+              {sensitivity:"base"}
+            );
+
+          if(resultado === 0){
+            resultado =
+              String(a.codigo || "").localeCompare(
+                String(b.codigo || ""),
+                "es",
+                {
+                  numeric:true,
+                  sensitivity:"base"
+                }
+              );
+          }
+        }
+
+        return resultado;
+      });
+    }
+
+    function renderEstudiantes(){
+      const q =
+        normalizarTexto(
+          $("buscarEstudiante").value
+        );
+
+      const grado =
+        $("filtroGradoEst").value;
+
+      const seccion =
+        normalizarTexto(
+          $("filtroSeccionEst").value
+        );
+
+      const filtrados =
+        estado.estudiantes.filter(e => {
+
+          const okQ =
+            !q ||
+            normalizarTexto(e.codigo).includes(q) ||
+            normalizarTexto(e.estudiante).includes(q);
+
+          const okG =
+            !grado ||
+            normalizarTexto(e.grado) ===
+            normalizarTexto(grado);
+
+          const okS =
+            !seccion ||
+            normalizarTexto(e.seccion) ===
+            seccion;
+
+          return okQ && okG && okS;
+        });
+
+      const lista =
+        ordenarEstudiantes(filtrados);
 
       $("contadorEstudiantes").textContent =
         `${lista.length} estudiante${lista.length === 1 ? "" : "s"} mostrado${lista.length === 1 ? "" : "s"} de ${estado.estudiantes.length}.`;
@@ -1007,82 +1198,144 @@
         return;
       }
 
-      $("tablaEstudiantes").innerHTML = lista.map(e => `
-        <tr>
-          <td><strong>${esc(e.codigo)}</strong></td>
-          <td style="text-transform:uppercase">${esc(e.estudiante)}</td>
-          <td>${esc(e.grado)}</td>
-          <td>${esc(e.seccion)}</td>
-          <td>
-            <button class="btn btn-secundario btn-pequeno"
-              onclick="editarEstudiante('${esc(e.codigo)}')">✏️ Editar</button>
-          </td>
-        </tr>
-      `).join("");
+      $("tablaEstudiantes").innerHTML =
+        lista.map(e => `
+          <tr>
+            <td><strong>${esc(e.codigo)}</strong></td>
+            <td>${esc(textoEnMayusculas(e.estudiante))}</td>
+            <td>${esc(e.grado)}</td>
+            <td>${esc(e.seccion)}</td>
+            <td>
+              <button
+                class="btn btn-secundario btn-pequeno"
+                onclick="editarEstudiante('${esc(e.codigo)}')">
+                ✏️ Editar
+              </button>
+            </td>
+          </tr>
+        `).join("");
     }
 
     function nuevoEstudiante(){
       $("formEstudiante").reset();
+
       $("estModo").value = "nuevo";
       $("estCodigo").value = "";
-      $("estCodigoVisible").value = "Se generará automáticamente";
-      $("tituloModalEstudiante").textContent = "Nuevo estudiante";
-      $("btnGuardarEstudiante").textContent = "Guardar estudiante";
+      $("estCodigoVisible").value =
+        "Se generará automáticamente";
+
+      $("tituloModalEstudiante").textContent =
+        "Nuevo estudiante";
+
+      $("btnGuardarEstudiante").textContent =
+        "Guardar estudiante";
+
       abrirModal("modalEstudiante");
-      setTimeout(() => $("estApellidos").focus(), 50);
+
+      setTimeout(
+        () => $("estApellidos").focus(),
+        50
+      );
     }
 
     function editarEstudiante(codigo){
-      const e = estado.estudiantes.find(
-        x => normalizarTexto(x.codigo) === normalizarTexto(codigo)
-      );
+      const e =
+        estado.estudiantes.find(
+          x =>
+            normalizarTexto(x.codigo) ===
+            normalizarTexto(codigo)
+        );
 
       if(!e) return;
 
-      const nombreSeparado = separarNombreRegistrado(e.estudiante);
+      const partes =
+        separarNombreRegistrado(e.estudiante);
 
       $("formEstudiante").reset();
+
       $("estModo").value = "editar";
       $("estCodigo").value = e.codigo;
       $("estCodigoVisible").value = e.codigo;
-      $("estApellidos").value = nombreSeparado.apellidos;
-      $("estNombres").value = nombreSeparado.nombres;
-      $("estGrado").value = e.grado;
-      $("estSeccion").value = e.seccion;
 
-      $("tituloModalEstudiante").textContent = "Editar estudiante";
-      $("btnGuardarEstudiante").textContent = "Guardar cambios";
+      $("estApellidos").value =
+        partes.apellidos;
+
+      $("estNombres").value =
+        partes.nombres;
+
+      $("estGrado").value =
+        e.grado;
+
+      $("estSeccion").value =
+        e.seccion;
+
+      $("tituloModalEstudiante").textContent =
+        "Editar estudiante";
+
+      $("btnGuardarEstudiante").textContent =
+        "Guardar cambios";
+
       abrirModal("modalEstudiante");
     }
 
     async function guardarEstudiante(ev){
       ev.preventDefault();
-      const btn = $("btnGuardarEstudiante");
+
+      const btn =
+        $("btnGuardarEstudiante");
+
       btn.disabled = true;
 
       try{
-        const nombreCompleto = armarNombreCompleto();
+        const apellidos =
+          textoEnMayusculas(
+            $("estApellidos").value
+          );
 
-        if(!nombreCompleto || nombreCompleto.split(" ").length < 3){
-          throw new Error("Ingresa los apellidos y los nombres completos del estudiante.");
+        const nombres =
+          textoEnMayusculas(
+            $("estNombres").value
+          );
+
+        if(!apellidos){
+          throw new Error(
+            "Debes ingresar los apellidos del estudiante."
+          );
         }
 
-        const modo = $("estModo").value;
+        if(!nombres){
+          throw new Error(
+            "Debes ingresar los nombres del estudiante."
+          );
+        }
+
+        const nombreCompleto =
+          armarNombreCompleto();
+
+        const modo =
+          $("estModo").value;
+
         let r;
 
         if(modo === "nuevo"){
-          r = await api("crearestudiante", {
-            nombre: nombreCompleto,
-            grado: $("estGrado").value,
-            seccion: $("estSeccion").value
-          });
+          r = await api(
+            "crearestudiante",
+            {
+              nombre: nombreCompleto,
+              grado: $("estGrado").value,
+              seccion: $("estSeccion").value
+            }
+          );
         }else{
-          r = await api("editarestudiante", {
-            codigo: $("estCodigo").value,
-            nombre: nombreCompleto,
-            grado: $("estGrado").value,
-            seccion: $("estSeccion").value
-          });
+          r = await api(
+            "editarestudiante",
+            {
+              codigo: $("estCodigo").value,
+              nombre: nombreCompleto,
+              grado: $("estGrado").value,
+              seccion: $("estSeccion").value
+            }
+          );
         }
 
         if(!r || r.exito !== true){
@@ -1094,17 +1347,24 @@
         }
 
         cerrarModal("modalEstudiante");
+
         mostrarToast(
-          r.mensaje || "Estudiante guardado correctamente.",
+          r.mensaje ||
+          "Estudiante guardado correctamente.",
           "ok"
         );
 
         await cargarEstudiantes();
 
       }catch(error){
-        if(error && error.message !== "AUTENTICACION_REQUERIDA"){
-          mostrarToast(error.message || "No fue posible guardar el estudiante.", "error");
-        }
+
+        mostrarToast(
+          error && error.message
+            ? error.message
+            : "No fue posible guardar el estudiante.",
+          "error"
+        );
+
       }finally{
         btn.disabled = false;
       }
@@ -1436,27 +1696,132 @@
       });
     }
 
-    async function iniciar(){
+    let configuracionInicializada = false;
+    let configuracionCargando = false;
+
+    function actualizarCabeceraUsuario(usuario){
+      $("usuarioNombre").textContent =
+        usuario && usuario.nombre
+          ? usuario.nombre
+          : "Verificando sesión…";
+
+      $("usuarioCorreo").textContent =
+        usuario && usuario.correo
+          ? usuario.correo
+          : "—";
+
+      $("usuarioRol").textContent =
+        usuario && usuario.rol
+          ? usuario.rol
+          : "—";
+    }
+
+    function mostrarCargaConfiguracion(){
+      $("tablaEstudiantes").innerHTML =
+        '<tr><td colspan="5" class="cargando">Cargando estudiantes…</td></tr>';
+
+      $("tablaHorarios").innerHTML =
+        '<tr><td colspan="7" class="cargando">Cargando horarios…</td></tr>';
+
+      $("tablaUsuarios").innerHTML =
+        '<tr><td colspan="6" class="cargando">Cargando usuarios…</td></tr>';
+    }
+
+    async function iniciarConfiguracion(){
+      if(configuracionCargando){
+        return;
+      }
+
+      configuracionCargando = true;
+
       try{
-        const usuario = await CET34Auth.requireAuth({
-          roles:["ADMINISTRADOR"]
-        });
+        const usuario =
+          await CET34Auth.requireAuth({
+            roles:["ADMINISTRADOR"]
+          });
 
-        $("usuarioNombre").textContent = usuario.nombre || "Administrador";
-        $("usuarioCorreo").textContent = usuario.correo || "";
-        $("usuarioRol").textContent = usuario.rol || "ADMINISTRADOR";
+        actualizarCabeceraUsuario(usuario);
 
-        poblarSecciones();
-        activarEventos();
+        if(!configuracionInicializada){
+          poblarSecciones();
+          activarEventos();
+          configuracionInicializada = true;
+        }
 
+        mostrarCargaConfiguracion();
+
+        /*
+         * Carga inicial y recarga completa:
+         * si el usuario acaba de cambiar de DOCENTE a ADMINISTRADOR,
+         * esta misma página vuelve a cargar los datos sin necesidad
+         * de F5.
+         */
         await Promise.all([
           cargarEstudiantes(),
           cargarHorarios(),
           cargarUsuarios()
         ]);
+
       }catch(error){
-        console.error("CET34 CONFIGURACIÓN:", error);
+
+        console.error(
+          "CET34 CONFIGURACIÓN:",
+          error
+        );
+
+        /*
+         * En ROL_NO_AUTORIZADO no mostramos otra pantalla propia:
+         * auth.js ya muestra su panel con las acciones para
+         * cambiar cuenta o volver al inicio.
+         */
+
+      }finally{
+        configuracionCargando = false;
       }
+    }
+
+    function escucharCambiosDeSesion(){
+
+      window.addEventListener(
+        "cet34:sesion-cambio",
+        function(evento){
+
+          const detalle =
+            evento && evento.detail
+              ? evento.detail
+              : {};
+
+          const usuario =
+            detalle.usuario ||
+            (
+              typeof CET34Auth.getUser === "function"
+                ? CET34Auth.getUser()
+                : null
+            );
+
+          actualizarCabeceraUsuario(
+            usuario
+          );
+
+          if(
+            usuario &&
+            normalizarTexto(usuario.rol) ===
+              "ADMINISTRADOR"
+          ){
+            /*
+             * Esto resuelve el caso:
+             * DOCENTE entra → cambia cuenta → ADMINISTRADOR
+             * → cargar datos automáticamente.
+             */
+            iniciarConfiguracion();
+          }
+        }
+      );
+    }
+
+    async function iniciar(){
+      escucharCambiosDeSesion();
+      await iniciarConfiguracion();
     }
 
     window.editarEstudiante = editarEstudiante;
