@@ -385,7 +385,7 @@
 
           if (usuario && usuario.rol) {
 
-            mostrarSesion(usuario);
+            irAlDestino();
 
             return;
           }
@@ -415,9 +415,7 @@
                 usuarioRecuperado.rol
               ) {
 
-                mostrarSesion(
-                  usuarioRecuperado
-                );
+                irAlDestino();
 
                 return;
               }
@@ -448,145 +446,243 @@
        * Cuando auth.js confirma la autenticación, vamos
        * directamente al registro de asistencia (index.html).
        */
-      btnIngresar.addEventListener(
-        "click",
-        async function () {
+      /*
+       * Destino solicitado por el usuario.
+       *
+       * Ejemplos:
+       *   login.html?dest=index.html
+       *   login.html?dest=reportes.html
+       *
+       * Solo permitimos páginas internas del sistema.
+       */
+      function obtenerDestino() {
 
-          if (
-            !window.CET34Auth ||
-            typeof CET34Auth.login !== "function"
-          ) {
+        const params =
+          new URLSearchParams(
+            window.location.search
+          );
 
-            texto.textContent =
-              "El sistema de autenticación todavía no está disponible. Intenta nuevamente.";
+        const destino =
+          params.get("dest");
 
-            return;
-          }
+        const permitidos = [
+          "index.html",
+          "reportes.html",
+          "seguimiento.html",
+          "justificaciones.html",
+          "configuracion.html"
+        ];
 
-          try {
+        return permitidos.includes(destino)
+          ? destino
+          : "index.html";
+      }
 
-            btnIngresar.disabled =
-              true;
 
-            icono.textContent =
-              "🔄";
+      const destinoLogin =
+        obtenerDestino();
 
-            titulo.textContent =
-              "Iniciando sesión...";
 
-            texto.textContent =
-              "Selecciona la cuenta de Google autorizada.";
+      function irAlDestino() {
 
-            let autenticado = false;
+        window.location.replace(
+          "./" + destinoLogin
+        );
 
-            const irAlRegistro =
-              function () {
+      }
 
-                if (autenticado) {
-                  return;
-                }
 
-                autenticado = true;
+      function comprobarSesionInicial() {
 
-                window.location.href =
-                  "./index.html";
-              };
+        const usuario =
+          obtenerUsuario();
 
-            window.addEventListener(
-              "cet34-authenticated",
-              irAlRegistro,
-              {
-                once: true
-              }
-            );
+        if (
+          usuario &&
+          usuario.rol
+        ) {
 
-            await CET34Auth.login(false);
+          /*
+           * Si ya existe una sesión, no mostramos
+           * "Sesión activa". El usuario vino aquí para
+           * acceder a una sección concreta.
+           */
+          irAlDestino();
 
-            /*
-             * En algunas cargas el evento puede llegar antes o
-             * después de que login() termine. Por eso verificamos
-             * también getUser() como respaldo.
-             */
-            const usuario =
-              obtenerUsuario();
+          return true;
+        }
+
+        return false;
+      }
+
+
+      /*
+       * Si el usuario ya estaba autenticado antes de
+       * llegar a login.html, se envía directamente
+       * al destino solicitado.
+       */
+      if (!comprobarSesionInicial()) {
+
+        btnIngresar.addEventListener(
+          "click",
+          async function () {
 
             if (
-              usuario &&
-              usuario.rol
+              !window.CET34Auth ||
+              typeof CET34Auth.login !== "function"
             ) {
 
-              irAlRegistro();
+              texto.textContent =
+                "El sistema de autenticación todavía no está disponible. Intenta nuevamente.";
 
               return;
             }
 
-            /*
-             * Último intento de recuperación breve.
-             */
-            setTimeout(
-              function () {
+            try {
 
-                const usuarioActual =
-                  obtenerUsuario();
+              btnIngresar.disabled =
+                true;
 
-                if (
-                  usuarioActual &&
-                  usuarioActual.rol
-                ) {
+              icono.textContent =
+                "🔄";
 
-                  irAlRegistro();
+              titulo.textContent =
+                "Iniciando sesión...";
 
-                } else if (!autenticado) {
+              texto.textContent =
+                "Selecciona la cuenta de Google autorizada.";
 
-                  btnIngresar.disabled =
-                    false;
+              let redirigido = false;
 
-                  icono.textContent =
-                    "⚠️";
+              const irAlDestinoUnaVez =
+                function () {
 
-                  titulo.textContent =
-                    "No se pudo confirmar la sesión";
+                  if (redirigido) {
+                    return;
+                  }
 
-                  texto.textContent =
-                    "Google terminó el proceso, pero CET 34 todavía no pudo confirmar la sesión. Intenta nuevamente.";
+                  const usuario =
+                    obtenerUsuario();
 
-                }
+                  if (
+                    usuario &&
+                    usuario.rol
+                  ) {
 
-              },
-              900
-            );
+                    redirigido = true;
 
-          } catch (error) {
+                    window.removeEventListener(
+                      "cet34-authenticated",
+                      irAlDestinoUnaVez
+                    );
 
-            console.error(
-              "CET34 LOGIN:",
-              error
-            );
+                    irAlDestino();
 
-            icono.textContent =
-              "⚠️";
+                  }
 
-            titulo.textContent =
-              "No se pudo iniciar sesión";
+                };
 
-            texto.textContent =
-              error && error.message
-                ? error.message
-                : "Ocurrió un problema al iniciar sesión con Google.";
+              window.addEventListener(
+                "cet34-authenticated",
+                irAlDestinoUnaVez
+              );
 
-            btnIngresar.disabled =
-              false;
+              /*
+               * login.html es la única página que llama
+               * directamente a Google.
+               */
+              await CET34Auth.login(false);
+
+              /*
+               * auth.js puede confirmar la sesión antes o
+               * después de resolver login(). La comprobamos
+               * varias veces sin mostrar "Sesión activa".
+               */
+              irAlDestinoUnaVez();
+
+              const interval =
+                setInterval(
+                  function () {
+
+                    if (redirigido) {
+
+                      clearInterval(interval);
+
+                      return;
+                    }
+
+                    irAlDestinoUnaVez();
+
+                  },
+                  250
+                );
+
+              setTimeout(
+                function () {
+
+                  clearInterval(interval);
+
+                  if (!redirigido) {
+
+                    btnIngresar.disabled =
+                      false;
+
+                    icono.textContent =
+                      "⚠️";
+
+                    titulo.textContent =
+                      "No se pudo confirmar la sesión";
+
+                    texto.textContent =
+                      "Google terminó el proceso, pero CET 34 todavía no pudo confirmar la sesión. Intenta nuevamente.";
+
+                  }
+
+                },
+                10000
+              );
+
+            } catch (error) {
+
+              console.error(
+                "CET34 LOGIN:",
+                error
+              );
+
+              icono.textContent =
+                "⚠️";
+
+              titulo.textContent =
+                "No se pudo iniciar sesión";
+
+              texto.textContent =
+                error && error.message
+                  ? error.message
+                  : "Ocurrió un problema al iniciar sesión con Google.";
+
+              btnIngresar.disabled =
+                false;
+
+            }
+
           }
-        }
-      );
+        );
 
+      } else {
+
+        /*
+         * Ya había sesión. Desactivamos el botón para evitar
+         * cualquier doble interacción durante la navegación.
+         */
+        btnIngresar.disabled = true;
+
+      }
 
       btnContinuar.addEventListener(
         "click",
         function () {
 
-          window.location.href =
-            "./index.html";
+          irAlDestino();
 
         }
       );
@@ -638,11 +734,12 @@
             const usuario =
               obtenerUsuario();
 
-            if (usuario && usuario.rol) {
+            if (
+              usuario &&
+              usuario.rol
+            ) {
 
-              mostrarSesion(
-                usuario
-              );
+              irAlDestino();
 
             } else {
 
@@ -670,4 +767,3 @@
 
 </body>
 </html>
-
