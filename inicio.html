@@ -1,1 +1,1671 @@
+<!DOCTYPE html>
+<html lang="es">
 
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <title>
+    CET 34 - Sistema de Asistencia
+  </title>
+
+
+  <!-- =====================================================
+       MENÚ COMÚN CET 34
+  ====================================================== -->
+
+  <!-- =====================================================
+       AUTENTICACIÓN COMÚN CET 34
+  ====================================================== -->
+  <script
+    src="https://stevenpq95.github.io/cet34-asistencia/auth.js">
+  </script>
+
+  <!-- =====================================================
+       MENÚ COMÚN CET 34
+  ====================================================== -->
+  <script
+    src="https://stevenpq95.github.io/cet34-asistencia/menu.js">
+  </script>
+
+
+  <style>
+
+    /* =====================================================
+       VARIABLES
+    ====================================================== */
+
+    * {
+      box-sizing: border-box;
+    }
+
+
+    :root {
+
+      --vino-900: #4a001d;
+      --vino-800: #620026;
+      --vino-700: #78002f;
+      --vino-600: #8d0038;
+
+      --vino-suave: #f9edf2;
+
+      --azul: #2563eb;
+      --azul-suave: #eff6ff;
+
+      --verde: #16a34a;
+      --verde-suave: #ecfdf3;
+
+      --morado: #6d1f5b;
+
+      --texto: #172033;
+      --texto-secundario: #64748b;
+
+      --fondo: #eef3f8;
+
+      --blanco: #ffffff;
+
+      --borde: #dbe4ef;
+
+      --sombra:
+        0 10px 28px rgba(15,23,42,.07);
+
+      --sombra-grande:
+        0 20px 50px rgba(15,23,42,.10);
+
+    }
+
+
+    /* =====================================================
+       BASE
+    ====================================================== */
+
+    html,
+    body {
+
+      width: 100%;
+
+      min-height: 100%;
+
+      margin: 0;
+
+      padding: 0;
+
+      overflow-x: hidden;
+
+    }
+
+
+    body {
+
+      background:
+        var(--fondo);
+
+      color:
+        var(--texto);
+
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    }
+
+
+    /* =====================================================
+       CONTENEDOR
+    ====================================================== */
+
+    .contenedor {
+
+      width:
+        min(
+          1180px,
+          calc(100% - 32px)
+        );
+
+      margin:
+        28px auto 60px;
+
+    }
+
+
+    /* =====================================================
+       HERO
+    ====================================================== */
+
+    .hero {
+
+      position: relative;
+
+      overflow: hidden;
+
+      border-radius: 26px;
+
+      padding:
+        52px 42px;
+
+      margin-bottom: 22px;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--vino-900),
+          var(--vino-700) 58%,
+          var(--vino-600)
+        );
+
+      color: #fff;
+
+      box-shadow:
+        var(--sombra-grande);
+
+    }
+
+
+    .hero::before {
+
+      content: "";
+
+      position: absolute;
+
+      width: 260px;
+      height: 260px;
+
+      right: -90px;
+      top: -110px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255,255,255,.08);
+
+    }
+
+
+    .hero::after {
+
+      content: "";
+
+      position: absolute;
+
+      width: 180px;
+      height: 180px;
+
+      left: 48%;
+      bottom: -130px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(255,255,255,.05);
+
+    }
+
+
+    .hero-contenido {
+
+      position: relative;
+
+      z-index: 2;
+
+      max-width: 780px;
+
+    }
+
+
+    .hero-etiqueta {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      gap: 7px;
+
+      padding:
+        7px 12px;
+
+      border:
+        1px solid
+        rgba(255,255,255,.18);
+
+      border-radius: 999px;
+
+      background:
+        rgba(255,255,255,.10);
+
+      font-size: 12px;
+
+      font-weight: 900;
+
+      letter-spacing: .6px;
+
+      margin-bottom: 17px;
+
+    }
+
+
+    .hero h1 {
+
+      margin: 0;
+
+      font-size:
+        clamp(
+          30px,
+          5vw,
+          48px
+        );
+
+      line-height: 1.08;
+
+      letter-spacing: -.9px;
+
+      font-weight: 900;
+
+    }
+
+
+    .hero-subtitulo {
+
+      margin:
+        15px 0 0;
+
+      max-width: 680px;
+
+      font-size:
+        clamp(
+          15px,
+          2vw,
+          18px
+        );
+
+      line-height: 1.6;
+
+      color:
+        rgba(255,255,255,.88);
+
+    }
+
+
+    /* =====================================================
+       BOTONES HERO
+    ====================================================== */
+
+    .hero-acciones {
+
+      display: flex;
+
+      flex-wrap: wrap;
+
+      gap: 10px;
+
+      margin-top: 25px;
+
+    }
+
+
+    .hero-boton {
+
+      display: inline-flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      min-height: 48px;
+
+      padding:
+        0 19px;
+
+      border-radius: 12px;
+
+      text-decoration: none;
+
+      font-size: 14px;
+
+      font-weight: 900;
+
+      transition:
+        transform .18s ease,
+        background .18s ease;
+
+    }
+
+
+    .hero-boton:hover {
+
+      transform:
+        translateY(-2px);
+
+    }
+
+
+    .hero-boton-principal {
+
+      background:
+        #fff;
+
+      color:
+        var(--vino-800);
+
+    }
+
+
+    .hero-boton-secundario {
+
+      border:
+        1px solid
+        rgba(255,255,255,.25);
+
+      background:
+        rgba(255,255,255,.09);
+
+      color:
+        #fff;
+
+    }
+
+
+    /* =====================================================
+       TARJETA INTRODUCCIÓN
+    ====================================================== */
+
+    .tarjeta {
+
+      background:
+        var(--blanco);
+
+      border:
+        1px solid
+        var(--borde);
+
+      border-radius:
+        22px;
+
+      padding:
+        28px;
+
+      margin-bottom:
+        20px;
+
+      box-shadow:
+        var(--sombra);
+
+    }
+
+
+    .titulo {
+
+      display: flex;
+
+      align-items: flex-start;
+
+      gap: 12px;
+
+      margin-bottom:
+        15px;
+
+    }
+
+
+    .titulo-icono {
+
+      width: 44px;
+      height: 44px;
+
+      flex:
+        0 0 44px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      border-radius: 13px;
+
+      background:
+        var(--vino-suave);
+
+      font-size: 22px;
+
+    }
+
+
+    .titulo h2 {
+
+      margin: 0;
+
+      font-size: 23px;
+
+      font-weight: 900;
+
+    }
+
+
+    .titulo p {
+
+      margin:
+        4px 0 0;
+
+      color:
+        var(--texto-secundario);
+
+      font-size: 13px;
+
+      line-height: 1.4;
+
+    }
+
+
+    .texto {
+
+      color:
+        #475569;
+
+      font-size:
+        15px;
+
+      line-height:
+        1.75;
+
+    }
+
+
+    .texto p {
+
+      margin:
+        0 0 12px;
+
+    }
+
+
+    .texto p:last-child {
+
+      margin-bottom: 0;
+
+    }
+
+
+    /* =====================================================
+       MISIÓN / VISIÓN
+    ====================================================== */
+
+    .grid-dos {
+
+      display:
+        grid;
+
+      grid-template-columns:
+        repeat(
+          2,
+          minmax(0,1fr)
+        );
+
+      gap:
+        20px;
+
+      margin-bottom:
+        20px;
+
+    }
+
+
+    .tarjeta-mv {
+
+      background:
+        #fff;
+
+      border:
+        1px solid
+        var(--borde);
+
+      border-radius:
+        22px;
+
+      padding:
+        26px;
+
+      box-shadow:
+        var(--sombra);
+
+    }
+
+
+    .tarjeta-mv-icono {
+
+      width: 48px;
+      height: 48px;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      border-radius: 14px;
+
+      margin-bottom: 15px;
+
+      font-size: 23px;
+
+    }
+
+
+    .icono-mision {
+
+      background:
+        var(--azul-suave);
+
+    }
+
+
+    .icono-vision {
+
+      background:
+        var(--verde-suave);
+
+    }
+
+
+    .tarjeta-mv h2 {
+
+      margin:
+        0 0 9px;
+
+      font-size:
+        21px;
+
+      font-weight:
+        900;
+
+    }
+
+
+    .tarjeta-mv p {
+
+      margin: 0;
+
+      color:
+        var(--texto-secundario);
+
+      font-size:
+        14px;
+
+      line-height:
+        1.7;
+
+    }
+
+
+    /* =====================================================
+       ¿CÓMO FUNCIONA?
+    ====================================================== */
+
+    .pasos {
+
+      display:
+        grid;
+
+      grid-template-columns:
+        repeat(
+          4,
+          minmax(0,1fr)
+        );
+
+      gap:
+        12px;
+
+      margin-top:
+        20px;
+
+    }
+
+
+    .paso {
+
+      position:
+        relative;
+
+      padding:
+        20px 16px;
+
+      border:
+        1px solid
+        var(--borde);
+
+      border-radius:
+        17px;
+
+      background:
+        #fbfdff;
+
+      text-align:
+        center;
+
+    }
+
+
+    .paso-numero {
+
+      width: 38px;
+      height: 38px;
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      margin:
+        0 auto 11px;
+
+      border-radius:
+        12px;
+
+      background:
+        var(--vino-suave);
+
+      color:
+        var(--vino-800);
+
+      font-size:
+        14px;
+
+      font-weight:
+        900;
+
+    }
+
+
+    .paso-icono {
+
+      font-size:
+        25px;
+
+      margin-bottom:
+        8px;
+
+    }
+
+
+    .paso h3 {
+
+      margin:
+        0 0 6px;
+
+      font-size:
+        15px;
+
+      font-weight:
+        900;
+
+    }
+
+
+    .paso p {
+
+      margin: 0;
+
+      color:
+        var(--texto-secundario);
+
+      font-size:
+        12px;
+
+      line-height:
+        1.5;
+
+    }
+
+
+    /* =====================================================
+       BENEFICIOS
+    ====================================================== */
+
+    .beneficios {
+
+      display:
+        grid;
+
+      grid-template-columns:
+        repeat(
+          3,
+          minmax(0,1fr)
+        );
+
+      gap:
+        12px;
+
+      margin-top:
+        18px;
+
+    }
+
+
+    .beneficio {
+
+      display:
+        flex;
+
+      align-items:
+        flex-start;
+
+      gap:
+        11px;
+
+      padding:
+        16px;
+
+      border:
+        1px solid
+        var(--borde);
+
+      border-radius:
+        15px;
+
+      background:
+        #fff;
+
+    }
+
+
+    .beneficio-icono {
+
+      width: 38px;
+      height: 38px;
+
+      flex:
+        0 0 38px;
+
+      display:
+        flex;
+
+      align-items:
+        center;
+
+      justify-content:
+        center;
+
+      border-radius:
+        11px;
+
+      background:
+        var(--azul-suave);
+
+      font-size:
+        18px;
+
+    }
+
+
+    .beneficio h3 {
+
+      margin:
+        0 0 3px;
+
+      font-size:
+        14px;
+
+      font-weight:
+        900;
+
+    }
+
+
+    .beneficio p {
+
+      margin: 0;
+
+      color:
+        var(--texto-secundario);
+
+      font-size:
+        11px;
+
+      line-height:
+        1.45;
+
+    }
+
+
+    /* =====================================================
+       PIE
+    ====================================================== */
+
+    .pie {
+
+      padding:
+        24px 15px 10px;
+
+      text-align:
+        center;
+
+      color:
+        var(--texto-secundario);
+
+      font-size:
+        12px;
+
+      line-height:
+        1.6;
+
+    }
+
+
+    .pie strong {
+
+      color:
+        var(--vino-800);
+
+    }
+
+
+    /* =====================================================
+       TABLET
+    ====================================================== */
+
+    @media (max-width: 900px) {
+
+      .pasos {
+
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0,1fr)
+          );
+
+      }
+
+
+      .beneficios {
+
+        grid-template-columns:
+          repeat(
+            2,
+            minmax(0,1fr)
+          );
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CELULAR
+    ====================================================== */
+
+    @media (max-width: 650px) {
+
+      .contenedor {
+
+        width:
+          calc(100% - 16px);
+
+        margin:
+          12px auto 35px;
+
+      }
+
+
+      .hero {
+
+        padding:
+          34px 22px;
+
+        border-radius:
+          20px;
+
+      }
+
+
+      .hero h1 {
+
+        font-size:
+          31px;
+
+      }
+
+
+      .hero-subtitulo {
+
+        font-size:
+          14px;
+
+        line-height:
+          1.55;
+
+      }
+
+
+      .hero-acciones {
+
+        display:
+          grid;
+
+        grid-template-columns:
+          1fr;
+
+      }
+
+
+      .hero-boton {
+
+        width:
+          100%;
+
+      }
+
+
+      .tarjeta {
+
+        padding:
+          20px 16px;
+
+        border-radius:
+          18px;
+
+      }
+
+
+      .titulo-icono {
+
+        width: 39px;
+        height: 39px;
+
+        flex-basis:
+          39px;
+
+        border-radius:
+          11px;
+
+        font-size:
+          19px;
+
+      }
+
+
+      .titulo h2 {
+
+        font-size:
+          19px;
+
+      }
+
+
+      .texto {
+
+        font-size:
+          14px;
+
+        line-height:
+          1.7;
+
+      }
+
+
+      .grid-dos {
+
+        grid-template-columns:
+          1fr;
+
+        gap:
+          12px;
+
+      }
+
+
+      .tarjeta-mv {
+
+        padding:
+          21px 17px;
+
+        border-radius:
+          18px;
+
+      }
+
+
+      .tarjeta-mv h2 {
+
+        font-size:
+          19px;
+
+      }
+
+
+      .pasos {
+
+        grid-template-columns:
+          1fr 1fr;
+
+        gap:
+          8px;
+
+      }
+
+
+      .paso {
+
+        padding:
+          17px 10px;
+
+      }
+
+
+      .paso h3 {
+
+        font-size:
+          13px;
+
+      }
+
+
+      .paso p {
+
+        font-size:
+          11px;
+
+      }
+
+
+      .beneficios {
+
+        grid-template-columns:
+          1fr;
+
+        gap:
+          8px;
+
+      }
+
+
+      .beneficio {
+
+        padding:
+          14px;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       CELULAR PEQUEÑO
+    ====================================================== */
+
+    @media (max-width: 380px) {
+
+      .contenedor {
+
+        width:
+          calc(100% - 12px);
+
+      }
+
+
+      .hero {
+
+        padding:
+          29px 17px;
+
+      }
+
+
+      .hero h1 {
+
+        font-size:
+          27px;
+
+      }
+
+
+      .pasos {
+
+        grid-template-columns:
+          1fr;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       ACCESIBILIDAD Y EXPERIENCIA
+    ====================================================== */
+
+    .hero-boton:focus-visible,
+    a:focus-visible {
+      outline: 3px solid rgba(37,99,235,.35);
+      outline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+      }
+
+      .hero-boton:hover {
+        transform: none;
+      }
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <!-- ===================================================
+       MENÚ COMÚN
+  ==================================================== -->
+
+  <cet34-menu></cet34-menu>
+
+
+  <main class="contenedor">
+
+
+    <!-- =================================================
+         HERO
+    ================================================== -->
+
+    <section class="hero">
+
+      <div class="hero-contenido">
+
+        <div class="hero-etiqueta">
+          🏫 CET 34 · SISTEMA DIGITAL
+        </div>
+
+
+        <h1>
+          Control de asistencia
+          <br>
+          inteligente
+        </h1>
+
+
+        <p class="hero-subtitulo">
+
+          Una plataforma digital diseñada para
+          facilitar el registro, seguimiento y
+          consulta de la asistencia de los
+          estudiantes del CET 34.
+
+        </p>
+
+
+        <div class="hero-acciones">
+
+          <a
+            href="./login.html"
+            class="hero-boton hero-boton-principal"
+            id="btnRegistroInicio"
+          >
+            📷 Ingresar al registro
+          </a>
+
+
+          <a
+            href="./login.html"
+            class="hero-boton hero-boton-secundario"
+            id="btnReportesInicio"
+          >
+            📊 Acceder a reportes
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         ¿QUÉ ES?
+    ================================================== -->
+
+    <section class="tarjeta">
+
+      <div class="titulo">
+
+        <div class="titulo-icono">
+          💡
+        </div>
+
+        <div>
+
+          <h2>
+            ¿Qué es este sistema?
+          </h2>
+
+          <p>
+            Una herramienta digital para mejorar
+            la gestión de la asistencia.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="texto">
+
+        <p>
+
+          El sistema de asistencia del
+          <strong>CET 34</strong>
+          permite registrar y consultar
+          la asistencia de los estudiantes
+          mediante herramientas digitales.
+
+        </p>
+
+
+        <p>
+
+          Su propósito es facilitar el trabajo
+          docente, reducir el registro manual
+          y disponer de información organizada
+          para realizar un mejor seguimiento
+          de la asistencia.
+
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         MISIÓN Y VISIÓN
+    ================================================== -->
+
+    <div class="grid-dos">
+
+
+      <section class="tarjeta-mv">
+
+        <div class="tarjeta-mv-icono icono-mision">
+          🎯
+        </div>
+
+        <h2>
+          Nuestra misión
+        </h2>
+
+        <p>
+
+          Facilitar una gestión de asistencia
+          organizada, eficiente y accesible,
+          utilizando herramientas digitales que
+          contribuyan al seguimiento oportuno
+          de los estudiantes.
+
+        </p>
+
+      </section>
+
+
+      <section class="tarjeta-mv">
+
+        <div class="tarjeta-mv-icono icono-vision">
+          👁️
+        </div>
+
+        <h2>
+          Nuestra visión
+        </h2>
+
+        <p>
+
+          Consolidar una gestión educativa
+          apoyada en soluciones digitales que
+          permitan disponer de información
+          clara y oportuna para acompañar
+          el proceso formativo de los estudiantes.
+
+        </p>
+
+      </section>
+
+    </div>
+
+
+    <!-- =================================================
+         ¿CÓMO FUNCIONA?
+    ================================================== -->
+
+    <section class="tarjeta">
+
+      <div class="titulo">
+
+        <div class="titulo-icono">
+          ⚙️
+        </div>
+
+        <div>
+
+          <h2>
+            ¿Cómo funciona?
+          </h2>
+
+          <p>
+            Un proceso sencillo para el control
+            diario de asistencia.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="pasos">
+
+
+        <div class="paso">
+
+          <div class="paso-numero">
+            01
+          </div>
+
+          <div class="paso-icono">
+            👤
+          </div>
+
+          <h3>
+            Identificación
+          </h3>
+
+          <p>
+            El estudiante es identificado
+            dentro del sistema.
+          </p>
+
+        </div>
+
+
+        <div class="paso">
+
+          <div class="paso-numero">
+            02
+          </div>
+
+          <div class="paso-icono">
+            📱
+          </div>
+
+          <h3>
+            Registro QR
+          </h3>
+
+          <p>
+            La asistencia se registra mediante
+            el código QR correspondiente.
+          </p>
+
+        </div>
+
+
+        <div class="paso">
+
+          <div class="paso-numero">
+            03
+          </div>
+
+          <div class="paso-icono">
+            📊
+          </div>
+
+          <h3>
+            Seguimiento
+          </h3>
+
+          <p>
+            Los registros permiten realizar
+            seguimiento de la asistencia.
+          </p>
+
+        </div>
+
+
+        <div class="paso">
+
+          <div class="paso-numero">
+            04
+          </div>
+
+          <div class="paso-icono">
+            📈
+          </div>
+
+          <h3>
+            Reportes
+          </h3>
+
+          <p>
+            La información puede consultarse
+            mediante reportes organizados.
+          </p>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         BENEFICIOS
+    ================================================== -->
+
+    <section class="tarjeta">
+
+      <div class="titulo">
+
+        <div class="titulo-icono">
+          ✨
+        </div>
+
+        <div>
+
+          <h2>
+            Beneficios del sistema
+          </h2>
+
+          <p>
+            Herramientas pensadas para facilitar
+            la gestión cotidiana.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="beneficios">
+
+
+        <div class="beneficio">
+
+          <div class="beneficio-icono">
+            ⚡
+          </div>
+
+          <div>
+
+            <h3>
+              Registro rápido
+            </h3>
+
+            <p>
+              Facilita el registro de asistencia
+              durante la jornada.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="beneficio">
+
+          <div class="beneficio-icono">
+            📊
+          </div>
+
+          <div>
+
+            <h3>
+              Información organizada
+            </h3>
+
+            <p>
+              Permite consultar los datos de
+              asistencia de forma estructurada.
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="beneficio">
+
+          <div class="beneficio-icono">
+            🔐
+          </div>
+
+          <div>
+
+            <h3>
+              Acceso controlado
+            </h3>
+
+            <p>
+              Las funciones de gestión utilizan
+              autenticación y autorización.
+            </p>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+    </section>
+
+
+    <!-- =================================================
+         PIE
+    ================================================== -->
+
+    <footer class="pie">
+
+      <strong>
+        CET 34
+      </strong>
+
+      · Sistema de Control de Asistencia Digital
+
+      <br>
+
+      Herramienta institucional para la gestión
+      y seguimiento de la asistencia.
+
+    </footer>
+
+
+  </main>
+
+
+  <script>
+    /*
+     * CET 34 · Accesos de la portada
+     *
+     * Si ya existe una sesión CET34, los accesos protegidos
+     * van directamente a su sección.
+     *
+     * Si no existe sesión, todos pasan primero por login.html.
+     */
+    (function () {
+      "use strict";
+
+      function configurarAccesos() {
+        const btnRegistro =
+          document.getElementById("btnRegistroInicio");
+
+        const btnReportes =
+          document.getElementById("btnReportesInicio");
+
+        let usuario = null;
+
+        try {
+          if (
+            window.CET34Auth &&
+            typeof CET34Auth.getUser === "function"
+          ) {
+            usuario = CET34Auth.getUser();
+          }
+        } catch (_) {
+          usuario = null;
+        }
+
+        if (usuario && usuario.rol) {
+          if (btnRegistro) {
+            btnRegistro.href = "./index.html";
+            btnRegistro.textContent = "📷 Ir al registro";
+          }
+
+          if (btnReportes) {
+            btnReportes.href = "./reportes.html";
+            btnReportes.textContent = "📊 Ver reportes";
+          }
+        } else {
+          if (btnRegistro) {
+            btnRegistro.href = "./login.html";
+            btnRegistro.textContent = "📷 Ingresar al registro";
+          }
+
+          if (btnReportes) {
+            btnReportes.href = "./login.html";
+            btnReportes.textContent = "📊 Acceder a reportes";
+          }
+        }
+      }
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        configurarAccesos
+      );
+
+      window.addEventListener(
+        "cet34:sesion-cambio",
+        configurarAccesos
+      );
+
+      setTimeout(configurarAccesos, 300);
+      setTimeout(configurarAccesos, 1000);
+    })();
+  </script>
+
+</body>
+
+</html>
