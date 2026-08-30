@@ -1213,7 +1213,7 @@
         <div class="hero-acciones">
 
           <a
-            href="./login.html"
+            href="./login.html?dest=index.html"
             class="hero-boton hero-boton-principal"
             id="btnRegistroInicio"
           >
@@ -1222,7 +1222,7 @@
 
 
           <a
-            href="./login.html"
+            href="./login.html?dest=reportes.html"
             class="hero-boton hero-boton-secundario"
             id="btnReportesInicio"
           >
@@ -1640,13 +1640,13 @@
           }
         } else {
           if (btnRegistro) {
-            btnRegistro.href = "./login.html";
+            btnRegistro.href = "./login.html?dest=index.html";
             btnRegistro.textContent = "📷 Ingresar al registro";
           }
 
           if (btnReportes) {
-            btnReportes.href = "./login.html";
-            btnReportes.textContent = "📊 Acceder a reportes";
+            btnReportes.href = "./login.html?dest=reportes.html";
+            btnReportes.textContent = "📊 Ver reportes";
           }
         }
       }
