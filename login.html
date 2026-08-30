@@ -1,1 +1,673 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CET 34 - Ingresar</title>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="./auth.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Arial, Helvetica, sans-serif;
+      background:
+        linear-gradient(
+          135deg,
+          #f8fafc,
+          #f1f5f9
+        );
+      color: #172033;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .contenedor {
+      width: min(440px, 100%);
+    }
+
+    .tarjeta {
+      background: #fff;
+      border: 1px solid #e2e8f0;
+      border-radius: 28px;
+      padding: 32px 24px;
+      text-align: center;
+      box-shadow:
+        0 22px 60px rgba(15, 23, 42, .12);
+    }
+
+    .insignia {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 1px solid #e2e8f0;
+      background: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .insignia img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 900;
+      color: #4a001d;
+    }
+
+    .subtitulo {
+      margin: 8px 0 0;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .estado {
+      margin-top: 24px;
+      padding: 16px;
+      border-radius: 18px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+    }
+
+    .estado-icono {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+
+    .estado-titulo {
+      font-size: 17px;
+      font-weight: 900;
+    }
+
+    .estado-texto {
+      margin-top: 6px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+      word-break: break-word;
+    }
+
+    .acciones {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    button,
+    .boton-enlace {
+      width: 100%;
+      min-height: 48px;
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 900;
+      cursor: pointer;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition:
+        transform .18s ease,
+        background .18s ease;
+    }
+
+    button:active,
+    .boton-enlace:active {
+      transform: scale(.98);
+    }
+
+    button:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
+    .boton-ingresar {
+      background: #78002f;
+      color: #fff;
+    }
+
+    .boton-ingresar:hover {
+      background: #620026;
+    }
+
+    .boton-salir {
+      background: #f1f5f9;
+      color: #172033;
+      border: 1px solid #e2e8f0;
+    }
+
+    .boton-salir:hover {
+      background: #e2e8f0;
+    }
+
+    .pie {
+      margin-top: 20px;
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    .oculto {
+      display: none !important;
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="contenedor">
+    <section class="tarjeta">
+
+      <div class="insignia">
+        <img
+          src="./insignia-izquierda.png"
+          alt="Insignia institucional CET 34"
+        >
+      </div>
+
+      <h1>CET 34</h1>
+
+      <div class="subtitulo">
+        Sistema de Control de Asistencia Digital
+      </div>
+
+      <div class="estado">
+        <div
+          class="estado-icono"
+          id="estadoIcono"
+        >
+          🔐
+        </div>
+
+        <div
+          class="estado-titulo"
+          id="estadoTitulo"
+        >
+          Acceso al sistema
+        </div>
+
+        <div
+          class="estado-texto"
+          id="estadoTexto"
+        >
+          Comprobando si ya existe una sesión en esta pestaña...
+        </div>
+      </div>
+
+      <div class="acciones">
+
+        <button
+          type="button"
+          class="boton-ingresar"
+          id="btnIngresar"
+        >
+          🔑 Ingresar con Google
+        </button>
+
+        <button
+          type="button"
+          class="boton-salir oculto"
+          id="btnCerrarSesion"
+        >
+          🚪 Cerrar sesión
+        </button>
+
+        <button
+          type="button"
+          class="boton-salir oculto"
+          id="btnContinuar"
+        >
+          📷 Continuar al registro
+        </button>
+
+        <a
+          class="boton-enlace boton-salir"
+          href="./inicio.html"
+        >
+          🏠 Volver al inicio
+        </a>
+
+      </div>
+
+      <div class="pie">
+        CET 34 · Control de Asistencia QR
+      </div>
+
+    </section>
+  </main>
+
+  <script>
+    (function () {
+
+      "use strict";
+
+      const icono =
+        document.getElementById("estadoIcono");
+
+      const titulo =
+        document.getElementById("estadoTitulo");
+
+      const texto =
+        document.getElementById("estadoTexto");
+
+      const btnIngresar =
+        document.getElementById("btnIngresar");
+
+      const btnCerrarSesion =
+        document.getElementById("btnCerrarSesion");
+
+      const btnContinuar =
+        document.getElementById("btnContinuar");
+
+
+      function mostrarSesion(usuario) {
+
+        icono.textContent =
+          "✅";
+
+        titulo.textContent =
+          "Sesión activa";
+
+        texto.textContent =
+          (
+            usuario.nombre ||
+            usuario.correo ||
+            "Usuario autenticado"
+          ) +
+          (
+            usuario.rol
+              ? " · " + usuario.rol
+              : ""
+          );
+
+        btnIngresar.classList.add(
+          "oculto"
+        );
+
+        btnCerrarSesion.classList.remove(
+          "oculto"
+        );
+
+        btnContinuar.classList.remove(
+          "oculto"
+        );
+      }
+
+
+      function mostrarSinSesion() {
+
+        icono.textContent =
+          "🔐";
+
+        titulo.textContent =
+          "Acceso al sistema";
+
+        texto.textContent =
+          "Inicia sesión con una cuenta de Google autorizada para utilizar las funciones del sistema.";
+
+        btnIngresar.classList.remove(
+          "oculto"
+        );
+
+        btnCerrarSesion.classList.add(
+          "oculto"
+        );
+
+        btnContinuar.classList.add(
+          "oculto"
+        );
+      }
+
+
+      function obtenerUsuario() {
+
+        try {
+
+          if (
+            window.CET34Auth &&
+            typeof CET34Auth.getUser === "function"
+          ) {
+
+            return CET34Auth.getUser();
+
+          }
+
+        } catch (_) {}
+
+        return null;
+      }
+
+
+      async function comprobarSesion() {
+
+        if (!window.CET34Auth) {
+
+          titulo.textContent =
+            "Cargando autenticación...";
+
+          texto.textContent =
+            "Esperando a que se cargue el sistema de autenticación.";
+
+          setTimeout(
+            comprobarSesion,
+            300
+          );
+
+          return;
+        }
+
+        try {
+
+          const usuario =
+            obtenerUsuario();
+
+          if (usuario && usuario.rol) {
+
+            mostrarSesion(usuario);
+
+            return;
+          }
+
+          /*
+           * requireAuth(false) aquí NO debe abrir Google.
+           * Solo comprobamos si auth.js ya recuperó una sesión.
+           */
+          if (
+            typeof CET34Auth.requireAuth === "function"
+          ) {
+
+            try {
+
+              const usuarioRecuperado =
+                await CET34Auth.requireAuth({
+                  roles: [
+                    "ADMINISTRADOR",
+                    "DOCENTE"
+                  ],
+                  mensaje:
+                    "Verificando tu sesión CET34..."
+                });
+
+              if (
+                usuarioRecuperado &&
+                usuarioRecuperado.rol
+              ) {
+
+                mostrarSesion(
+                  usuarioRecuperado
+                );
+
+                return;
+              }
+
+            } catch (_) {
+              // No hay sesión: se muestra la pantalla de ingreso.
+            }
+          }
+
+          mostrarSinSesion();
+
+        } catch (error) {
+
+          console.warn(
+            "CET34 LOGIN:",
+            error
+          );
+
+          mostrarSinSesion();
+        }
+      }
+
+
+      /*
+       * AUTENTICACIÓN
+       *
+       * login.html es la única página que abre Google.
+       * Cuando auth.js confirma la autenticación, vamos
+       * directamente al registro de asistencia (index.html).
+       */
+      btnIngresar.addEventListener(
+        "click",
+        async function () {
+
+          if (
+            !window.CET34Auth ||
+            typeof CET34Auth.login !== "function"
+          ) {
+
+            texto.textContent =
+              "El sistema de autenticación todavía no está disponible. Intenta nuevamente.";
+
+            return;
+          }
+
+          try {
+
+            btnIngresar.disabled =
+              true;
+
+            icono.textContent =
+              "🔄";
+
+            titulo.textContent =
+              "Iniciando sesión...";
+
+            texto.textContent =
+              "Selecciona la cuenta de Google autorizada.";
+
+            let autenticado = false;
+
+            const irAlRegistro =
+              function () {
+
+                if (autenticado) {
+                  return;
+                }
+
+                autenticado = true;
+
+                window.location.href =
+                  "./index.html";
+              };
+
+            window.addEventListener(
+              "cet34-authenticated",
+              irAlRegistro,
+              {
+                once: true
+              }
+            );
+
+            await CET34Auth.login(false);
+
+            /*
+             * En algunas cargas el evento puede llegar antes o
+             * después de que login() termine. Por eso verificamos
+             * también getUser() como respaldo.
+             */
+            const usuario =
+              obtenerUsuario();
+
+            if (
+              usuario &&
+              usuario.rol
+            ) {
+
+              irAlRegistro();
+
+              return;
+            }
+
+            /*
+             * Último intento de recuperación breve.
+             */
+            setTimeout(
+              function () {
+
+                const usuarioActual =
+                  obtenerUsuario();
+
+                if (
+                  usuarioActual &&
+                  usuarioActual.rol
+                ) {
+
+                  irAlRegistro();
+
+                } else if (!autenticado) {
+
+                  btnIngresar.disabled =
+                    false;
+
+                  icono.textContent =
+                    "⚠️";
+
+                  titulo.textContent =
+                    "No se pudo confirmar la sesión";
+
+                  texto.textContent =
+                    "Google terminó el proceso, pero CET 34 todavía no pudo confirmar la sesión. Intenta nuevamente.";
+
+                }
+
+              },
+              900
+            );
+
+          } catch (error) {
+
+            console.error(
+              "CET34 LOGIN:",
+              error
+            );
+
+            icono.textContent =
+              "⚠️";
+
+            titulo.textContent =
+              "No se pudo iniciar sesión";
+
+            texto.textContent =
+              error && error.message
+                ? error.message
+                : "Ocurrió un problema al iniciar sesión con Google.";
+
+            btnIngresar.disabled =
+              false;
+          }
+        }
+      );
+
+
+      btnContinuar.addEventListener(
+        "click",
+        function () {
+
+          window.location.href =
+            "./index.html";
+
+        }
+      );
+
+
+      btnCerrarSesion.addEventListener(
+        "click",
+        async function () {
+
+          if (
+            !window.CET34Auth
+          ) {
+            return;
+          }
+
+          try {
+
+            btnCerrarSesion.disabled =
+              true;
+
+            await CET34Auth.logout(
+              true
+            );
+
+          } catch (error) {
+
+            console.error(
+              "CET34 LOGOUT:",
+              error
+            );
+
+            btnCerrarSesion.disabled =
+              false;
+
+            mostrarSesion(
+              obtenerUsuario() || {}
+            );
+          }
+        }
+      );
+
+
+      window.addEventListener(
+        "cet34:sesion-cambio",
+        function () {
+
+          try {
+
+            const usuario =
+              obtenerUsuario();
+
+            if (usuario && usuario.rol) {
+
+              mostrarSesion(
+                usuario
+              );
+
+            } else {
+
+              mostrarSinSesion();
+
+            }
+
+          } catch (_) {
+
+            mostrarSinSesion();
+
+          }
+
+        }
+      );
+
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        comprobarSesion
+      );
+
+    })();
+  </script>
+
+</body>
+</html>
 
