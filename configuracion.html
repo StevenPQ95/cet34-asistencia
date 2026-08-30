@@ -1,1 +1,1298 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CET 34 - Configuración</title>
 
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="./auth.js"></script>
+  <script src="./menu.js"></script>
+
+  <style>
+    :root{
+      --vino:#78002f;
+      --vino-2:#8d0038;
+      --vino-3:#4a001d;
+      --vino-claro:#f9edf2;
+      --texto:#172033;
+      --texto-2:#64748b;
+      --borde:#e2e8f0;
+      --fondo:#f6f7fb;
+      --blanco:#fff;
+      --verde:#15803d;
+      --verde-bg:#ecfdf3;
+      --rojo:#b91c1c;
+      --rojo-bg:#fef2f2;
+      --azul:#1d4ed8;
+      --azul-bg:#eff6ff;
+      --sombra:0 12px 35px rgba(15,23,42,.09);
+      --radio:18px;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      background:var(--fondo);
+      color:var(--texto);
+      font-family:Arial,Helvetica,sans-serif;
+    }
+
+    .pagina{
+      width:min(1400px, calc(100% - 28px));
+      margin:24px auto 50px;
+    }
+
+    .cabecera-pagina{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:20px;
+      margin-bottom:20px;
+    }
+
+    .titulo h1{
+      margin:0 0 7px;
+      font-size:clamp(25px,3vw,34px);
+      color:var(--vino-3);
+    }
+
+    .titulo p{
+      margin:0;
+      color:var(--texto-2);
+      line-height:1.5;
+    }
+
+    .usuario-actual{
+      background:var(--blanco);
+      border:1px solid var(--borde);
+      border-radius:16px;
+      padding:12px 16px;
+      min-width:220px;
+      box-shadow:0 6px 20px rgba(15,23,42,.05);
+    }
+
+    .usuario-actual .rol{
+      display:inline-flex;
+      margin-top:5px;
+      padding:4px 9px;
+      border-radius:999px;
+      background:var(--vino-claro);
+      color:var(--vino);
+      font-weight:700;
+      font-size:12px;
+    }
+
+    .tabs{
+      display:flex;
+      gap:8px;
+      background:var(--blanco);
+      padding:8px;
+      border:1px solid var(--borde);
+      border-radius:18px;
+      box-shadow:var(--sombra);
+      margin-bottom:18px;
+      overflow:auto;
+    }
+
+    .tab{
+      border:0;
+      background:transparent;
+      color:var(--texto-2);
+      font-weight:700;
+      padding:12px 18px;
+      border-radius:12px;
+      cursor:pointer;
+      white-space:nowrap;
+      transition:.18s;
+    }
+
+    .tab:hover{background:#f8fafc}
+    .tab.activo{background:var(--vino);color:#fff}
+
+    .panel{
+      display:none;
+      background:var(--blanco);
+      border:1px solid var(--borde);
+      border-radius:var(--radio);
+      box-shadow:var(--sombra);
+      padding:20px;
+    }
+
+    .panel.activo{display:block}
+
+    .panel-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:15px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .panel-head h2{
+      margin:0 0 4px;
+      color:var(--vino-3);
+      font-size:22px;
+    }
+
+    .panel-head p{
+      margin:0;
+      color:var(--texto-2);
+      font-size:14px;
+    }
+
+    .acciones{
+      display:flex;
+      gap:9px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      font:inherit;
+    }
+
+    .btn{
+      border:0;
+      border-radius:11px;
+      padding:10px 14px;
+      cursor:pointer;
+      font-weight:700;
+      transition:.18s;
+    }
+
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .btn-principal{background:var(--vino);color:#fff}
+    .btn-principal:hover:not(:disabled){background:var(--vino-3)}
+    .btn-secundario{background:#f1f5f9;color:var(--texto)}
+    .btn-secundario:hover:not(:disabled){background:#e2e8f0}
+    .btn-peligro{background:var(--rojo-bg);color:var(--rojo)}
+    .btn-peligro:hover:not(:disabled){background:#fee2e2}
+    .btn-pequeno{padding:7px 10px;font-size:13px}
+
+    .filtros{
+      display:grid;
+      grid-template-columns:1.5fr .8fr .8fr auto;
+      gap:10px;
+      margin-bottom:16px;
+    }
+
+    .campo{
+      display:flex;
+      flex-direction:column;
+      gap:6px;
+    }
+
+    .campo label{
+      font-size:12px;
+      color:var(--texto-2);
+      font-weight:700;
+    }
+
+    input,select{
+      width:100%;
+      border:1px solid var(--borde);
+      border-radius:10px;
+      padding:10px 11px;
+      background:#fff;
+      color:var(--texto);
+      outline:none;
+      min-height:42px;
+    }
+
+    input:focus,select:focus{
+      border-color:var(--vino-2);
+      box-shadow:0 0 0 3px rgba(120,0,47,.08);
+    }
+
+    .tabla-wrap{
+      border:1px solid var(--borde);
+      border-radius:14px;
+      overflow:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+    }
+
+    th,td{
+      padding:11px 12px;
+      border-bottom:1px solid #edf0f4;
+      text-align:left;
+      font-size:14px;
+      vertical-align:middle;
+    }
+
+    th{
+      background:#f8fafc;
+      color:#475569;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.03em;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+
+    tr:last-child td{border-bottom:0}
+    tbody tr:hover{background:#fcfcfd}
+
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      border-radius:999px;
+      padding:5px 9px;
+      font-size:11px;
+      font-weight:800;
+    }
+
+    .badge-activo{background:var(--verde-bg);color:var(--verde)}
+    .badge-inactivo{background:var(--rojo-bg);color:var(--rojo)}
+    .badge-admin{background:#fff7ed;color:#c2410c}
+    .badge-docente{background:var(--azul-bg);color:var(--azul)}
+
+    .solo-lectura{
+      color:#92400e;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .seguridad{
+      margin:0 0 16px;
+      padding:13px 15px;
+      border-radius:13px;
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+      color:#9a3412;
+      line-height:1.45;
+      font-size:13px;
+    }
+
+    .vacio{
+      padding:35px 20px;
+      text-align:center;
+      color:var(--texto-2);
+    }
+
+    .cargando{
+      padding:28px;
+      text-align:center;
+      color:var(--texto-2);
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(15,23,42,.52);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:1000;
+    }
+
+    .modal-backdrop.visible{display:flex}
+
+    .modal{
+      width:min(560px,100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:20px;
+      box-shadow:0 30px 80px rgba(15,23,42,.25);
+    }
+
+    .modal-head{
+      padding:18px 20px;
+      border-bottom:1px solid var(--borde);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+    }
+
+    .modal-head h3{margin:0;color:var(--vino-3)}
+
+    .cerrar{
+      border:0;
+      background:#f1f5f9;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      cursor:pointer;
+      font-size:18px;
+    }
+
+    .modal-body{padding:20px}
+
+    .form-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:13px;
+    }
+
+    .span-2{grid-column:1/-1}
+
+    .modal-foot{
+      padding:14px 20px 20px;
+      display:flex;
+      justify-content:flex-end;
+      gap:9px;
+      border-top:1px solid #f1f5f9;
+    }
+
+    .info-box{
+      padding:11px 12px;
+      border-radius:10px;
+      background:#f8fafc;
+      border:1px solid var(--borde);
+      color:#475569;
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .toast{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      width:min(420px,calc(100% - 36px));
+      padding:14px 16px;
+      border-radius:14px;
+      color:#fff;
+      box-shadow:0 15px 40px rgba(15,23,42,.22);
+      transform:translateY(20px);
+      opacity:0;
+      pointer-events:none;
+      transition:.2s;
+      z-index:2000;
+      font-size:14px;
+      line-height:1.4;
+    }
+
+    .toast.visible{transform:translateY(0);opacity:1}
+    .toast.ok{background:#166534}
+    .toast.error{background:#991b1b}
+    .toast.info{background:#334155}
+
+    .contador{
+      color:var(--texto-2);
+      font-size:13px;
+      margin:10px 0;
+    }
+
+    @media(max-width:850px){
+      .cabecera-pagina{flex-direction:column}
+      .usuario-actual{width:100%}
+      .filtros{grid-template-columns:1fr 1fr}
+    }
+
+    @media(max-width:560px){
+      .pagina{width:min(100% - 16px,1400px);margin-top:15px}
+      .panel{padding:14px}
+      .filtros,.form-grid{grid-template-columns:1fr}
+      .span-2{grid-column:auto}
+      .acciones{width:100%}
+      .acciones .btn{flex:1}
+    }
+  </style>
+</head>
+
+<body>
+  <cet34-menu></cet34-menu>
+
+  <main class="pagina">
+    <section class="cabecera-pagina">
+      <div class="titulo">
+        <h1>⚙️ Configuración del sistema</h1>
+        <p>Administra estudiantes, horarios y usuarios de CET 34 desde una sola interfaz.</p>
+      </div>
+
+      <div class="usuario-actual">
+        <strong id="usuarioNombre">Verificando sesión…</strong><br>
+        <small id="usuarioCorreo">—</small><br>
+        <span class="rol" id="usuarioRol">—</span>
+      </div>
+    </section>
+
+    <nav class="tabs" aria-label="Módulos de configuración">
+      <button class="tab activo" data-panel="estudiantes">👨‍🎓 Estudiantes</button>
+      <button class="tab" data-panel="horarios">🕐 Horarios</button>
+      <button class="tab" data-panel="usuarios">👥 Usuarios</button>
+    </nav>
+
+    <!-- ================= ESTUDIANTES ================= -->
+    <section id="panel-estudiantes" class="panel activo">
+      <div class="panel-head">
+        <div>
+          <h2>👨‍🎓 Estudiantes</h2>
+          <p>Registra y actualiza estudiantes. El código es generado por el servidor.</p>
+        </div>
+        <div class="acciones">
+          <button class="btn btn-secundario" id="btnRecargarEstudiantes">↻ Actualizar</button>
+          <button class="btn btn-principal" id="btnNuevoEstudiante">＋ Nuevo estudiante</button>
+        </div>
+      </div>
+
+      <div class="filtros">
+        <div class="campo">
+          <label for="buscarEstudiante">Buscar</label>
+          <input id="buscarEstudiante" type="search" placeholder="Nombre o código…">
+        </div>
+        <div class="campo">
+          <label for="filtroGradoEst">Grado</label>
+          <select id="filtroGradoEst">
+            <option value="">Todos</option>
+            <option value="1°">1°</option><option value="2°">2°</option>
+            <option value="3°">3°</option><option value="4°">4°</option>
+            <option value="5°">5°</option><option value="6°">6°</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="filtroSeccionEst">Sección</label>
+          <input id="filtroSeccionEst" maxlength="3" placeholder="Ej. C">
+        </div>
+        <button class="btn btn-secundario" id="btnLimpiarFiltrosEst">Limpiar</button>
+      </div>
+
+      <div class="contador" id="contadorEstudiantes">—</div>
+
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Estudiante</th>
+              <th>Grado</th>
+              <th>Sección</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tablaEstudiantes">
+            <tr><td colspan="5" class="cargando">Cargando estudiantes…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= HORARIOS ================= -->
+    <section id="panel-horarios" class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>🕐 Horarios</h2>
+          <p>Configura ingreso, tolerancia y salida por día, grado y sección.</p>
+        </div>
+        <div class="acciones">
+          <button class="btn btn-secundario" id="btnRecargarHorarios">↻ Actualizar</button>
+          <button class="btn btn-principal" id="btnNuevoHorario">＋ Nuevo horario</button>
+        </div>
+      </div>
+
+      <div class="filtros">
+        <div class="campo">
+          <label for="filtroDiaHorario">Día</label>
+          <select id="filtroDiaHorario">
+            <option value="">Todos</option>
+            <option>LUNES</option><option>MARTES</option><option>MIÉRCOLES</option>
+            <option>JUEVES</option><option>VIERNES</option><option>SÁBADO</option><option>DOMINGO</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="filtroGradoHorario">Grado</label>
+          <select id="filtroGradoHorario">
+            <option value="">Todos</option>
+            <option value="1°">1°</option><option value="2°">2°</option>
+            <option value="3°">3°</option><option value="4°">4°</option>
+            <option value="5°">5°</option><option value="6°">6°</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="filtroSeccionHorario">Sección</label>
+          <input id="filtroSeccionHorario" maxlength="3" placeholder="Ej. C">
+        </div>
+        <button class="btn btn-secundario" id="btnLimpiarFiltrosHorario">Limpiar</button>
+      </div>
+
+      <div class="contador" id="contadorHorarios">—</div>
+
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Día</th>
+              <th>Grado</th>
+              <th>Sección</th>
+              <th>Ingreso</th>
+              <th>Tolerancia</th>
+              <th>Salida</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="tablaHorarios">
+            <tr><td colspan="7" class="cargando">Cargando horarios…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ================= USUARIOS ================= -->
+    <section id="panel-usuarios" class="panel">
+      <div class="panel-head">
+        <div>
+          <h2>👥 Usuarios</h2>
+          <p>Gestiona las cuentas que pueden ingresar al sistema.</p>
+        </div>
+        <div class="acciones">
+          <button class="btn btn-secundario" id="btnRecargarUsuarios">↻ Actualizar</button>
+          <button class="btn btn-principal" id="btnNuevoUsuario">＋ Nuevo docente</button>
+        </div>
+      </div>
+
+      <div class="seguridad">
+        🔐 <strong>Regla de seguridad:</strong> desde esta interfaz solo se pueden crear y editar usuarios
+        <strong>DOCENTE</strong>. Los usuarios <strong>ADMINISTRADOR</strong> aparecen como solo lectura y
+        deben gestionarse directamente desde la hoja <strong>USUARIOS</strong>.
+      </div>
+
+      <div class="filtros">
+        <div class="campo">
+          <label for="buscarUsuario">Buscar</label>
+          <input id="buscarUsuario" type="search" placeholder="Nombre o correo…">
+        </div>
+        <div></div><div></div>
+        <button class="btn btn-secundario" id="btnLimpiarFiltroUsuario">Limpiar</button>
+      </div>
+
+      <div class="contador" id="contadorUsuarios">—</div>
+
+      <div class="tabla-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nombre</th>
+              <th>Correo</th>
+              <th>Rol</th>
+              <th>Estado</th>
+              <th>Administración</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody id="tablaUsuarios">
+            <tr><td colspan="6" class="cargando">Cargando usuarios…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL ESTUDIANTE -->
+  <div class="modal-backdrop" id="modalEstudiante">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="tituloModalEstudiante">Nuevo estudiante</h3>
+        <button class="cerrar" data-close="modalEstudiante">×</button>
+      </div>
+      <form id="formEstudiante">
+        <div class="modal-body">
+          <input type="hidden" id="estModo" value="nuevo">
+          <input type="hidden" id="estCodigo">
+
+          <div class="form-grid">
+            <div class="campo span-2">
+              <label for="estNombre">Nombre completo</label>
+              <input id="estNombre" required minlength="3" autocomplete="off">
+            </div>
+
+            <div class="campo">
+              <label for="estGrado">Grado</label>
+              <select id="estGrado" required>
+                <option value="">Seleccionar…</option>
+                <option value="1°">1°</option><option value="2°">2°</option>
+                <option value="3°">3°</option><option value="4°">4°</option>
+                <option value="5°">5°</option><option value="6°">6°</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="estSeccion">Sección</label>
+              <input id="estSeccion" maxlength="3" required placeholder="Ej. C">
+            </div>
+
+            <div class="campo span-2">
+              <label for="estCodigoVisible">Código CET34</label>
+              <input id="estCodigoVisible" disabled placeholder="Se genera automáticamente">
+            </div>
+
+            <div class="info-box span-2">
+              El código del estudiante no puede ser escrito ni modificado desde la interfaz.
+              El servidor lo genera para evitar duplicados.
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-secundario" data-close="modalEstudiante">Cancelar</button>
+          <button type="submit" class="btn btn-principal" id="btnGuardarEstudiante">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL HORARIO -->
+  <div class="modal-backdrop" id="modalHorario">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="tituloModalHorario">Nuevo horario</h3>
+        <button class="cerrar" data-close="modalHorario">×</button>
+      </div>
+      <form id="formHorario">
+        <div class="modal-body">
+          <input type="hidden" id="horModo" value="nuevo">
+          <input type="hidden" id="horDiaAnterior">
+          <input type="hidden" id="horGradoAnterior">
+          <input type="hidden" id="horSeccionAnterior">
+
+          <div class="form-grid">
+            <div class="campo">
+              <label for="horDia">Día</label>
+              <select id="horDia" required>
+                <option value="">Seleccionar…</option>
+                <option>LUNES</option><option>MARTES</option><option>MIÉRCOLES</option>
+                <option>JUEVES</option><option>VIERNES</option><option>SÁBADO</option><option>DOMINGO</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="horGrado">Grado</label>
+              <select id="horGrado" required>
+                <option value="">Seleccionar…</option>
+                <option value="1°">1°</option><option value="2°">2°</option>
+                <option value="3°">3°</option><option value="4°">4°</option>
+                <option value="5°">5°</option><option value="6°">6°</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label for="horSeccion">Sección</label>
+              <input id="horSeccion" maxlength="3" required placeholder="Ej. C">
+            </div>
+
+            <div class="campo">
+              <label for="horTolerancia">Tolerancia (minutos)</label>
+              <input id="horTolerancia" type="number" min="0" max="180" value="10" required>
+            </div>
+
+            <div class="campo">
+              <label for="horIngreso">Hora de ingreso</label>
+              <input id="horIngreso" type="time" required>
+            </div>
+
+            <div class="campo">
+              <label for="horSalida">Hora de salida</label>
+              <input id="horSalida" type="time" required>
+            </div>
+
+            <div class="info-box span-2">
+              No se permiten dos horarios para la misma combinación <strong>DÍA + GRADO + SECCIÓN</strong>.
+              La hora de salida debe ser posterior al ingreso.
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-secundario" data-close="modalHorario">Cancelar</button>
+          <button type="submit" class="btn btn-principal" id="btnGuardarHorario">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL USUARIO -->
+  <div class="modal-backdrop" id="modalUsuario">
+    <div class="modal" role="dialog" aria-modal="true">
+      <div class="modal-head">
+        <h3 id="tituloModalUsuario">Nuevo docente</h3>
+        <button class="cerrar" data-close="modalUsuario">×</button>
+      </div>
+      <form id="formUsuario">
+        <div class="modal-body">
+          <input type="hidden" id="usrModo" value="nuevo">
+
+          <div class="form-grid">
+            <div class="campo span-2">
+              <label for="usrNombre">Nombre completo</label>
+              <input id="usrNombre" required minlength="3" autocomplete="off">
+            </div>
+
+            <div class="campo span-2">
+              <label for="usrCorreo">Correo electrónico</label>
+              <input id="usrCorreo" type="email" required autocomplete="off">
+            </div>
+
+            <div class="campo">
+              <label for="usrEstado">Estado</label>
+              <select id="usrEstado">
+                <option value="ACTIVO">ACTIVO</option>
+                <option value="INACTIVO">INACTIVO</option>
+              </select>
+            </div>
+
+            <div class="campo">
+              <label>Rol</label>
+              <input value="DOCENTE" disabled>
+            </div>
+
+            <div class="info-box span-2">
+              🛡️ El rol <strong>DOCENTE</strong> está fijado por el servidor.
+              No existe un control para crear o asignar ADMINISTRADOR desde esta página.
+            </div>
+          </div>
+        </div>
+        <div class="modal-foot">
+          <button type="button" class="btn btn-secundario" data-close="modalUsuario">Cancelar</button>
+          <button type="submit" class="btn btn-principal" id="btnGuardarUsuario">Guardar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    "use strict";
+
+    const estado = {
+      estudiantes: [],
+      horarios: [],
+      usuarios: []
+    };
+
+    const $ = id => document.getElementById(id);
+
+    function mostrarToast(mensaje, tipo="info"){
+      const t = $("toast");
+      t.textContent = mensaje;
+      t.className = "toast visible " + tipo;
+      clearTimeout(mostrarToast.timer);
+      mostrarToast.timer = setTimeout(() => t.classList.remove("visible"), 4200);
+    }
+
+    function abrirModal(id){
+      $(id).classList.add("visible");
+    }
+
+    function cerrarModal(id){
+      $(id).classList.remove("visible");
+    }
+
+    function esc(valor){
+      return String(valor ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
+    }
+
+    function normalizarTexto(texto){
+      return String(texto || "")
+        .trim()
+        .toUpperCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g,"");
+    }
+
+    async function api(action, parametros={}){
+      try{
+        return await CET34Auth.request(action, parametros);
+      }catch(error){
+        const msg = error && error.message ? error.message : String(error);
+        if(msg === "AUTENTICACION_REQUERIDA"){
+          mostrarToast("Tu sesión ha expirado. Vuelve a iniciar sesión.", "error");
+        }else{
+          mostrarToast(msg, "error");
+        }
+        throw error;
+      }
+    }
+
+    function cargarUsuario(){
+      const usuario = CET34Auth.getUser();
+      if(!usuario) return;
+
+      $("usuarioNombre").textContent = usuario.nombre || "Usuario";
+      $("usuarioCorreo").textContent = usuario.correo || "";
+      $("usuarioRol").textContent = usuario.rol || "";
+
+      if(normalizarTexto(usuario.rol) !== "ADMINISTRADOR"){
+        document.querySelectorAll(".btn-principal").forEach(b => b.disabled = true);
+        mostrarToast("Esta sección requiere rol ADMINISTRADOR.", "error");
+      }
+    }
+
+    async function cargarEstudiantes(){
+      $("tablaEstudiantes").innerHTML =
+        '<tr><td colspan="5" class="cargando">Cargando estudiantes…</td></tr>';
+
+      const r = await api("obtenerestudiantesconfiguracion", {});
+      estado.estudiantes = Array.isArray(r.estudiantes) ? r.estudiantes : [];
+      renderEstudiantes();
+    }
+
+    function renderEstudiantes(){
+      const q = normalizarTexto($("buscarEstudiante").value);
+      const grado = $("filtroGradoEst").value;
+      const seccion = normalizarTexto($("filtroSeccionEst").value);
+
+      const lista = estado.estudiantes.filter(e => {
+        const okQ = !q ||
+          normalizarTexto(e.codigo).includes(q) ||
+          normalizarTexto(e.estudiante).includes(q);
+        const okG = !grado || normalizarTexto(e.grado) === normalizarTexto(grado);
+        const okS = !seccion || normalizarTexto(e.seccion) === seccion;
+        return okQ && okG && okS;
+      });
+
+      $("contadorEstudiantes").textContent =
+        `${lista.length} estudiante${lista.length === 1 ? "" : "s"} mostrado${lista.length === 1 ? "" : "s"} de ${estado.estudiantes.length}.`;
+
+      if(!lista.length){
+        $("tablaEstudiantes").innerHTML =
+          '<tr><td colspan="5" class="vacio">No se encontraron estudiantes.</td></tr>';
+        return;
+      }
+
+      $("tablaEstudiantes").innerHTML = lista.map(e => `
+        <tr>
+          <td><strong>${esc(e.codigo)}</strong></td>
+          <td>${esc(e.estudiante)}</td>
+          <td>${esc(e.grado)}</td>
+          <td>${esc(e.seccion)}</td>
+          <td>
+            <button class="btn btn-secundario btn-pequeno"
+              onclick="editarEstudiante('${esc(e.codigo)}')">✏️ Editar</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function nuevoEstudiante(){
+      $("formEstudiante").reset();
+      $("estModo").value = "nuevo";
+      $("estCodigo").value = "";
+      $("estCodigoVisible").value = "Se generará automáticamente";
+      $("tituloModalEstudiante").textContent = "Nuevo estudiante";
+      $("btnGuardarEstudiante").textContent = "Guardar estudiante";
+      abrirModal("modalEstudiante");
+      setTimeout(() => $("estNombre").focus(), 50);
+    }
+
+    function editarEstudiante(codigo){
+      const e = estado.estudiantes.find(x => normalizarTexto(x.codigo) === normalizarTexto(codigo));
+      if(!e) return;
+
+      $("formEstudiante").reset();
+      $("estModo").value = "editar";
+      $("estCodigo").value = e.codigo;
+      $("estCodigoVisible").value = e.codigo;
+      $("estNombre").value = e.estudiante;
+      $("estGrado").value = e.grado;
+      $("estSeccion").value = e.seccion;
+      $("tituloModalEstudiante").textContent = "Editar estudiante";
+      $("btnGuardarEstudiante").textContent = "Guardar cambios";
+      abrirModal("modalEstudiante");
+    }
+
+    async function guardarEstudiante(ev){
+      ev.preventDefault();
+      const btn = $("btnGuardarEstudiante");
+      btn.disabled = true;
+
+      try{
+        const modo = $("estModo").value;
+        let r;
+
+        if(modo === "nuevo"){
+          r = await api("crearestudiante", {
+            nombre: $("estNombre").value.trim(),
+            grado: $("estGrado").value,
+            seccion: $("estSeccion").value.trim()
+          });
+        }else{
+          r = await api("editarestudiante", {
+            codigo: $("estCodigo").value,
+            nombre: $("estNombre").value.trim(),
+            grado: $("estGrado").value,
+            seccion: $("estSeccion").value.trim()
+          });
+        }
+
+        if(!r || r.exito !== true){
+          throw new Error(r && r.mensaje ? r.mensaje : "No fue posible guardar el estudiante.");
+        }
+
+        cerrarModal("modalEstudiante");
+        mostrarToast(r.mensaje || "Estudiante guardado correctamente.", "ok");
+        await cargarEstudiantes();
+      }catch(error){
+        // api() ya muestra el error.
+      }finally{
+        btn.disabled = false;
+      }
+    }
+
+    async function cargarHorarios(){
+      $("tablaHorarios").innerHTML =
+        '<tr><td colspan="7" class="cargando">Cargando horarios…</td></tr>';
+
+      const r = await api("obtenerhorariosconfiguracion", {});
+      estado.horarios = Array.isArray(r.horarios) ? r.horarios : [];
+      renderHorarios();
+    }
+
+    function renderHorarios(){
+      const dia = normalizarTexto($("filtroDiaHorario").value);
+      const grado = $("filtroGradoHorario").value;
+      const seccion = normalizarTexto($("filtroSeccionHorario").value);
+
+      const lista = estado.horarios.filter(h =>
+        (!dia || normalizarTexto(h.dia) === dia) &&
+        (!grado || normalizarTexto(h.grado) === normalizarTexto(grado)) &&
+        (!seccion || normalizarTexto(h.seccion) === seccion)
+      );
+
+      $("contadorHorarios").textContent =
+        `${lista.length} horario${lista.length === 1 ? "" : "s"} mostrado${lista.length === 1 ? "" : "s"} de ${estado.horarios.length}.`;
+
+      if(!lista.length){
+        $("tablaHorarios").innerHTML =
+          '<tr><td colspan="7" class="vacio">No se encontraron horarios.</td></tr>';
+        return;
+      }
+
+      $("tablaHorarios").innerHTML = lista.map((h,i) => `
+        <tr>
+          <td>${esc(h.dia)}</td>
+          <td>${esc(h.grado)}</td>
+          <td>${esc(h.seccion)}</td>
+          <td><strong>${esc(h.horaIngreso)}</strong></td>
+          <td>${esc(h.tolerancia)} min</td>
+          <td><strong>${esc(h.horaSalida)}</strong></td>
+          <td>
+            <button class="btn btn-secundario btn-pequeno"
+              onclick="editarHorario(${estado.horarios.indexOf(h)})">✏️</button>
+            <button class="btn btn-peligro btn-pequeno"
+              onclick="eliminarHorario(${estado.horarios.indexOf(h)})">🗑️</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function nuevoHorario(){
+      $("formHorario").reset();
+      $("horModo").value = "nuevo";
+      $("horDiaAnterior").value = "";
+      $("horGradoAnterior").value = "";
+      $("horSeccionAnterior").value = "";
+      $("horTolerancia").value = 10;
+      $("tituloModalHorario").textContent = "Nuevo horario";
+      $("btnGuardarHorario").textContent = "Guardar horario";
+      abrirModal("modalHorario");
+    }
+
+    function editarHorario(index){
+      const h = estado.horarios[index];
+      if(!h) return;
+
+      $("horModo").value = "editar";
+      $("horDiaAnterior").value = h.dia;
+      $("horGradoAnterior").value = h.grado;
+      $("horSeccionAnterior").value = h.seccion;
+
+      $("horDia").value = h.dia;
+      $("horGrado").value = h.grado;
+      $("horSeccion").value = h.seccion;
+      $("horIngreso").value = String(h.horaIngreso || "").slice(0,5);
+      $("horSalida").value = String(h.horaSalida || "").slice(0,5);
+      $("horTolerancia").value = Number(h.tolerancia) || 0;
+
+      $("tituloModalHorario").textContent = "Editar horario";
+      $("btnGuardarHorario").textContent = "Guardar cambios";
+      abrirModal("modalHorario");
+    }
+
+    async function guardarHorario(ev){
+      ev.preventDefault();
+      const btn = $("btnGuardarHorario");
+      btn.disabled = true;
+
+      try{
+        const modo = $("horModo").value;
+        const datos = {
+          dia: $("horDia").value,
+          grado: $("horGrado").value,
+          seccion: $("horSeccion").value.trim(),
+          horaIngreso: $("horIngreso").value,
+          horaSalida: $("horSalida").value,
+          tolerancia: Number($("horTolerancia").value)
+        };
+
+        if(modo === "editar"){
+          datos.diaAnterior = $("horDiaAnterior").value;
+          datos.gradoAnterior = $("horGradoAnterior").value;
+          datos.seccionAnterior = $("horSeccionAnterior").value;
+        }
+
+        const r = await api(modo === "nuevo" ? "crearhorario" : "editarhorario", datos);
+
+        if(!r || r.exito !== true){
+          throw new Error(r && r.mensaje ? r.mensaje : "No fue posible guardar el horario.");
+        }
+
+        cerrarModal("modalHorario");
+        mostrarToast(r.mensaje || "Horario guardado correctamente.", "ok");
+        await cargarHorarios();
+      }catch(error){
+      }finally{
+        btn.disabled = false;
+      }
+    }
+
+    async function eliminarHorario(index){
+      const h = estado.horarios[index];
+      if(!h) return;
+
+      const texto = `${h.dia} / ${h.grado} / ${h.seccion}`;
+      if(!confirm(`¿Eliminar el horario ${texto}?\n\nEsta acción no se puede deshacer.`)) return;
+
+      try{
+        const r = await api("eliminarhorario", {
+          dia: h.dia,
+          grado: h.grado,
+          seccion: h.seccion
+        });
+
+        if(!r || r.exito !== true){
+          throw new Error(r && r.mensaje ? r.mensaje : "No fue posible eliminar el horario.");
+        }
+
+        mostrarToast(r.mensaje || "Horario eliminado correctamente.", "ok");
+        await cargarHorarios();
+      }catch(error){}
+    }
+
+    async function cargarUsuarios(){
+      $("tablaUsuarios").innerHTML =
+        '<tr><td colspan="6" class="cargando">Cargando usuarios…</td></tr>';
+
+      const r = await api("obtenerusuariosconfiguracion", {});
+      estado.usuarios = Array.isArray(r.usuarios) ? r.usuarios : [];
+      renderUsuarios();
+    }
+
+    function renderUsuarios(){
+      const q = normalizarTexto($("buscarUsuario").value);
+
+      const lista = estado.usuarios.filter(u =>
+        !q ||
+        normalizarTexto(u.nombre).includes(q) ||
+        normalizarTexto(u.correo).includes(q)
+      );
+
+      $("contadorUsuarios").textContent =
+        `${lista.length} usuario${lista.length === 1 ? "" : "s"} mostrado${lista.length === 1 ? "" : "s"} de ${estado.usuarios.length}.`;
+
+      if(!lista.length){
+        $("tablaUsuarios").innerHTML =
+          '<tr><td colspan="6" class="vacio">No se encontraron usuarios.</td></tr>';
+        return;
+      }
+
+      $("tablaUsuarios").innerHTML = lista.map((u,i) => {
+        const esAdmin = normalizarTexto(u.rol) === "ADMINISTRADOR";
+        return `
+          <tr>
+            <td><strong>${esc(u.nombre)}</strong></td>
+            <td>${esc(u.correo)}</td>
+            <td>
+              <span class="badge ${esAdmin ? "badge-admin" : "badge-docente"}">
+                ${esc(u.rol)}
+              </span>
+            </td>
+            <td>
+              <span class="badge ${normalizarTexto(u.estado)==="ACTIVO" ? "badge-activo" : "badge-inactivo"}">
+                ${esc(u.estado)}
+              </span>
+            </td>
+            <td>
+              ${esAdmin
+                ? '<span class="solo-lectura">🔒 Solo hoja USUARIOS</span>'
+                : '<span class="solo-lectura" style="color:#166534">✓ Configuración</span>'}
+            </td>
+            <td>
+              ${esAdmin
+                ? '<button class="btn btn-secundario btn-pequeno" disabled>🔒 Bloqueado</button>'
+                : `<button class="btn btn-secundario btn-pequeno"
+                    onclick="editarUsuario(${estado.usuarios.indexOf(u)})">✏️ Editar</button>`}
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function nuevoUsuario(){
+      $("formUsuario").reset();
+      $("usrModo").value = "nuevo";
+      $("usrCorreo").disabled = false;
+      $("tituloModalUsuario").textContent = "Nuevo docente";
+      $("btnGuardarUsuario").textContent = "Crear docente";
+      $("usrEstado").value = "ACTIVO";
+      abrirModal("modalUsuario");
+    }
+
+    function editarUsuario(index){
+      const u = estado.usuarios[index];
+      if(!u) return;
+
+      if(normalizarTexto(u.rol) === "ADMINISTRADOR"){
+        mostrarToast("Los administradores solo se gestionan desde la hoja USUARIOS.", "error");
+        return;
+      }
+
+      $("usrModo").value = "editar";
+      $("usrNombre").value = u.nombre;
+      $("usrCorreo").value = u.correo;
+      $("usrCorreo").disabled = true;
+      $("usrEstado").value = u.estado === "INACTIVO" ? "INACTIVO" : "ACTIVO";
+      $("tituloModalUsuario").textContent = "Editar docente";
+      $("btnGuardarUsuario").textContent = "Guardar cambios";
+      abrirModal("modalUsuario");
+    }
+
+    async function guardarUsuario(ev){
+      ev.preventDefault();
+      const btn = $("btnGuardarUsuario");
+      btn.disabled = true;
+
+      try{
+        const modo = $("usrModo").value;
+        const datos = {
+          correo: $("usrCorreo").value.trim(),
+          nombre: $("usrNombre").value.trim(),
+          estado: $("usrEstado").value
+        };
+
+        const r = await api(modo === "nuevo" ? "crearusuario" : "editarusuario", datos);
+
+        if(!r || r.exito !== true){
+          throw new Error(r && r.mensaje ? r.mensaje : "No fue posible guardar el usuario.");
+        }
+
+        cerrarModal("modalUsuario");
+        mostrarToast(r.mensaje || "Usuario guardado correctamente.", "ok");
+        await cargarUsuarios();
+      }catch(error){
+      }finally{
+        btn.disabled = false;
+      }
+    }
+
+    function activarTabs(){
+      document.querySelectorAll(".tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+          document.querySelectorAll(".tab").forEach(t => t.classList.remove("activo"));
+          document.querySelectorAll(".panel").forEach(p => p.classList.remove("activo"));
+
+          tab.classList.add("activo");
+          $("panel-" + tab.dataset.panel).classList.add("activo");
+        });
+      });
+    }
+
+    function activarEventos(){
+      activarTabs();
+
+      $("btnNuevoEstudiante").addEventListener("click", nuevoEstudiante);
+      $("btnRecargarEstudiantes").addEventListener("click", cargarEstudiantes);
+      $("buscarEstudiante").addEventListener("input", renderEstudiantes);
+      $("filtroGradoEst").addEventListener("change", renderEstudiantes);
+      $("filtroSeccionEst").addEventListener("input", renderEstudiantes);
+      $("btnLimpiarFiltrosEst").addEventListener("click", () => {
+        $("buscarEstudiante").value = "";
+        $("filtroGradoEst").value = "";
+        $("filtroSeccionEst").value = "";
+        renderEstudiantes();
+      });
+      $("formEstudiante").addEventListener("submit", guardarEstudiante);
+
+      $("btnNuevoHorario").addEventListener("click", nuevoHorario);
+      $("btnRecargarHorarios").addEventListener("click", cargarHorarios);
+      $("filtroDiaHorario").addEventListener("change", renderHorarios);
+      $("filtroGradoHorario").addEventListener("change", renderHorarios);
+      $("filtroSeccionHorario").addEventListener("input", renderHorarios);
+      $("btnLimpiarFiltrosHorario").addEventListener("click", () => {
+        $("filtroDiaHorario").value = "";
+        $("filtroGradoHorario").value = "";
+        $("filtroSeccionHorario").value = "";
+        renderHorarios();
+      });
+      $("formHorario").addEventListener("submit", guardarHorario);
+
+      $("btnNuevoUsuario").addEventListener("click", nuevoUsuario);
+      $("btnRecargarUsuarios").addEventListener("click", cargarUsuarios);
+      $("buscarUsuario").addEventListener("input", renderUsuarios);
+      $("btnLimpiarFiltroUsuario").addEventListener("click", () => {
+        $("buscarUsuario").value = "";
+        renderUsuarios();
+      });
+      $("formUsuario").addEventListener("submit", guardarUsuario);
+
+      document.querySelectorAll("[data-close]").forEach(btn => {
+        btn.addEventListener("click", () => cerrarModal(btn.dataset.close));
+      });
+
+      document.querySelectorAll(".modal-backdrop").forEach(backdrop => {
+        backdrop.addEventListener("click", e => {
+          if(e.target === backdrop) cerrarModal(backdrop.id);
+        });
+      });
+
+      document.addEventListener("keydown", e => {
+        if(e.key === "Escape"){
+          document.querySelectorAll(".modal-backdrop.visible")
+            .forEach(m => cerrarModal(m.id));
+        }
+      });
+    }
+
+    async function iniciar(){
+      try{
+        const usuario = await CET34Auth.requireAuth({
+          roles:["ADMINISTRADOR"]
+        });
+
+        $("usuarioNombre").textContent = usuario.nombre || "Administrador";
+        $("usuarioCorreo").textContent = usuario.correo || "";
+        $("usuarioRol").textContent = usuario.rol || "ADMINISTRADOR";
+
+        activarEventos();
+
+        await Promise.all([
+          cargarEstudiantes(),
+          cargarHorarios(),
+          cargarUsuarios()
+        ]);
+      }catch(error){
+        console.error("CET34 CONFIGURACIÓN:", error);
+      }
+    }
+
+    window.editarEstudiante = editarEstudiante;
+    window.editarHorario = editarHorario;
+    window.eliminarHorario = eliminarHorario;
+    window.editarUsuario = editarUsuario;
+
+    document.addEventListener("DOMContentLoaded", iniciar);
+  </script>
+</body>
+</html>
