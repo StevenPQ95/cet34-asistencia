@@ -1691,64 +1691,23 @@
           this.cerrar();
 
           /*
-           * Desde el menú, "Ingresar" inicia directamente
-           * el proceso de autenticación. Cuando auth.js
-           * confirme que la sesión CET34 fue creada,
-           * vamos automáticamente al registro de asistencia.
+           * IMPORTANTE:
+           * menu.js ya NO intenta iniciar Google directamente.
+           *
+           * login.html es ahora la única puerta de autenticación.
+           * Esto evita los problemas de disponibilidad de Google
+           * Identity Services que aparecían al abrir el acceso desde
+           * inicio.html o desde el menú.
+           *
+           * login.html, después de autenticar correctamente,
+           * envía al usuario a index.html.
            */
-          const irAlRegistro =
-            () => {
-
-              window.location.href =
-                "./index.html";
-
-            };
-
-          window.addEventListener(
-            "cet34-authenticated",
-            irAlRegistro,
-            {
-              once: true
-            }
-          );
-
-          if (
-            window.CET34Auth &&
-            typeof CET34Auth.login === "function"
-          ) {
-
-            CET34Auth
-              .login(false)
-              .catch(
-                error => {
-
-                  window.removeEventListener(
-                    "cet34-authenticated",
-                    irAlRegistro
-                  );
-
-                  console.warn(
-                    "CET34 MENÚ: no se pudo iniciar sesión.",
-                    error
-                  );
-
-                }
-              );
-
-          } else {
-
-            window.removeEventListener(
-              "cet34-authenticated",
-              irAlRegistro
-            );
-
-            window.location.href =
-              "./login.html";
-
-          }
+          window.location.href =
+            "./login.html";
 
         }
       );
+
 
       logoutBtn.addEventListener(
         "click",
