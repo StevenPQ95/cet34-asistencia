@@ -1213,18 +1213,20 @@
         <div class="hero-acciones">
 
           <a
-            href="./index.html"
+            href="./login.html"
             class="hero-boton hero-boton-principal"
+            id="btnRegistroInicio"
           >
-            📷 Ir al registro
+            📷 Ingresar al registro
           </a>
 
 
           <a
-            href="./reportes.html"
+            href="./login.html"
             class="hero-boton hero-boton-secundario"
+            id="btnReportesInicio"
           >
-            📊 Ver reportes
+            📊 Acceder a reportes
           </a>
 
         </div>
@@ -1593,6 +1595,76 @@
 
   </main>
 
+
+  <script>
+    /*
+     * CET 34 · Accesos de la portada
+     *
+     * Si ya existe una sesión CET34, los accesos protegidos
+     * van directamente a su sección.
+     *
+     * Si no existe sesión, todos pasan primero por login.html.
+     */
+    (function () {
+      "use strict";
+
+      function configurarAccesos() {
+        const btnRegistro =
+          document.getElementById("btnRegistroInicio");
+
+        const btnReportes =
+          document.getElementById("btnReportesInicio");
+
+        let usuario = null;
+
+        try {
+          if (
+            window.CET34Auth &&
+            typeof CET34Auth.getUser === "function"
+          ) {
+            usuario = CET34Auth.getUser();
+          }
+        } catch (_) {
+          usuario = null;
+        }
+
+        if (usuario && usuario.rol) {
+          if (btnRegistro) {
+            btnRegistro.href = "./index.html";
+            btnRegistro.textContent = "📷 Ir al registro";
+          }
+
+          if (btnReportes) {
+            btnReportes.href = "./reportes.html";
+            btnReportes.textContent = "📊 Ver reportes";
+          }
+        } else {
+          if (btnRegistro) {
+            btnRegistro.href = "./login.html";
+            btnRegistro.textContent = "📷 Ingresar al registro";
+          }
+
+          if (btnReportes) {
+            btnReportes.href = "./login.html";
+            btnReportes.textContent = "📊 Acceder a reportes";
+          }
+        }
+      }
+
+      document.addEventListener(
+        "DOMContentLoaded",
+        configurarAccesos
+      );
+
+      window.addEventListener(
+        "cet34:sesion-cambio",
+        configurarAccesos
+      );
+
+      setTimeout(configurarAccesos, 300);
+      setTimeout(configurarAccesos, 1000);
+    })();
+  </script>
 
 </body>
 
