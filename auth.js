@@ -411,45 +411,6 @@
   }
 
 
-  function notificarCambioSesion_() {
-
-    try {
-
-      window.dispatchEvent(
-        new CustomEvent(
-          "cet34:sesion-cambio",
-          {
-            detail: {
-              usuario:
-                usuario
-                  ? Object.assign({}, usuario)
-                  : null,
-              sesionActiva:
-                Boolean(
-                  sesion &&
-                  usuario &&
-                  !sesionExpiradaLocal_()
-                )
-            }
-          }
-        )
-      );
-
-    } catch (_) {
-
-      // Compatibilidad con navegadores que no permitan
-      // construir CustomEvent de esta forma.
-      try {
-        window.dispatchEvent(
-          new Event("cet34:sesion-cambio")
-        );
-      } catch (_) {}
-
-    }
-
-  }
-
-
   function limpiarSesionLocal_() {
 
     limpiarTemporizadorSesion_();
@@ -463,10 +424,6 @@
         SESSION_STORAGE_KEY
       );
     } catch (_) {}
-
-    // Avisamos inmediatamente al menú y a cualquier página
-    // que necesite reflejar el cierre/expiración de sesión.
-    notificarCambioSesion_();
 
   }
 
@@ -517,9 +474,6 @@
     }
 
     programarExpiracionSesion_();
-
-    // El menú y login.html reciben inmediatamente el nuevo estado.
-    notificarCambioSesion_();
 
     return usuario;
   }
@@ -1629,8 +1583,174 @@
 
 
   /* ==========================================================
+     OPT4.1 · PROTECCIÓN DE PÁGINAS
+     ========================================================== */
+
+  // Si se abre directamente una página privada sin sesión,
+  // redirigimos a Inicio. Si ya existe una sesión local válida,
+  // dejamos que requireAuth() haga la validación real con el servidor.
+  try {
+    protegerPaginaPrivada_();
+  } catch (error) {
+    console.warn("CET34 AUTH: protección de página.", error);
+  }
+
+
+  // Si venimos de una redirección hacia Inicio, mostramos el motivo.
+  if (obtenerPaginaActual_() === "inicio.html") {
+    if (document.readyState === "loading") {
+      document.addEventListener(
+        "DOMContentLoaded",
+        mostrarMensajeRedireccion_,
+        { once: true }
+      );
+    } else {
+      mostrarMensajeRedireccion_();
+    }
+  }
+
+
+  /* ==========================================================
      API REUTILIZABLE
      ========================================================== */
+
+  function obtenerPaginaActual_() {
+
+    return String(
+      window.location.pathname
+        .split("/")
+        .pop() ||
+      "inicio.html"
+    ).toLowerCase();
+
+  }
+
+
+  function esPaginaPublica_() {
+
+    const pagina =
+      obtenerPaginaActual_();
+
+    return (
+      pagina === "inicio.html" ||
+      pagina === "login.html" ||
+      pagina === ""
+    );
+
+  }
+
+
+  function guardarMensajeRedireccion_(mensaje) {
+
+    try {
+      sessionStorage.setItem(
+        "CET34_MENSAJE_REDIRECCION",
+        String(mensaje || "")
+      );
+    } catch (_) {}
+
+  }
+
+
+  function mostrarMensajeRedireccion_() {
+
+    let mensaje = "";
+
+    try {
+      mensaje =
+        sessionStorage.getItem(
+          "CET34_MENSAJE_REDIRECCION"
+        ) || "";
+
+      sessionStorage.removeItem(
+        "CET34_MENSAJE_REDIRECCION"
+      );
+    } catch (_) {}
+
+    if (!mensaje || !document.body) {
+      return;
+    }
+
+    const aviso =
+      document.createElement("div");
+
+    aviso.setAttribute("role", "alert");
+
+    aviso.style.cssText = `
+      position:fixed;
+      top:20px;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:1000000;
+      width:min(520px,calc(100% - 32px));
+      box-sizing:border-box;
+      padding:15px 18px;
+      border:1px solid #f1b6c8;
+      border-radius:16px;
+      background:#fff5f8;
+      color:#7f1239;
+      box-shadow:0 12px 35px rgba(0,0,0,.18);
+      font-family:Arial,Helvetica,sans-serif;
+      font-size:14px;
+      font-weight:700;
+      line-height:1.45;
+      text-align:center;
+    `;
+
+    aviso.textContent = "🔒 " + mensaje;
+
+    document.body.appendChild(aviso);
+
+    setTimeout(function() {
+      try { aviso.remove(); } catch (_) {}
+    }, 4500);
+
+  }
+
+
+  function redirigirAInicio_(mensaje) {
+
+    guardarMensajeRedireccion_(mensaje);
+
+    const pagina =
+      obtenerPaginaActual_();
+
+    if (pagina === "inicio.html") {
+      mostrarMensajeRedireccion_();
+      return;
+    }
+
+    window.location.replace("./inicio.html");
+
+  }
+
+
+  function protegerPaginaPrivada_() {
+
+    if (esPaginaPublica_()) {
+      return;
+    }
+
+    const datosLocal =
+      leerSesionLocal_();
+
+    if (
+      !datosLocal ||
+      !datosLocal.sessionId ||
+      !datosLocal.expiraEn ||
+      Date.now() >= Number(datosLocal.expiraEn)
+    ) {
+
+      limpiarSesionLocal_();
+
+      redirigirAInicio_(
+        "Primero debes iniciar sesión para acceder a esta sección."
+      );
+
+    }
+
+  }
+
 
   async function requireAuth(
     opciones
@@ -1638,6 +1758,25 @@
 
     opciones =
       opciones || {};
+
+    // Las páginas privadas no deben abrir Google automáticamente.
+    // Si se entra directamente por URL sin sesión, se vuelve a Inicio.
+    if (!esPaginaPublica_()) {
+      const datosLocal = leerSesionLocal_();
+
+      if (
+        !datosLocal ||
+        !datosLocal.sessionId ||
+        !datosLocal.expiraEn ||
+        Date.now() >= Number(datosLocal.expiraEn)
+      ) {
+        limpiarSesionLocal_();
+        redirigirAInicio_(
+          "Primero debes iniciar sesión para acceder a esta sección."
+        );
+        throw new Error("AUTENTICACION_REQUERIDA_REDIRECCION");
+      }
+    }
 
     const rolesPermitidos =
       Array.isArray(
@@ -1954,10 +2093,17 @@
       mostrar !== false
     ) {
 
-      mostrarAcceso(
-        "Tu sesión se cerró. Inicia sesión nuevamente para continuar.",
-        true
+      guardarMensajeRedireccion_(
+        "La sesión se cerró correctamente."
       );
+    }
+
+    // Después de cerrar sesión, CET34 siempre vuelve a Inicio.
+    // Se hace inmediatamente, sin esperar la respuesta del servidor.
+    try {
+      window.location.replace("./inicio.html");
+    } catch (_) {
+      window.location.href = "./inicio.html";
     }
 
     return true;
