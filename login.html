@@ -139,6 +139,11 @@
       transform: scale(.98);
     }
 
+    button:disabled {
+      opacity: .65;
+      cursor: wait;
+    }
+
     .boton-ingresar {
       background: #78002f;
       color: #fff;
@@ -229,6 +234,14 @@
           🚪 Cerrar sesión
         </button>
 
+        <button
+          type="button"
+          class="boton-salir oculto"
+          id="btnContinuar"
+        >
+          📷 Continuar al registro
+        </button>
+
         <a
           class="boton-enlace boton-salir"
           href="./inicio.html"
@@ -265,6 +278,9 @@
       const btnCerrarSesion =
         document.getElementById("btnCerrarSesion");
 
+      const btnContinuar =
+        document.getElementById("btnContinuar");
+
 
       function mostrarSesion(usuario) {
 
@@ -293,6 +309,10 @@
         btnCerrarSesion.classList.remove(
           "oculto"
         );
+
+        btnContinuar.classList.remove(
+          "oculto"
+        );
       }
 
 
@@ -314,22 +334,46 @@
         btnCerrarSesion.classList.add(
           "oculto"
         );
+
+        btnContinuar.classList.add(
+          "oculto"
+        );
+      }
+
+
+      function obtenerUsuario() {
+
+        try {
+
+          if (
+            window.CET34Auth &&
+            typeof CET34Auth.getUser === "function"
+          ) {
+
+            return CET34Auth.getUser();
+
+          }
+
+        } catch (_) {}
+
+        return null;
       }
 
 
       async function comprobarSesion() {
 
-        if (
-          !window.CET34Auth
-        ) {
+        if (!window.CET34Auth) {
+
           titulo.textContent =
-            "Error de autenticación";
+            "Cargando autenticación...";
 
           texto.textContent =
-            "No se pudo cargar auth.js.";
+            "Esperando a que se cargue el sistema de autenticación.";
 
-          btnIngresar.disabled =
-            true;
+          setTimeout(
+            comprobarSesion,
+            300
+          );
 
           return;
         }
@@ -337,16 +381,53 @@
         try {
 
           const usuario =
-            await CET34Auth.requireAuth({
-              roles: [
-                "ADMINISTRADOR",
-                "DOCENTE"
-              ],
-              mensaje:
-                "Verificando tu sesión CET34..."
-            });
+            obtenerUsuario();
 
-          mostrarSesion(usuario);
+          if (usuario && usuario.rol) {
+
+            mostrarSesion(usuario);
+
+            return;
+          }
+
+          /*
+           * requireAuth(false) aquí NO debe abrir Google.
+           * Solo comprobamos si auth.js ya recuperó una sesión.
+           */
+          if (
+            typeof CET34Auth.requireAuth === "function"
+          ) {
+
+            try {
+
+              const usuarioRecuperado =
+                await CET34Auth.requireAuth({
+                  roles: [
+                    "ADMINISTRADOR",
+                    "DOCENTE"
+                  ],
+                  mensaje:
+                    "Verificando tu sesión CET34..."
+                });
+
+              if (
+                usuarioRecuperado &&
+                usuarioRecuperado.rol
+              ) {
+
+                mostrarSesion(
+                  usuarioRecuperado
+                );
+
+                return;
+              }
+
+            } catch (_) {
+              // No hay sesión: se muestra la pantalla de ingreso.
+            }
+          }
+
+          mostrarSinSesion();
 
         } catch (error) {
 
@@ -360,13 +441,25 @@
       }
 
 
+      /*
+       * AUTENTICACIÓN
+       *
+       * login.html es la única página que abre Google.
+       * Cuando auth.js confirma la autenticación, vamos
+       * directamente al registro de asistencia (index.html).
+       */
       btnIngresar.addEventListener(
         "click",
         async function () {
 
           if (
-            !window.CET34Auth
+            !window.CET34Auth ||
+            typeof CET34Auth.login !== "function"
           ) {
+
+            texto.textContent =
+              "El sistema de autenticación todavía no está disponible. Intenta nuevamente.";
+
             return;
           }
 
@@ -375,10 +468,93 @@
             btnIngresar.disabled =
               true;
 
+            icono.textContent =
+              "🔄";
+
+            titulo.textContent =
+              "Iniciando sesión...";
+
             texto.textContent =
-              "Abriendo el acceso con Google...";
+              "Selecciona la cuenta de Google autorizada.";
+
+            let autenticado = false;
+
+            const irAlRegistro =
+              function () {
+
+                if (autenticado) {
+                  return;
+                }
+
+                autenticado = true;
+
+                window.location.href =
+                  "./index.html";
+              };
+
+            window.addEventListener(
+              "cet34-authenticated",
+              irAlRegistro,
+              {
+                once: true
+              }
+            );
 
             await CET34Auth.login(false);
+
+            /*
+             * En algunas cargas el evento puede llegar antes o
+             * después de que login() termine. Por eso verificamos
+             * también getUser() como respaldo.
+             */
+            const usuario =
+              obtenerUsuario();
+
+            if (
+              usuario &&
+              usuario.rol
+            ) {
+
+              irAlRegistro();
+
+              return;
+            }
+
+            /*
+             * Último intento de recuperación breve.
+             */
+            setTimeout(
+              function () {
+
+                const usuarioActual =
+                  obtenerUsuario();
+
+                if (
+                  usuarioActual &&
+                  usuarioActual.rol
+                ) {
+
+                  irAlRegistro();
+
+                } else if (!autenticado) {
+
+                  btnIngresar.disabled =
+                    false;
+
+                  icono.textContent =
+                    "⚠️";
+
+                  titulo.textContent =
+                    "No se pudo confirmar la sesión";
+
+                  texto.textContent =
+                    "Google terminó el proceso, pero CET 34 todavía no pudo confirmar la sesión. Intenta nuevamente.";
+
+                }
+
+              },
+              900
+            );
 
           } catch (error) {
 
@@ -387,16 +563,31 @@
               error
             );
 
-          } finally {
+            icono.textContent =
+              "⚠️";
+
+            titulo.textContent =
+              "No se pudo iniciar sesión";
+
+            texto.textContent =
+              error && error.message
+                ? error.message
+                : "Ocurrió un problema al iniciar sesión con Google.";
 
             btnIngresar.disabled =
               false;
-
-            setTimeout(
-              comprobarSesion,
-              700
-            );
           }
+        }
+      );
+
+
+      btnContinuar.addEventListener(
+        "click",
+        function () {
+
+          window.location.href =
+            "./index.html";
+
         }
       );
 
@@ -413,19 +604,26 @@
 
           try {
 
+            btnCerrarSesion.disabled =
+              true;
+
             await CET34Auth.logout(
-              false
+              true
             );
 
-          } finally {
+          } catch (error) {
 
-            mostrarSinSesion();
+            console.error(
+              "CET34 LOGOUT:",
+              error
+            );
 
-            titulo.textContent =
-              "Sesión cerrada";
+            btnCerrarSesion.disabled =
+              false;
 
-            texto.textContent =
-              "La sesión CET34 se cerró correctamente. Puedes volver a ingresar cuando lo necesites.";
+            mostrarSesion(
+              obtenerUsuario() || {}
+            );
           }
         }
       );
@@ -438,12 +636,18 @@
           try {
 
             const usuario =
-              CET34Auth.getUser();
+              obtenerUsuario();
 
-            if (usuario) {
-              mostrarSesion(usuario);
+            if (usuario && usuario.rol) {
+
+              mostrarSesion(
+                usuario
+              );
+
             } else {
+
               mostrarSinSesion();
+
             }
 
           } catch (_) {
@@ -466,4 +670,3 @@
 
 </body>
 </html>
-
