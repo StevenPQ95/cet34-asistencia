@@ -987,35 +987,6 @@
       });
     }
 
-    function poblarSecciones(){
-      const opciones = [];
-
-      // CET 34: secciones permitidas A-J.
-      for(let i = 65; i <= 74; i++){
-        opciones.push(String.fromCharCode(i));
-      }
-
-      ["filtroSeccionEst","filtroSeccionHorario","estSeccion"].forEach(id => {
-        const el = $(id);
-        if(!el) return;
-
-        const valorActual = el.value;
-
-        if(id === "estSeccion"){
-          el.innerHTML =
-            '<option value="">Seleccionar…</option>' +
-            opciones.map(s => `<option value="${s}">${s}</option>`).join("");
-        }else{
-          el.innerHTML =
-            '<option value="">Todas</option>' +
-            opciones.map(s => `<option value="${s}">${s}</option>`).join("");
-        }
-
-        if([...el.options].some(o => o.value === valorActual)){
-          el.value = valorActual;
-        }
-      });
-    }
 
     function textoEnMayusculas(valor){
       return String(valor || "")
