@@ -868,20 +868,29 @@
         "A","B","C","D","E","F","G","H","I","J"
       ];
 
-      ["filtroSeccionEst","filtroSeccionHorario","estSeccion"].forEach(id => {
-        const el = $(id);
+      const llenarSelect = function(el, textoInicial){
         if(!el) return;
 
         const valorActual = el.value;
-        const primera = el.options[0] ? el.options[0].outerHTML : "";
-        el.innerHTML = primera + opciones.map(s =>
-          `<option value="${s}">${s}</option>`
-        ).join("");
 
-        if([...el.options].some(o => o.value === valorActual)){
+        el.innerHTML =
+          `<option value="">${textoInicial}</option>` +
+          opciones
+            .map(s => `<option value="${s}">${s}</option>`)
+            .join("");
+
+        if(
+          valorActual &&
+          [...el.options].some(o => o.value === valorActual)
+        ){
           el.value = valorActual;
         }
-      });
+      };
+
+      llenarSelect($("filtroSeccionEst"), "Todas");
+      llenarSelect($("filtroSeccionHorario"), "Todas");
+      llenarSelect($("estSeccion"), "Seleccionar…");
+      llenarSelect($("horSeccion"), "Seleccionar…");
     }
 
     function textoEnMayusculas(valor){
@@ -1419,6 +1428,10 @@
     }
 
     function nuevoHorario(){
+      // Garantiza que el selector tenga A-J incluso si la página
+      // fue cargada antes de completar alguna transición de sesión.
+      poblarSecciones();
+
       $("formHorario").reset();
       $("horModo").value = "nuevo";
       $("horDiaAnterior").value = "";
@@ -1434,6 +1447,9 @@
     function editarHorario(index){
       const h = estado.horarios[index];
       if(!h) return;
+
+      // Garantiza que el selector tenga A-J.
+      poblarSecciones();
 
       $("horModo").value = "editar";
       $("horDiaAnterior").value = h.dia;
