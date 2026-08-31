@@ -768,7 +768,7 @@
 
             <div class="info-box span-2">
               🛡️ El rol <strong>DOCENTE</strong> está fijado por el servidor.
-              No existe un control para crear o asignar ADMINISTRADOR desde esta página.
+              Puedes cambiar el correo o el nombre del docente. No existe un control para crear o asignar ADMINISTRADOR desde esta página.
             </div>
           </div>
         </div>
@@ -1399,11 +1399,13 @@
     }
 
     function nuevoHorario(){
-      // Garantiza que el selector tenga A-J incluso si la página
-      // fue cargada antes de completar alguna transición de sesión.
+      $("formHorario").reset();
+
+      // IMPORTANTE: primero se reinicia el formulario y DESPUÉS
+      // se vuelven a cargar las secciones A-J. Si se hiciera al
+      // revés, form.reset() borraría las opciones añadidas.
       poblarSecciones();
 
-      $("formHorario").reset();
       $("horModo").value = "nuevo";
       $("horDiaAnterior").value = "";
       $("horGradoAnterior").value = "";
@@ -1562,6 +1564,7 @@
       $("formUsuario").reset();
       $("usrModo").value = "nuevo";
       $("usrCorreo").disabled = false;
+      $("usrCorreo").dataset.correoAnterior = "";
       $("tituloModalUsuario").textContent = "Nuevo docente";
       $("btnGuardarUsuario").textContent = "Crear docente";
       $("usrEstado").value = "ACTIVO";
@@ -1580,7 +1583,8 @@
       $("usrModo").value = "editar";
       $("usrNombre").value = u.nombre;
       $("usrCorreo").value = u.correo;
-      $("usrCorreo").disabled = true;
+      $("usrCorreo").disabled = false;
+      $("usrCorreo").dataset.correoAnterior = u.correo;
       $("usrEstado").value = u.estado === "INACTIVO" ? "INACTIVO" : "ACTIVO";
       $("tituloModalUsuario").textContent = "Editar docente";
       $("btnGuardarUsuario").textContent = "Guardar cambios";
@@ -1594,8 +1598,18 @@
 
       try{
         const modo = $("usrModo").value;
+        const correoNuevo = $("usrCorreo").value.trim().toLowerCase();
+        const correoAnterior =
+          modo === "editar"
+            ? String(
+                $("usrCorreo").dataset.correoAnterior ||
+                $("usrCorreo").value
+              ).trim().toLowerCase()
+            : "";
+
         const datos = {
-          correo: $("usrCorreo").value.trim(),
+          correo: correoNuevo,
+          correoAnterior: correoAnterior,
           nombre: $("usrNombre").value.trim(),
           estado: $("usrEstado").value
         };
